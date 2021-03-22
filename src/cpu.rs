@@ -54,6 +54,7 @@ impl Cpu {
     }
 
     fn op_00ee(&mut self, nibbles: [u16; 4]) {
+        self.opcode += 1;
         self.stack[self.stack_pointer] = self.opcode;
         self.stack_pointer += 1;
         self.opcode = (nibbles[1] << 8) | (nibbles[2] << 4) | nibbles[3];
