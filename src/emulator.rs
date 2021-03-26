@@ -1,10 +1,15 @@
 use crate::cpu::Cpu;
 use crate::filemanager::FileManager;
+use crate::GameDisplay::GameDisplay;
 use std::io;
 use io::Result;
+use std::thread;
+use std::time::Duration;
+use std::sync::mpsc;
+use std::sync::mpsc::{Sender, Receiver};
 
 pub struct Emulator {
-    cpu:    Cpu,
+    cpu: Cpu,
     file_manager: FileManager,
 }
 
@@ -18,11 +23,17 @@ impl Emulator {
     }
 
     pub fn start_program(&mut self) {
-        if self.file_manager.load_file().is_ok() {
+        thread::spawn(|| {
+            let mut game_display = GameDisplay::new();
+            game_display.initialize();
+        });
+        //self.game_display.initialize();
+        println!("program continue");
+        /* if self.file_manager.load_file().is_ok() {
             self.run_program();
         } else {
             println!("Error: Could not start program");
-        }
+        } */
     }
 
     fn run_program(&mut self) {

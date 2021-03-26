@@ -8,3 +8,9 @@ edition = "2018"
 
 [dependencies]
 rand =  "0.8.0"
+
+
+[dependencies.sdl2]
+version = "0.34"
+default-features = false
+features = ["ttf","image","mixer"]
