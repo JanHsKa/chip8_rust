@@ -8,3 +8,4 @@ pub const CARRY_FLAG: usize = 0xF;
 pub const KEY_COUNT: usize = 16;
 pub const MAX_PROGRAM_SIZE: usize = 3584;
 pub const PROGRAM_START: usize = 0x200;
+pub const SCALE: usize = 15;

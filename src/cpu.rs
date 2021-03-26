@@ -56,12 +56,17 @@ impl Cpu {
     }
 
     fn set_opcode(&mut self) {
-        self.opcode = (self.memory[self.program_counter] << 4 | self.memory[self.program_counter + 1]) as u16;
+        self.opcode = (self.memory[self.program_counter] as u16) << 8 | (self.memory[self.program_counter + 1] as u16);
     }
 
     pub fn run_opcode(&mut self) {
         self.set_opcode();
+        self.print_memory();
         self.decode_opcode();
+    }
+
+    fn print_memory(&mut self) {
+        println!("opcode: {:#04X?}", self.opcode);
     }
 
     pub fn tick_timer(&mut self) {
@@ -71,6 +76,10 @@ impl Cpu {
         if self.sound_timer > 0 {
             self.sound_timer -= 1;
         }
+    }
+
+    pub fn get_graphic_array(&mut self) -> [u8; COLUMNS * ROWS] {
+        return self.grapphic_array.clone();
     }
 
     fn decode_opcode(&mut self) {
@@ -87,41 +96,41 @@ impl Cpu {
         let kk = (nibbles[2] << 4 | nibbles[3]) as u8;
         let n = nibbles[3] as usize;
 
-        match self.opcode {
-            0x00e0 => self.op_00e0(),
-            0x00ee => self.op_00ee(),
-            0x1___ => self.op_1nnn(nnn),
-            0x2___ => self.op_2nnn(nnn),
-            0x3___ => self.op_3xkk(x, kk),
-            0x4___ => self.op_4xkk(x, kk),
-            0x5__0 => self.op_5xy0(x, y),
-            0x6___ => self.op_6xkk(x, kk),
-            0x7___ => self.op_7xkk(x, kk),
-            0x8__0 => self.op_8xy0(x, y),
-            0x8__1 => self.op_8xy1(x, y),
-            0x8__2 => self.op_8xy2(x, y),
-            0x8__3 => self.op_8xy3(x, y),
-            0x8__4 => self.op_8xy4(x, y),
-            0x8__5 => self.op_8xy5(x, y),
-            0x8__6 => self.op_8xy6(x),
-            0x8__7 => self.op_8xy7(x, y),
-            0x8__E => self.op_8xye(x),
-            0x9__0 => self.op_9xy0(x, y),
-            0xA___ => self.op_annn(nnn as u16),
-            0xB___ => self.op_bnnn(nnn as u16),
-            0xC___ => self.op_cxkk(x, kk),
-            0xD___ => self.op_dxyn(x, y, n),
-            0xE_9E => self.op_ex9e(x),
-            0xE_A1 => self.op_exa1(x),
-            0xF_07 => self.op_fx07(x),
-            0xF_0A => self.op_fx0a(x),
-            0xF_15 => self.op_fx15(x),
-            0xF_18 => self.op_fx18(x),
-            0xF_1E => self.op_fx1e(x),
-            0xF_29 => self.op_fx29(x),
-            0xF_33 => self.op_fx33(x),
-            0xF_55 => self.op_fx55(x),
-            0xF_65 => self.op_fx65(x),
+        match nibbles {
+            [0x0, 0x0, 0xe, 0x0] => self.op_00e0(),
+            [0x0, 0x0, 0xe, 0xe] => self.op_00ee(),
+            [0x1, _, _, _] => self.op_1nnn(nnn),
+            [0x2, _, _, _] => self.op_2nnn(nnn),
+            [0x3, _, _, _] => self.op_3xkk(x, kk),
+            [0x4, _, _, _] => self.op_4xkk(x, kk),
+            [0x5, _, _, 0x0] => self.op_5xy0(x, y),
+            [0x6, _, _, _] => self.op_6xkk(x, kk),
+            [0x7, _, _, _] => self.op_7xkk(x, kk),
+            [0x8, _, _, 0x0] => self.op_8xy0(x, y),
+            [0x8, _, _, 0x1] => self.op_8xy1(x, y),
+            [0x8, _, _, 0x2] => self.op_8xy2(x, y),
+            [0x8, _, _, 0x3] => self.op_8xy3(x, y),
+            [0x8, _, _, 0x4] => self.op_8xy4(x, y),
+            [0x8, _, _, 0x5] => self.op_8xy5(x, y),
+            [0x8, _, _, 0x6] => self.op_8xy6(x),
+            [0x8, _, _, 0x7] => self.op_8xy7(x, y),
+            [0x8, _, _, 0xE] => self.op_8xye(x),
+            [0x9, _, _, 0x0] => self.op_9xy0(x, y),
+            [0xA, _, _, _] => self.op_annn(nnn as u16),
+            [0xB, _, _, _] => self.op_bnnn(nnn as u16),
+            [0xC, _, _, _] => self.op_cxkk(x, kk),
+            [0xD, _, _, _] => self.op_dxyn(x, y, n),
+            [0xE, _, 0x9, 0xE] => self.op_ex9e(x),
+            [0xE, _, 0xA, 0x1] => self.op_exa1(x),
+            [0xF, _, 0x0, 0x7] => self.op_fx07(x),
+            [0xF, _, 0x0, 0xA] => self.op_fx0a(x),
+            [0xF, _, 0x1, 0x5] => self.op_fx15(x),
+            [0xF, _, 0x1, 0x8] => self.op_fx18(x),
+            [0xF, _, 0x1, 0xE] => self.op_fx1e(x),
+            [0xF, _, 0x2, 0x9] => self.op_fx29(x),
+            [0xF, _, 0x3, 0x3] => self.op_fx33(x),
+            [0xF, _, 0x5, 0x5] => self.op_fx55(x),
+            [0xF, _, 0x6, 0x5] => self.op_fx65(x),
             _ => println!("Error: No matching opcode"),
         }
     }

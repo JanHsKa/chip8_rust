@@ -1,5 +1,5 @@
 mod emulator;
-pub mod GameDisplay;
+pub mod gamedisplay;
 pub mod filemanager;
 pub mod fontset;
 pub mod keypad;
@@ -15,9 +15,8 @@ use std::time::Duration;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    if args.len() > 0 {
-        let mut emulator = Emulator::new(args[0].clone());
+    if args.len() > 1 {
+        let mut emulator = Emulator::new(args[1].clone());
         emulator.start_program();
-        thread::sleep(Duration::from_secs(10));
     }
 }
