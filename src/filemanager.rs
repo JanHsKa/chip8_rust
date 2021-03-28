@@ -3,9 +3,7 @@ use std::io;
 use std::fs;
 use std::fs::File;
 use io::prelude::*;
-use std::io::BufReader;
 use std::io::Read;
-use std::path;
 
 
 pub struct FileManager {
@@ -23,7 +21,7 @@ impl FileManager {
 
     pub fn load_file(&mut self) -> io::Result<()> {
         let mut file = File::open(self.file_path.clone())?;
-        let meta_data = fs::metadata("Games/BLINKY").expect("cannot read file");
+        let meta_data = fs::metadata(self.file_path.clone()).expect("cannot read file");
 
         assert!(meta_data.len() < MAX_PROGRAM_SIZE as u64);
         let mut buffer = vec![0; meta_data.len() as usize];
@@ -31,8 +29,7 @@ impl FileManager {
         
         for (i, iter) in buffer.iter().enumerate() {
             self.filecontent[i] = *iter;
-        }
-        
+        }    
         Ok(())
     }
 

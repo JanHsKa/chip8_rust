@@ -1,6 +1,9 @@
 use crate::constants;
 use crate::keypad::Keypad;
 use crate::fontset;
+use std::rc::Rc;
+use std::cell::RefCell;
+use std::cell::RefMut;
 
 use rand::Rng;
 use constants::MEMORYSIZE;
@@ -12,7 +15,7 @@ use constants::CARRY_FLAG;
 use constants::MAX_PROGRAM_SIZE;
 use constants::PROGRAM_START;
 
-pub struct Cpu{
+pub struct Cpu {
     memory:[u8; MEMORYSIZE],
     delay_timer: u8,
     sound_timer: u8,
@@ -23,11 +26,12 @@ pub struct Cpu{
     stack: [u16; STACKSIZE],
     opcode: u16,
     index_register: u16,
-    keypad: Keypad,
+    keypad: Rc<RefCell<Keypad>>,
+    running: bool,
 }
 
 impl Cpu {
-    pub fn new() -> Cpu {
+    pub fn new(new_keypad: Rc<RefCell<Keypad>>) -> Cpu {
         let mut cpu = Cpu{
             memory: [0; MEMORYSIZE],
             delay_timer: 0,
@@ -39,7 +43,8 @@ impl Cpu {
             stack: [0; STACKSIZE],
             opcode: 0,
             index_register: 0,
-            keypad: Keypad::new(),
+            keypad: new_keypad,
+            running: true,
         };
 
         for i in 0..fontset::FONTSET.len() {
@@ -59,14 +64,21 @@ impl Cpu {
         self.opcode = (self.memory[self.program_counter] as u16) << 8 | (self.memory[self.program_counter + 1] as u16);
     }
 
+    pub fn get_state(&mut self) -> bool {
+        return self.running;
+    }
+
     pub fn run_opcode(&mut self) {
-        self.set_opcode();
-        self.print_memory();
-        self.decode_opcode();
+        if self.running {
+            self.set_opcode();
+            //self.print_memory();
+            self.decode_opcode();
+        }
     }
 
     fn print_memory(&mut self) {
         println!("opcode: {:#04X?}", self.opcode);
+        println!("program counter: {:#04X?}", self.program_counter);
     }
 
     pub fn tick_timer(&mut self) {
@@ -80,6 +92,31 @@ impl Cpu {
 
     pub fn get_graphic_array(&mut self) -> [u8; COLUMNS * ROWS] {
         return self.grapphic_array.clone();
+    }
+
+    fn print_graphic_array(&mut self) {
+        for row in 0..ROWS as usize {
+            for column in 0..COLUMNS {
+                print!("{},", self.grapphic_array[(row * COLUMNS) + column]);
+            }
+            print!("\n");
+        }
+        print!("\n");
+        print!("\n");
+    }
+
+    fn print_fontset(&mut self) {
+        for i in 0..80 {
+            if i % 5 == 0 {
+                print!("\n");
+            }
+            print!("{:#02X?}, ", self.memory[i]);
+        }
+    }
+
+    fn no_match(&mut self) {
+        self.running = false;
+        println!("Error: No matching opcode");
     }
 
     fn decode_opcode(&mut self) {
@@ -131,7 +168,7 @@ impl Cpu {
             [0xF, _, 0x3, 0x3] => self.op_fx33(x),
             [0xF, _, 0x5, 0x5] => self.op_fx55(x),
             [0xF, _, 0x6, 0x5] => self.op_fx65(x),
-            _ => println!("Error: No matching opcode"),
+            _ => self.no_match(),
         }
     }
 
@@ -145,8 +182,9 @@ impl Cpu {
 
     //RET from subroutine
     fn op_00ee(&mut self) {
-        self.program_counter = self.stack[self.stack_pointer].into();
         self.stack_pointer -= 1;
+        self.program_counter = self.stack[self.stack_pointer] as usize;
+        self.stack[self.stack_pointer] = 0;
     }
 
     //JP addr
@@ -157,7 +195,7 @@ impl Cpu {
     //CALL addr
     fn op_2nnn(&mut self, nnn: usize) {
         self.program_counter += 2;
-        self.stack[self.stack_pointer] = self.opcode;
+        self.stack[self.stack_pointer] = self.program_counter as u16;
         self.stack_pointer += 1;
         self.program_counter = nnn;
     }
@@ -194,9 +232,9 @@ impl Cpu {
 
     //ADD Vx, byte
     fn op_7xkk(&mut self, x: usize, kk: u8) {
-        self.variable_register[x] += kk;
+        self.variable_register[x] = self.variable_register[x].overflowing_add(kk).0;
         self.program_counter += 2;
-            }
+    }
 
     //LD Vx, Vy
     fn op_8xy0(&mut self, x: usize, y: usize) {
@@ -224,12 +262,9 @@ impl Cpu {
 
     //ADD Vx, Vy
     fn op_8xy4(&mut self, x: usize, y: usize) {
-        self.variable_register[CARRY_FLAG] = 0;
-
-        if  self.variable_register[x] as u16 + self.variable_register[y] as u16 > 0xFF {
-            self.variable_register[CARRY_FLAG] = 1;
-        }
-        self.variable_register[x] += self.variable_register[y];
+        let overflow_sum = self.variable_register[x].overflowing_add(self.variable_register[y]);
+        self.variable_register[x] = overflow_sum.0;
+        self.variable_register[CARRY_FLAG] = overflow_sum.1 as u8;
         self.program_counter += 2;
     }
     
@@ -240,7 +275,7 @@ impl Cpu {
         if  self.variable_register[x] > self.variable_register[y] {
             self.variable_register[CARRY_FLAG] = 1;
         }
-        self.variable_register[x] -= self.variable_register[y];
+        self.variable_register[x] = self.variable_register[x].overflowing_sub(self.variable_register[y]).0;
         self.program_counter += 2;
     }
 
@@ -262,7 +297,7 @@ impl Cpu {
         if  self.variable_register[y] > self.variable_register[x] {
             self.variable_register[CARRY_FLAG] = 1;
         }
-        self.variable_register[y] -= self.variable_register[x];
+        self.variable_register[y] = self.variable_register[y].overflowing_sub(self.variable_register[x]).0;
         self.program_counter += 2;
     }
 
@@ -310,18 +345,16 @@ impl Cpu {
         let mut sprite : u8; 
 
         self.variable_register[CARRY_FLAG] = 0;
-
         for row in 0..n as usize {
-            y_coordinate = (y + row) % ROWS;
+            y_coordinate = (self.variable_register[y] as usize + row) % ROWS;
             sprite = self.memory[self.index_register as usize + row];
             for column in 0..8 {
-                x_coordinate = (x + column) % COLUMNS;
-                if (sprite & column as u8) == 1 {
-                    self.grapphic_array[y_coordinate * x_coordinate] ^= 1;
-                    
-                    if self.grapphic_array[y_coordinate * x_coordinate] == 1 {
+                x_coordinate = (self.variable_register[x] as usize + column) % COLUMNS;
+                if (sprite & (0x80 >> column)) != 0 {
+                    if self.grapphic_array[(y_coordinate * COLUMNS) + x_coordinate] == 1 {
                         self.variable_register[CARRY_FLAG] = 1;
                     }
+                    self.grapphic_array[(y_coordinate * COLUMNS) + x_coordinate] ^= 1;
                 }
             }
         }
@@ -330,7 +363,7 @@ impl Cpu {
 
     //SKP Vx
     fn op_ex9e(&mut self, x: usize) {
-        if self.keypad.get_key(self.variable_register[x]) == 1 {
+        if (*self.keypad.borrow_mut()).get_key(self.variable_register[x]) == 1 {
             self.program_counter += 2;
         }
         self.program_counter += 2;
@@ -338,7 +371,7 @@ impl Cpu {
 
      //SKNP Vx
      fn op_exa1(&mut self, x: usize) {
-        if self.keypad.get_key(self.variable_register[x]) == 0 {
+        if (*self.keypad.borrow_mut()).get_key(self.variable_register[x]) == 0 {
             self.program_counter += 2;
         }
         self.program_counter += 2;
@@ -352,8 +385,9 @@ impl Cpu {
 
     //LD Vx, K
     fn op_fx0a(&mut self, x: usize) {
-        if self.keypad.is_any_key_pressed() {
-            self.variable_register[x] = self.keypad.get_pressed_key();
+        let mut keypad_borrow :RefMut<Keypad> = self.keypad.borrow_mut();
+        if (*keypad_borrow).is_any_key_pressed() {
+            self.variable_register[x] = (*keypad_borrow).get_pressed_key();
             self.program_counter += 2;
         }
     }
@@ -378,7 +412,8 @@ impl Cpu {
 
     //LD F, Vx
     fn op_fx29(&mut self, x: usize) {
-        self.index_register = self.variable_register[x] as u16 * 0x5;
+        self.print_fontset();
+        self.index_register = (self.variable_register[x] as u16) * 0x5;
         self.program_counter += 2;
     }
 
