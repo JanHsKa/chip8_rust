@@ -9,3 +9,4 @@ pub const KEY_COUNT: usize = 16;
 pub const MAX_PROGRAM_SIZE: usize = 3584;
 pub const PROGRAM_START: usize = 0x200;
 pub const SCALE: usize = 15;
+pub const PROGRAM_STEP: usize = 2;

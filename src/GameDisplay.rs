@@ -1,16 +1,10 @@
 use crate::sdl2;
 use crate::constants;
 use crate::keypad::Keypad;
-use crate::cpu;
 
 use sdl2::pixels::Color;
 use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
-use sdl2::video::Window;
-use sdl2::VideoSubsystem;
 use sdl2::render;
-use sdl2::render::Texture;
-use std::mem::size_of;
 use sdl2::rect;
 use std::rc::Rc;
 use std::cell::RefCell;

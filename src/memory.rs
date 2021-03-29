@@ -5,21 +5,19 @@ use constants::VARIABLES_COUNT;
 use constants::COLUMNS;
 use constants::ROWS;
 use constants::STACKSIZE;
-use constants::CARRY_FLAG;
-use constants::MAX_PROGRAM_SIZE;
 use constants::PROGRAM_START;
 
 pub struct Memory {
-    memory:[u8; MEMORYSIZE],
-    delay_timer: u8,
-    sound_timer: u8,
-    grapphic_array: [u8; COLUMNS * ROWS],
-    variable_register: [u8; VARIABLES_COUNT], 
-    stack_pointer: usize,
-    program_counter: usize,
-    stack: [u16; STACKSIZE],
-    opcode: u16,
-    index_register: u16,
+    pub memory:[u8; MEMORYSIZE],
+    pub delay_timer: u8,
+    pub sound_timer: u8,
+    pub grapphic_array: [u8; COLUMNS * ROWS],
+    pub variable_register: [u8; VARIABLES_COUNT], 
+    pub stack_pointer: usize,
+    pub program_counter: usize,
+    pub stack: [u16; STACKSIZE],
+    pub opcode: u16,
+    pub index_register: u16,
 }
 
 impl Memory {

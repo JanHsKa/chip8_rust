@@ -14,6 +14,8 @@ use constants::STACKSIZE;
 use constants::CARRY_FLAG;
 use constants::MAX_PROGRAM_SIZE;
 use constants::PROGRAM_START;
+use constants::PROGRAM_STEP;
+
 
 pub struct Cpu {
     memory:[u8; MEMORYSIZE],
@@ -28,6 +30,11 @@ pub struct Cpu {
     index_register: u16,
     keypad: Rc<RefCell<Keypad>>,
     running: bool,
+    x: usize,
+    y: usize,
+    nnn: u16,
+    kk: u8,
+    n: usize,
 }
 
 impl Cpu {
@@ -45,13 +52,16 @@ impl Cpu {
             index_register: 0,
             keypad: new_keypad,
             running: true,
+            x: 0,
+            y: 0,
+            nnn: 0,
+            kk: 0,
+            n: 0,
         };
 
-        for i in 0..fontset::FONTSET.len() {
-            cpu.memory[i] = fontset::FONTSET[i];
-        }
-
-        return cpu;
+        cpu.memory[..fontset::FONTSET.len()].copy_from_slice(&fontset::FONTSET[..]);
+        
+        cpu
     }
 
     pub fn load_program_code(&mut self, code: [u8; MAX_PROGRAM_SIZE]) {
@@ -120,54 +130,56 @@ impl Cpu {
     }
 
     fn decode_opcode(&mut self) {
-        let nibbles = [
+        let nibbles = (
             (self.opcode & 0xF000) >> 12,
             (self.opcode & 0x0F00) >> 8,
             (self.opcode & 0x00F0) >> 4,
             self.opcode & 0x000F
-        ];
+        );
 
-        let x = nibbles[1] as usize;
-        let y = nibbles[2] as usize;
-        let nnn = (nibbles[1] << 8 | nibbles[2] << 4 | nibbles[3]) as usize;
-        let kk = (nibbles[2] << 4 | nibbles[3]) as u8;
-        let n = nibbles[3] as usize;
+        self.x = nibbles.1 as usize;
+        self.y = nibbles.2 as usize;
+        self.nnn = (nibbles.1 << 8) | (nibbles.2 << 4) | nibbles.3;
+        self.kk = (nibbles.2 << 4 | nibbles.3) as u8;
+        self.n = nibbles.3 as usize;
+
+        self.program_counter += PROGRAM_STEP;
 
         match nibbles {
-            [0x0, 0x0, 0xe, 0x0] => self.op_00e0(),
-            [0x0, 0x0, 0xe, 0xe] => self.op_00ee(),
-            [0x1, _, _, _] => self.op_1nnn(nnn),
-            [0x2, _, _, _] => self.op_2nnn(nnn),
-            [0x3, _, _, _] => self.op_3xkk(x, kk),
-            [0x4, _, _, _] => self.op_4xkk(x, kk),
-            [0x5, _, _, 0x0] => self.op_5xy0(x, y),
-            [0x6, _, _, _] => self.op_6xkk(x, kk),
-            [0x7, _, _, _] => self.op_7xkk(x, kk),
-            [0x8, _, _, 0x0] => self.op_8xy0(x, y),
-            [0x8, _, _, 0x1] => self.op_8xy1(x, y),
-            [0x8, _, _, 0x2] => self.op_8xy2(x, y),
-            [0x8, _, _, 0x3] => self.op_8xy3(x, y),
-            [0x8, _, _, 0x4] => self.op_8xy4(x, y),
-            [0x8, _, _, 0x5] => self.op_8xy5(x, y),
-            [0x8, _, _, 0x6] => self.op_8xy6(x),
-            [0x8, _, _, 0x7] => self.op_8xy7(x, y),
-            [0x8, _, _, 0xE] => self.op_8xye(x),
-            [0x9, _, _, 0x0] => self.op_9xy0(x, y),
-            [0xA, _, _, _] => self.op_annn(nnn as u16),
-            [0xB, _, _, _] => self.op_bnnn(nnn as u16),
-            [0xC, _, _, _] => self.op_cxkk(x, kk),
-            [0xD, _, _, _] => self.op_dxyn(x, y, n),
-            [0xE, _, 0x9, 0xE] => self.op_ex9e(x),
-            [0xE, _, 0xA, 0x1] => self.op_exa1(x),
-            [0xF, _, 0x0, 0x7] => self.op_fx07(x),
-            [0xF, _, 0x0, 0xA] => self.op_fx0a(x),
-            [0xF, _, 0x1, 0x5] => self.op_fx15(x),
-            [0xF, _, 0x1, 0x8] => self.op_fx18(x),
-            [0xF, _, 0x1, 0xE] => self.op_fx1e(x),
-            [0xF, _, 0x2, 0x9] => self.op_fx29(x),
-            [0xF, _, 0x3, 0x3] => self.op_fx33(x),
-            [0xF, _, 0x5, 0x5] => self.op_fx55(x),
-            [0xF, _, 0x6, 0x5] => self.op_fx65(x),
+            (0x0, 0x0, 0xe, 0x0) => self.op_00e0(),
+            (0x0, 0x0, 0xe, 0xe) => self.op_00ee(),
+            (0x1, _, _, _) => self.op_1nnn(),
+            (0x2, _, _, _) => self.op_2nnn(),
+            (0x3, _, _, _) => self.op_3xkk(),
+            (0x4, _, _, _) => self.op_4xkk(),
+            (0x5, _, _, 0x0) => self.op_5xy0(),
+            (0x6, _, _, _) => self.op_6xkk(),
+            (0x7, _, _, _) => self.op_7xkk(),
+            (0x8, _, _, 0x0) => self.op_8xy0(),
+            (0x8, _, _, 0x1) => self.op_8xy1(),
+            (0x8, _, _, 0x2) => self.op_8xy2(),
+            (0x8, _, _, 0x3) => self.op_8xy3(),
+            (0x8, _, _, 0x4) => self.op_8xy4(),
+            (0x8, _, _, 0x5) => self.op_8xy5(),
+            (0x8, _, _, 0x6) => self.op_8xy6(),
+            (0x8, _, _, 0x7)=> self.op_8xy7(),
+            (0x8, _, _, 0xE) => self.op_8xye(),
+            (0x9, _, _, 0x0) => self.op_9xy0(),
+            (0xA, _, _, _) => self.op_annn(),
+            (0xB, _, _, _) => self.op_bnnn(),
+            (0xC, _, _, _) => self.op_cxkk(),
+            (0xD, _, _, _) => self.op_dxyn(),
+            (0xE, _, 0x9, 0xE) => self.op_ex9e(),
+            (0xE, _, 0xA, 0x1) => self.op_exa1(),
+            (0xF, _, 0x0, 0x7) => self.op_fx07(),
+            (0xF, _, 0x0, 0xA) => self.op_fx0a(),
+            (0xF, _, 0x1, 0x5) => self.op_fx15(),
+            (0xF, _, 0x1, 0x8) => self.op_fx18(),
+            (0xF, _, 0x1, 0xE) => self.op_fx1e(),
+            (0xF, _, 0x2, 0x9) => self.op_fx29(),
+            (0xF, _, 0x3, 0x3) => self.op_fx33(),
+            (0xF, _, 0x5, 0x5) => self.op_fx55(),
+            (0xF, _, 0x6, 0x5) => self.op_fx65(),
             _ => self.no_match(),
         }
     }
@@ -177,185 +189,146 @@ impl Cpu {
         for i in 0..self.grapphic_array.len() {
             self.grapphic_array[i] = 0;
         }
-        self.program_counter += 2;
     }
 
     //RET from subroutine
     fn op_00ee(&mut self) {
         self.stack_pointer -= 1;
         self.program_counter = self.stack[self.stack_pointer] as usize;
-        self.stack[self.stack_pointer] = 0;
+        //self.stack[self.stack_pointer] = 0;
     }
 
     //JP addr
-    fn op_1nnn(&mut self, nnn: usize) {
-        self.program_counter = nnn;
+    fn op_1nnn(&mut self) {
+        self.program_counter = self.nnn as usize;
     }
     
     //CALL addr
-    fn op_2nnn(&mut self, nnn: usize) {
-        self.program_counter += 2;
+    fn op_2nnn(&mut self) {
         self.stack[self.stack_pointer] = self.program_counter as u16;
         self.stack_pointer += 1;
-        self.program_counter = nnn;
+        self.program_counter = self.nnn as usize;
     }
 
     //SE Vx, byte
-    fn op_3xkk(&mut self, x: usize, kk: u8) {
-        if self.variable_register[x] == kk {
-            self.program_counter += 2;
+    fn op_3xkk(&mut self) {
+        if self.variable_register[self.x] == self.kk {
+            self.program_counter += PROGRAM_STEP;
         }
-        self.program_counter += 2;
     }
 
     //SNE Vx, byte
-    fn op_4xkk(&mut self, x: usize, kk: u8) {
-        if self.variable_register[x] != kk {
-            self.program_counter += 2;
+    fn op_4xkk(&mut self) {
+        if self.variable_register[self.x] != self.kk {
+            self.program_counter += PROGRAM_STEP;
         }
-        self.program_counter += 2;
     }
 
     //SE Vx, Vy
-    fn op_5xy0(&mut self, x: usize, y: usize) {
-        if self.variable_register[x] == self.variable_register[y] {
-            self.program_counter += 2;
+    fn op_5xy0(&mut self) {
+        if self.variable_register[self.x] == self.variable_register[self.y] {
+            self.program_counter += PROGRAM_STEP;
         }
-        self.program_counter += 2;
     }
 
     //LD Vx, byte
-    fn op_6xkk(&mut self, x: usize, kk: u8) {
-        self.variable_register[x] = kk;
-        self.program_counter += 2;
+    fn op_6xkk(&mut self) {
+        self.variable_register[self.x] = self.kk;
     }
 
     //ADD Vx, byte
-    fn op_7xkk(&mut self, x: usize, kk: u8) {
-        self.variable_register[x] = self.variable_register[x].overflowing_add(kk).0;
-        self.program_counter += 2;
+    fn op_7xkk(&mut self) {
+        self.variable_register[self.x] = self.variable_register[self.x].overflowing_add(self.kk).0;
     }
 
     //LD Vx, Vy
-    fn op_8xy0(&mut self, x: usize, y: usize) {
-        self.variable_register[x] = self.variable_register[y];
-        self.program_counter += 2;
+    fn op_8xy0(&mut self) {
+        self.variable_register[self.x] = self.variable_register[self.y];
     }
 
     //OR Vx, Vy
-    fn op_8xy1(&mut self, x: usize, y: usize) {
-        self.variable_register[x] |= self.variable_register[y];
-        self.program_counter += 2;
+    fn op_8xy1(&mut self) {
+        self.variable_register[self.x] |= self.variable_register[self.y];
     }
 
     //AND Vx, Vy
-    fn op_8xy2(&mut self, x: usize, y: usize) {
-        self.variable_register[x] &= self.variable_register[y];
-        self.program_counter += 2;
+    fn op_8xy2(&mut self) {
+        self.variable_register[self.x] &= self.variable_register[self.y];
     }
 
     //XOR Vx, Vy
-    fn op_8xy3(&mut self, x: usize, y: usize) {
-        self.variable_register[x] ^= self.variable_register[y];
-        self.program_counter += 2;
+    fn op_8xy3(&mut self) {
+        self.variable_register[self.x] ^= self.variable_register[self.y];
     }
 
     //ADD Vx, Vy
-    fn op_8xy4(&mut self, x: usize, y: usize) {
-        let overflow_sum = self.variable_register[x].overflowing_add(self.variable_register[y]);
-        self.variable_register[x] = overflow_sum.0;
-        if overflow_sum.1 {
-            self.variable_register[CARRY_FLAG] = 1;
-        } else {
-            self.variable_register[CARRY_FLAG] = 0;
-        }
-        self.program_counter += 2;
+    fn op_8xy4(&mut self) {
+        let (result, overflow) = self.variable_register[self.x].overflowing_add(self.variable_register[self.y]);
+        self.variable_register[self.x] = result;
+        self.variable_register[CARRY_FLAG] = overflow as u8;
     }
     
     //SUB Vx, Vy
-    fn op_8xy5(&mut self, x: usize, y: usize) {
-        self.variable_register[CARRY_FLAG] = 0;
-
-        if  self.variable_register[x] > self.variable_register[y] {
-            self.variable_register[CARRY_FLAG] = 1;
-        }
-        self.variable_register[x] = self.variable_register[x].overflowing_sub(self.variable_register[y]).0;
-        
-        self.program_counter += 2;
+    fn op_8xy5(&mut self) {
+        let (result, overflow) = self.variable_register[self.x].overflowing_sub(self.variable_register[self.y]);
+        self.variable_register[self.x] = result;
+        self.variable_register[CARRY_FLAG] = !overflow as u8;
     }
 
     //SHR Vx
-    fn op_8xy6(&mut self, x: usize) {
-        self.variable_register[CARRY_FLAG] = 0;
-
-        if  self.variable_register[x] & 0x1 == 1{
-            self.variable_register[CARRY_FLAG] = 1;
-        }
-        self.variable_register[x] >>= 1;
-        self.program_counter += 2;
+    fn op_8xy6(&mut self) {
+        self.variable_register[CARRY_FLAG] = self.variable_register[self.x] & 0x1;
+        self.variable_register[self.x] >>= 1;
     }
 
     //SUBN Vx, Vy
-    fn op_8xy7(&mut self, x: usize, y: usize) {
-        self.variable_register[CARRY_FLAG] = 0;
-
-        if  self.variable_register[y] > self.variable_register[x] {
-            self.variable_register[CARRY_FLAG] = 1;
-        }
-
-        self.variable_register[y] = self.variable_register[y].overflowing_sub(self.variable_register[x]).0;
-        self.program_counter += 2;
+    fn op_8xy7(&mut self) {
+        let (result, overflow) = self.variable_register[self.y].overflowing_sub(self.variable_register[self.x]);
+        self.variable_register[self.x] = result;
+        self.variable_register[CARRY_FLAG] = !overflow as u8;
     }
 
     //SHL Vx
-    fn op_8xye(&mut self, x: usize) {
-        self.variable_register[CARRY_FLAG] = 0;
-
-        if  self.variable_register[x] & 0x80 == 0x80 {
-            self.variable_register[CARRY_FLAG] = 1;
-        }
-        self.variable_register[x] <<= 1;
-        self.program_counter += 2;
+    fn op_8xye(&mut self) {
+        self.variable_register[CARRY_FLAG] = self.variable_register[self.x] >> 7;
+        self.variable_register[self.x] <<= 1;
     }
 
     //SNE Vx, Vy
-    fn op_9xy0(&mut self, x: usize, y: usize) {
-        if self.variable_register[x] != self.variable_register[y] {
-            self.program_counter += 2;
+    fn op_9xy0(&mut self) {
+        if self.variable_register[self.x] != self.variable_register[self.y] {
+            self.program_counter += PROGRAM_STEP;
         }
-        self.program_counter += 2;
     }
 
     //LD I, addr
-    fn op_annn(&mut self, nnn: u16) {
-        self.index_register = nnn;
-        self.program_counter += 2;
+    fn op_annn(&mut self) {
+        self.index_register = self.nnn;
     }
 
     //JP V0, addr
-    fn op_bnnn(&mut self, nnn: u16) {
-        self.program_counter = (nnn + self.variable_register[0] as u16) as usize;
+    fn op_bnnn(&mut self) {
+        self.program_counter = (self.nnn + self.variable_register[0] as u16) as usize;
     }
 
     //RND Vx, byte
-    fn op_cxkk(&mut self, x: usize, kk: u8) {
+    fn op_cxkk(&mut self) {
         let mut rng = rand::thread_rng();
-        self.variable_register[x] = rng.gen_range(0..0xFF + 1) as u8 & kk;
-        self.program_counter += 2;
+        self.variable_register[self.x] = rng.gen_range(0..0xFF + 1) as u8 & self.kk;
     }
 
     //DRW Vx, Vy, nibble
-    fn op_dxyn(&mut self, x: usize, y: usize, n: usize) {
+    fn op_dxyn(&mut self) {
         let mut x_coordinate : usize;
         let mut y_coordinate : usize;
         let mut sprite : u8; 
 
         self.variable_register[CARRY_FLAG] = 0;
-        for row in 0..n as usize {
-            y_coordinate = (self.variable_register[y] as usize + row) % ROWS;
+        for row in 0..self.n as usize {
+            y_coordinate = (self.variable_register[self.y] as usize + row) % ROWS;
             sprite = self.memory[self.index_register as usize + row];
             for column in 0..8 {
-                x_coordinate = (self.variable_register[x] as usize + column) % COLUMNS;
+                x_coordinate = (self.variable_register[self.x] as usize + column) % COLUMNS;
                 if (sprite & (0x80 >> column)) != 0 {
                     if self.grapphic_array[(y_coordinate * COLUMNS) + x_coordinate] == 1 {
                         self.variable_register[CARRY_FLAG] = 1;
@@ -364,95 +337,82 @@ impl Cpu {
                 }
             }
         }
-        self.program_counter += 2;
     }
 
     //SKP Vx
-    fn op_ex9e(&mut self, x: usize) {
-        if (*self.keypad.borrow_mut()).get_key(self.variable_register[x]) == 1 {
-            self.program_counter += 2;
+    fn op_ex9e(&mut self) {
+        if (*self.keypad.borrow_mut()).get_key(self.variable_register[self.x]) == 1 {
+            self.program_counter += PROGRAM_STEP;
         }
-        self.program_counter += 2;
     }
 
      //SKNP Vx
-     fn op_exa1(&mut self, x: usize) {
-        if (*self.keypad.borrow_mut()).get_key(self.variable_register[x]) == 0 {
-            self.program_counter += 2;
+     fn op_exa1(&mut self) {
+        if (*self.keypad.borrow_mut()).get_key(self.variable_register[self.x]) == 0 {
+            self.program_counter += PROGRAM_STEP;
         }
-        self.program_counter += 2;
     }
 
     //LD Vx, DT
-    fn op_fx07(&mut self, x: usize) {
-        self.variable_register[x] = self.delay_timer;
-        self.program_counter += 2;
+    fn op_fx07(&mut self) {
+        self.variable_register[self.x] = self.delay_timer;
     }
 
     //LD Vx, K
-    fn op_fx0a(&mut self, x: usize) {
+    fn op_fx0a(&mut self) {
         let mut keypad_borrow :RefMut<Keypad> = self.keypad.borrow_mut();
-        if (*keypad_borrow).is_any_key_pressed() {
-            self.variable_register[x] = (*keypad_borrow).get_pressed_key();
-            self.program_counter += 2;
+        if let Some(key) = (*keypad_borrow).get_pressed_key() {
+            self.variable_register[self.x] = key;
+        } else {
+            self.program_counter -= PROGRAM_STEP;
         }
     }
 
     //LD DT, Vx
-    fn op_fx15(&mut self, x: usize) {
-        self.delay_timer = self.variable_register[x];
-        self.program_counter += 2;
+    fn op_fx15(&mut self) {
+        self.delay_timer = self.variable_register[self.x];
     }
 
     //LD ST, Vx
-    fn op_fx18(&mut self, x: usize) {
-        self.sound_timer = self.variable_register[x];
-        self.program_counter += 2;
+    fn op_fx18(&mut self) {
+        self.sound_timer = self.variable_register[self.x];
     }
 
     //LD ADD I, Vx
-    fn op_fx1e(&mut self, x: usize) {
-        self.index_register += self.variable_register[x] as u16;
-        self.program_counter += 2;
+    fn op_fx1e(&mut self) {
+        self.index_register += self.variable_register[self.x] as u16;
     }
 
     //LD F, Vx
-    fn op_fx29(&mut self, x: usize) {
-        println!("x: {}", x);
-        println!("getting char at: {}", self.variable_register[x]);
-        self.index_register = (self.variable_register[x] as u16) * 0x5;
-        println!("index : {}", self.index_register);
-        self.program_counter += 2;
+    fn op_fx29(&mut self) {
+        self.index_register = (self.variable_register[self.x] as u16) * 0x5;
     }
 
     //LD B, Vx
-    fn op_fx33(&mut self, x: usize) {
+    fn op_fx33(&mut self) {
         if self.index_register as usize + 3 < MEMORYSIZE {
-            self.memory[self.index_register as usize] = self.variable_register[x] / 100;
-            self.memory[self.index_register as usize] = (self.variable_register[x] / 10) % 10;
-            self.memory[self.index_register as usize] = self.variable_register[x] % 10;
+            self.memory[self.index_register as usize] = self.variable_register[self.x] / 100;
+            self.memory[self.index_register as usize + 1] = (self.variable_register[self.x] / 10) % 10;
+            self.memory[self.index_register as usize + 2] = self.variable_register[self.x] % 10;
         }
-        self.program_counter += 2;
     }
 
     //LD [I], Vx
-    fn op_fx55(&mut self, x: usize) {
-        if self.index_register as usize + x < MEMORYSIZE {
-            for i in 0..x {
+    fn op_fx55(&mut self) {
+        if self.index_register as usize + self.x < MEMORYSIZE {
+            for i in 0..self.x {
                 self.memory[self.index_register as usize + i] = self.variable_register[i];
             }
         }
-        self.program_counter += 2;
     }    
 
     //LD Vx, [I]
-    fn op_fx65(&mut self, x: usize) {
-        if self.index_register as usize + x < MEMORYSIZE {
-            for i in 0..x {
+    fn op_fx65(&mut self) {
+        if self.index_register as usize + self.x < MEMORYSIZE {
+            for i in 0..self.x {
                 self.variable_register[i] = self.memory[self.index_register as usize + i];
             }
         }
-        self.program_counter += 2;
     }   
 }
 

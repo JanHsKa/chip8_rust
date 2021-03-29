@@ -45,13 +45,13 @@ impl Keypad {
         return self.keys[key as usize];
     }
     
-    pub fn get_pressed_key(&mut self) -> u8 {
+    pub fn get_pressed_key(&mut self) -> Option<u8> {
         for i in 0..KEY_COUNT {
             if self.keys[i] != 0 {
-                return i as u8;
+                return Some(i as u8);
             }
         }
-        return 0;
+        return None;
     }
 
     pub fn is_any_key_pressed(&mut self) -> bool {
@@ -60,7 +60,6 @@ impl Keypad {
                 return true;
             }
         }
-
         return false;
     }
 

@@ -18,6 +18,7 @@ use std::rc::Rc;
 use std::cell::RefCell;
 
 fn main() {
+    println!("start program");
     let args: Vec<String> = env::args().collect();
     if args.len() > 1 {
         let keypad = Rc::new(RefCell::new(Keypad::new()));
