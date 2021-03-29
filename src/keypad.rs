@@ -12,10 +12,10 @@ pub struct Keypad {
 impl Keypad {
     pub fn new() -> Keypad {
         let mut new_keymap = collections::HashMap::new();
-        new_keymap.insert(Keycode::Kp1, 0x1);
-        new_keymap.insert(Keycode::Kp2, 0x2);
-        new_keymap.insert(Keycode::Kp3, 0x3);
-        new_keymap.insert(Keycode::Kp4, 0xC);
+        new_keymap.insert(Keycode::Num1, 0x1);
+        new_keymap.insert(Keycode::Num2, 0x2);
+        new_keymap.insert(Keycode::Num3, 0x3);
+        new_keymap.insert(Keycode::Num4, 0xC);
         new_keymap.insert(Keycode::Q, 0x4);
         new_keymap.insert(Keycode::W, 0x5);
         new_keymap.insert(Keycode::E, 0x6);
@@ -36,14 +36,12 @@ impl Keypad {
     }
 
     pub fn press_key(&mut self, key: Keycode, value: u8) {
-        println!("press key");
         if self.keymap.contains_key(&key) {
             self.keys[self.keymap[&key]] = value;
         }
     }
 
     pub fn get_key(&mut self, key: u8) -> u8 {
-        println!("press key");
         return self.keys[key as usize];
     }
     

@@ -264,7 +264,11 @@ impl Cpu {
     fn op_8xy4(&mut self, x: usize, y: usize) {
         let overflow_sum = self.variable_register[x].overflowing_add(self.variable_register[y]);
         self.variable_register[x] = overflow_sum.0;
-        self.variable_register[CARRY_FLAG] = overflow_sum.1 as u8;
+        if overflow_sum.1 {
+            self.variable_register[CARRY_FLAG] = 1;
+        } else {
+            self.variable_register[CARRY_FLAG] = 0;
+        }
         self.program_counter += 2;
     }
     
@@ -276,6 +280,7 @@ impl Cpu {
             self.variable_register[CARRY_FLAG] = 1;
         }
         self.variable_register[x] = self.variable_register[x].overflowing_sub(self.variable_register[y]).0;
+        
         self.program_counter += 2;
     }
 
@@ -297,6 +302,7 @@ impl Cpu {
         if  self.variable_register[y] > self.variable_register[x] {
             self.variable_register[CARRY_FLAG] = 1;
         }
+
         self.variable_register[y] = self.variable_register[y].overflowing_sub(self.variable_register[x]).0;
         self.program_counter += 2;
     }
@@ -412,8 +418,10 @@ impl Cpu {
 
     //LD F, Vx
     fn op_fx29(&mut self, x: usize) {
-        self.print_fontset();
+        println!("x: {}", x);
+        println!("getting char at: {}", self.variable_register[x]);
         self.index_register = (self.variable_register[x] as u16) * 0x5;
+        println!("index : {}", self.index_register);
         self.program_counter += 2;
     }
 
