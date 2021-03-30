@@ -7,6 +7,7 @@ pub mod keypad;
 pub mod cpu;
 pub mod constants;
 pub mod input_checker;
+pub mod sound_manager;
 
 extern crate sdl2;
 use emulator::Emulator;
@@ -22,8 +23,8 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() > 1 {
         let keypad = Rc::new(RefCell::new(Keypad::new()));
-        let mut emulator = Emulator::new(args[1].clone(), keypad);
+        let sdl_context = sdl2::init().unwrap();
+        let mut emulator = Emulator::new(args[1].clone(), keypad, sdl_context);
         emulator.start_program();
-        thread::sleep(Duration::from_millis(10000));
     }
 }

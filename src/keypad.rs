@@ -54,6 +54,12 @@ impl Keypad {
         return None;
     }
 
+    pub fn reset_key(&mut self, key: u8) {
+        if key < KEY_COUNT as u8{
+            self.keys[key as usize] = 0;
+        }
+    }
+
     pub fn is_any_key_pressed(&mut self) -> bool {
         for i in 0..KEY_COUNT {
             if self.keys[i] != 0 {

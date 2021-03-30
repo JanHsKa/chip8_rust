@@ -8,12 +8,23 @@
             "name": "(Windows) Starten",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/target/debug/chip8.exe",
-            "args": [],
+            "program": "${workspaceRoot}/target/debug/chip8_rust.exe",
+            "args": ["${workspaceRoot}/Games/INVADERS"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "console": "externalTerminal"
+        },
+
+        {
+            "name": "Windows Rust debug ",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/target/debug/chip8.exe",
+            "args": ["${workspaceRoot}/Games/INVADERS"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
         }
     ]
 }
