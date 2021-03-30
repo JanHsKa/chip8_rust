@@ -38,7 +38,7 @@ impl Emulator {
             let mut game_display = GameDisplay::new();
             game_display.initialize();
         }); */
-        //self.game_display.initialize();
+        self.game_display.initialize();
 
         if self.file_manager.load_file().is_ok() {
             self.initialize();

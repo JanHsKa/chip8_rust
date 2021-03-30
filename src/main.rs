@@ -8,6 +8,7 @@ pub mod cpu;
 pub mod constants;
 pub mod input_checker;
 pub mod sound_manager;
+pub mod layout_constants;
 
 extern crate sdl2;
 use emulator::Emulator;
