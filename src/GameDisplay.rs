@@ -59,49 +59,96 @@ impl GameDisplay {
         let mut rect = rect::Rect::new(0, 0 , WINDOW_WIDTH, WINDOW_HEIGHT); 
         self.canvas.fill_rect(rect);
 
-        //HORIZONTAL
-        self.canvas.set_draw_color(layout_constants::DARK_OUTLINE);
-        rect.set_x(layout_constants::EDGE_SIZE + OUTLINE);
-        rect.set_y(layout_constants::EDGE_SIZE);
-        rect.set_width(layout_constants::GAME_WIDTH);
-        rect.set_height(OUTLINE as u32);
-        self.canvas.fill_rect(rect);
-
-        rect.set_x(layout_constants::EDGE_SIZE + OUTLINE);
-        rect.set_y(layout_constants::EDGE_SIZE);
-        rect.set_width(layout_constants::GAME_WIDTH);
-        self.canvas.fill_rect(rect);
-
-        //VERTIKAL
-        rect.set_x(layout_constants::EDGE_SIZE);
-        rect.set_y(layout_constants::EDGE_SIZE);
-        rect.set_width(OUTLINE as u32);
-        rect.set_height(layout_constants::GAME_HEIGHT + OUTLINE as u32);
-        self.canvas.fill_rect(rect);
-
-        self.canvas.set_draw_color(layout_constants::BRIGHT_OUTLINE);
-
-        //HORIZONTAL
-        rect.set_x(layout_constants::EDGE_SIZE);
-        rect.set_y(layout_constants::EDGE_SIZE + layout_constants::GAME_HEIGHT as i32+ OUTLINE);
-        rect.set_width(layout_constants::GAME_WIDTH + OUTLINE as u32);
-        rect.set_height(OUTLINE as u32);
-        self.canvas.fill_rect(rect);
-
-        //VERTIKAL
-        rect.set_x(GAME_START_X + layout_constants::GAME_WIDTH as i32);
-        rect.set_y(layout_constants::EDGE_SIZE);
-        rect.set_width(OUTLINE as u32);
-        rect.set_height(layout_constants::GAME_HEIGHT + 2 * OUTLINE as u32);
-        self.canvas.fill_rect(rect);
-
-        /* rect.set_x(CONTROL_START_X);
-        rect.set_y(CONTROL_START_Y);
-        rect.set_width(MEMORY_WIDTH);
-        rect.set_height(MEMORY_HEIGHT);
-        self.canvas.fill_rect(rect); */
+        self.draw_outline();
 
         self.canvas.present();
+    }
+
+    pub fn draw_outline(&mut self) {
+        let mut rect = rect::Rect::new(layout_constants::EDGE_SIZE + OUTLINE, 
+            layout_constants::EDGE_SIZE, 
+            layout_constants::GAME_WIDTH, 
+            OUTLINE as u32);
+
+         //HORIZONTAL
+         self.canvas.set_draw_color(layout_constants::DARK_OUTLINE);
+         self.canvas.fill_rect(rect);
+ 
+         rect.set_x(layout_constants::OPCODE_START_X);
+         rect.set_width(layout_constants::OPCODE_WIDTH);
+         self.canvas.fill_rect(rect);
+ 
+         rect.set_x(layout_constants::EDGE_SIZE);
+         rect.set_y(layout_constants::CONTROL_START_Y - OUTLINE);
+         rect.set_width(layout_constants::CONTROL_WIDTH + OUTLINE as u32);
+         self.canvas.fill_rect(rect);
+ 
+         rect.set_x(layout_constants::MEMORY_START_X - OUTLINE);
+         rect.set_y(layout_constants::MEMORY_START_Y - OUTLINE);
+         rect.set_width(layout_constants::MEMORY_WIDTH + OUTLINE as u32);
+         self.canvas.fill_rect(rect);
+ 
+         //VERTIKAL
+         rect.set_x(layout_constants::EDGE_SIZE);
+         rect.set_y(layout_constants::EDGE_SIZE);
+         rect.set_width(OUTLINE as u32);
+         rect.set_height(layout_constants::GAME_HEIGHT + OUTLINE as u32);
+         self.canvas.fill_rect(rect);
+ 
+         rect.set_x(layout_constants::OPCODE_START_X - OUTLINE);
+         self.canvas.fill_rect(rect);
+ 
+         rect.set_x(layout_constants::EDGE_SIZE);
+         rect.set_y(layout_constants::CONTROL_START_Y - OUTLINE);
+         rect.set_height(layout_constants::CONTROL_HEIGHT + OUTLINE as u32);
+         self.canvas.fill_rect(rect);
+ 
+         rect.set_x(layout_constants::MEMORY_START_X - OUTLINE);
+         rect.set_y(layout_constants::MEMORY_START_Y - OUTLINE);
+         rect.set_height(layout_constants::MEMORY_HEIGHT + OUTLINE as u32);
+         self.canvas.fill_rect(rect);
+         
+         self.canvas.set_draw_color(layout_constants::BRIGHT_OUTLINE);
+         //HORIZONTAL
+         rect.set_x(layout_constants::EDGE_SIZE);
+         rect.set_y(layout_constants::EDGE_SIZE + layout_constants::GAME_HEIGHT as i32+ OUTLINE);
+         rect.set_width(layout_constants::GAME_WIDTH + OUTLINE as u32);
+         rect.set_height(OUTLINE as u32);
+         self.canvas.fill_rect(rect);
+ 
+         rect.set_x(layout_constants::EDGE_SIZE * 2 + OUTLINE * 2 + layout_constants::GAME_WIDTH as i32);
+         rect.set_width(layout_constants::OPCODE_WIDTH + 2 * OUTLINE as u32);
+         self.canvas.fill_rect(rect);
+ 
+         rect.set_x(layout_constants::CONTROL_START_X - OUTLINE);
+         rect.set_y(layout_constants::CONTROL_START_Y + layout_constants::CONTROL_HEIGHT as i32);
+         rect.set_width(layout_constants::CONTROL_WIDTH + 2 * OUTLINE as u32);
+         self.canvas.fill_rect(rect);
+ 
+         rect.set_x(layout_constants::MEMORY_START_X - OUTLINE);
+         rect.set_y(layout_constants::MEMORY_START_Y + layout_constants::MEMORY_HEIGHT as i32);
+         rect.set_width(layout_constants::MEMORY_WIDTH + 2 * OUTLINE as u32);
+         self.canvas.fill_rect(rect);
+ 
+         //VERTIKAL
+         rect.set_x(GAME_START_X + layout_constants::GAME_WIDTH as i32);
+         rect.set_y(layout_constants::EDGE_SIZE);
+         rect.set_width(OUTLINE as u32);
+         rect.set_height(layout_constants::GAME_HEIGHT + 2 * OUTLINE as u32);
+         self.canvas.fill_rect(rect);
+ 
+         rect.set_x(layout_constants::EDGE_SIZE * 2 + layout_constants::GAME_WIDTH as i32 + OUTLINE * 3 + layout_constants::OPCODE_WIDTH as i32);
+         self.canvas.fill_rect(rect);
+ 
+         rect.set_x(layout_constants::CONTROL_START_X + layout_constants::CONTROL_WIDTH as i32);
+         rect.set_y(layout_constants::CONTROL_START_Y - OUTLINE);
+         rect.set_height(layout_constants::CONTROL_HEIGHT + OUTLINE as u32);
+         self.canvas.fill_rect(rect);
+ 
+         rect.set_x(layout_constants::MEMORY_START_X + layout_constants::MEMORY_WIDTH as i32);
+         rect.set_y(layout_constants::MEMORY_START_Y - OUTLINE);
+         rect.set_height(layout_constants::MEMORY_HEIGHT + OUTLINE as u32);
+         self.canvas.fill_rect(rect);
     }
 
     pub fn draw(&mut self, pixels: [u8; COLUMNS * ROWS ]) {
