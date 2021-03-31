@@ -1,5 +1,4 @@
 mod emulator;
-pub mod gamedisplay;
 pub mod utils;
 pub mod keypad;
 pub mod input_checker;

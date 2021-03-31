@@ -52,7 +52,7 @@ impl SoundManager {
         let device = self.audio_subsystem.open_playback(None, &self.desired_spec, |spec| {
             // initialize the audio callback
             SquareWave {
-                phase_inc: 440.0 / spec.freq as f32,
+                phase_inc: 240.0 / spec.freq as f32,
                 phase: 0.0,
                 volume: 0.25
             }

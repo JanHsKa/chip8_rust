@@ -1,6 +1,6 @@
 use crate::processor;
 use crate::utils::FileManager;
-use crate::gamedisplay::GameDisplay;
+use crate::display::DisplayManager;
 use crate::keypad::Keypad;
 use crate::sound_manager::SoundManager;
 use crate::sdl2;
@@ -19,7 +19,7 @@ use sdl2::Sdl;
 pub struct Emulator {
     cpu: Cpu,
     file_manager: FileManager,
-    game_display: GameDisplay,
+    game_display: DisplayManager,
     sound_manager: SoundManager,
 }
 
@@ -29,7 +29,7 @@ impl Emulator {
         Emulator {
             cpu: Cpu::new(Rc::clone(&new_keypad)),
             file_manager: FileManager::new(file_path),
-            game_display: GameDisplay::new(Rc::clone(&new_keypad), &sdl_context),
+            game_display: DisplayManager::new(Rc::clone(&new_keypad), &sdl_context),
             sound_manager: SoundManager::new(&sdl_context),
         }
     }
