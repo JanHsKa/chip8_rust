@@ -1,4 +1,4 @@
-use crate::
+use crate::interfaces::Display;
 
 pub struct InfoDisplay {
 

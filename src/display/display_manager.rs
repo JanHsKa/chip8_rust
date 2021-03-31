@@ -1,7 +1,8 @@
 use crate::sdl2;
 use crate::processor::memory_constants;
-use crate::display::layout_constants;
+use crate::display::{layout_constants, MemoryDisplay, InfoDisplay, OpcodeDisplay, GameDisplay};
 use crate::keypad::Keypad;
+use crate::interfaces::Display;
 
 use sdl2::pixels::Color;
 use sdl2::event::Event;
@@ -24,6 +25,7 @@ pub struct DisplayManager {
     event_pump: sdl2::EventPump,
     keypad:  Rc<RefCell<Keypad>>,
     quit: bool,
+    displays: Vec<u8>,
 }
 
 impl DisplayManager {
@@ -44,6 +46,7 @@ impl DisplayManager {
             event_pump: event_pump,
             keypad: new_keypad,
             quit: false,
+            displays: Vec::new(),
         }
     }
 

@@ -4,6 +4,7 @@ use crate::display::DisplayManager;
 use crate::keypad::Keypad;
 use crate::sound_manager::SoundManager;
 use crate::sdl2;
+use crate::interfaces::Display;
 
 use processor::Cpu;
 use std::io;
