@@ -1,14 +1,12 @@
 mod emulator;
-pub mod memory;
 pub mod gamedisplay;
-pub mod filemanager;
-pub mod fontset;
+pub mod utils;
 pub mod keypad;
-pub mod cpu;
-pub mod constants;
 pub mod input_checker;
 pub mod sound_manager;
 pub mod layout_constants;
+pub mod processor;
+pub mod display;
 
 extern crate sdl2;
 use emulator::Emulator;

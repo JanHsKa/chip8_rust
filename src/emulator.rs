@@ -1,10 +1,11 @@
-use crate::cpu::Cpu;
-use crate::filemanager::FileManager;
+use crate::processor;
+use crate::utils::FileManager;
 use crate::gamedisplay::GameDisplay;
 use crate::keypad::Keypad;
 use crate::sound_manager::SoundManager;
 use crate::sdl2;
 
+use processor::Cpu;
 use std::io;
 use io::Result;
 use std::thread;
@@ -67,7 +68,6 @@ impl Emulator {
             }
             run = self.cpu.get_state() && !self.game_display.get_quit();
 
-            
             thread::sleep(Duration::from_millis(1));
         }
     }

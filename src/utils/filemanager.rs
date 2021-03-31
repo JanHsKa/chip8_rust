@@ -1,4 +1,4 @@
-use crate::constants::MAX_PROGRAM_SIZE;
+use crate::processor::memory_constants::MAX_PROGRAM_SIZE;
 use std::io;
 use std::fs;
 use std::fs::File;

@@ -1,5 +1,5 @@
 use crate::sdl2;
-use crate::constants;
+use crate::processor::memory_constants;
 use crate::keypad::Keypad;
 use crate::layout_constants;
 
@@ -11,18 +11,18 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use sdl2::Sdl;
 
-use constants::ROWS;
-use constants::COLUMNS;
-use constants::SCALE;
+use memory_constants::ROWS;
+use memory_constants::COLUMNS;
 
+use layout_constants::PIXEL_SCALE;
 use layout_constants::WINDOW_HEIGHT;
 use layout_constants::WINDOW_WIDTH;
 use layout_constants::GAME_START_X;
 use layout_constants::GAME_START_Y;
 use layout_constants::MEMORY_HEIGHT;
 use layout_constants::MEMORY_WIDTH;
-use layout_constants::CONTROL_START_X;
-use layout_constants::CONTROL_START_Y;
+use layout_constants::INFO_START_X;
+use layout_constants::INFO_START_Y;
 use layout_constants::OUTLINE;
 
 
@@ -79,8 +79,8 @@ impl GameDisplay {
          self.canvas.fill_rect(rect);
  
          rect.set_x(layout_constants::EDGE_SIZE);
-         rect.set_y(layout_constants::CONTROL_START_Y - OUTLINE);
-         rect.set_width(layout_constants::CONTROL_WIDTH + OUTLINE as u32);
+         rect.set_y(layout_constants::INFO_START_Y - OUTLINE);
+         rect.set_width(layout_constants::INFO_WIDTH + OUTLINE as u32);
          self.canvas.fill_rect(rect);
  
          rect.set_x(layout_constants::MEMORY_START_X - OUTLINE);
@@ -99,8 +99,8 @@ impl GameDisplay {
          self.canvas.fill_rect(rect);
  
          rect.set_x(layout_constants::EDGE_SIZE);
-         rect.set_y(layout_constants::CONTROL_START_Y - OUTLINE);
-         rect.set_height(layout_constants::CONTROL_HEIGHT + OUTLINE as u32);
+         rect.set_y(layout_constants::INFO_START_Y - OUTLINE);
+         rect.set_height(layout_constants::INFO_HEIGHT + OUTLINE as u32);
          self.canvas.fill_rect(rect);
  
          rect.set_x(layout_constants::MEMORY_START_X - OUTLINE);
@@ -120,9 +120,9 @@ impl GameDisplay {
          rect.set_width(layout_constants::OPCODE_WIDTH + 2 * OUTLINE as u32);
          self.canvas.fill_rect(rect);
  
-         rect.set_x(layout_constants::CONTROL_START_X - OUTLINE);
-         rect.set_y(layout_constants::CONTROL_START_Y + layout_constants::CONTROL_HEIGHT as i32);
-         rect.set_width(layout_constants::CONTROL_WIDTH + 2 * OUTLINE as u32);
+         rect.set_x(layout_constants::INFO_START_X - OUTLINE);
+         rect.set_y(layout_constants::INFO_START_Y + layout_constants::INFO_HEIGHT as i32);
+         rect.set_width(layout_constants::INFO_WIDTH + 2 * OUTLINE as u32);
          self.canvas.fill_rect(rect);
  
          rect.set_x(layout_constants::MEMORY_START_X - OUTLINE);
@@ -140,9 +140,9 @@ impl GameDisplay {
          rect.set_x(layout_constants::EDGE_SIZE * 2 + layout_constants::GAME_WIDTH as i32 + OUTLINE * 3 + layout_constants::OPCODE_WIDTH as i32);
          self.canvas.fill_rect(rect);
  
-         rect.set_x(layout_constants::CONTROL_START_X + layout_constants::CONTROL_WIDTH as i32);
-         rect.set_y(layout_constants::CONTROL_START_Y - OUTLINE);
-         rect.set_height(layout_constants::CONTROL_HEIGHT + OUTLINE as u32);
+         rect.set_x(layout_constants::INFO_START_X + layout_constants::INFO_WIDTH as i32);
+         rect.set_y(layout_constants::INFO_START_Y - OUTLINE);
+         rect.set_height(layout_constants::INFO_HEIGHT + OUTLINE as u32);
          self.canvas.fill_rect(rect);
  
          rect.set_x(layout_constants::MEMORY_START_X + layout_constants::MEMORY_WIDTH as i32);
@@ -167,16 +167,16 @@ impl GameDisplay {
     }
 
     fn draw_pixels(&mut self, pixels: [u8; COLUMNS * ROWS]) {
-        let mut rect = rect::Rect::new(GAME_START_X, GAME_START_Y , SCALE as u32, SCALE as u32); 
+        let mut rect = rect::Rect::new(GAME_START_X, GAME_START_Y , PIXEL_SCALE as u32, PIXEL_SCALE as u32); 
         for y in 0..ROWS {
-            rect.set_y((y * SCALE) as i32 + GAME_START_Y);
+            rect.set_y((y * PIXEL_SCALE) as i32 + GAME_START_Y);
             for x in 0..COLUMNS {
                 if pixels[(y * COLUMNS) + x] == 1 {
                     self.canvas.set_draw_color(Color::RGB(170, 255, 170));
                 } else {
                     self.canvas.set_draw_color(Color::RGB(40, 40, 40));
                 }
-                rect.set_x((x * SCALE) as i32 + GAME_START_X);
+                rect.set_x((x * PIXEL_SCALE) as i32 + GAME_START_X);
                 self.canvas.fill_rect(rect).expect("Error: could not draw pixel");
             }
         }

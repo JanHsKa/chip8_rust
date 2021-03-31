@@ -1,20 +1,20 @@
-use crate::constants;
 use crate::keypad::Keypad;
-use crate::fontset;
+use crate::processor::memory_constants;
+use crate::processor::fontset;
 use std::rc::Rc;
 use std::cell::RefCell;
 use std::cell::RefMut;
 
 use rand::Rng;
-use constants::MEMORYSIZE;
-use constants::VARIABLES_COUNT;
-use constants::COLUMNS;
-use constants::ROWS;
-use constants::STACKSIZE;
-use constants::CARRY_FLAG;
-use constants::MAX_PROGRAM_SIZE;
-use constants::PROGRAM_START;
-use constants::PROGRAM_STEP;
+use memory_constants::MEMORYSIZE;
+use memory_constants::VARIABLES_COUNT;
+use memory_constants::COLUMNS;
+use memory_constants::ROWS;
+use memory_constants::STACKSIZE;
+use memory_constants::CARRY_FLAG;
+use memory_constants::MAX_PROGRAM_SIZE;
+use memory_constants::PROGRAM_START;
+use memory_constants::PROGRAM_STEP;
 
 
 pub struct Cpu {

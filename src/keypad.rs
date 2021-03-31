@@ -1,8 +1,8 @@
-use crate::constants;
+use crate::processor::memory_constants;
 use crate::sdl2::keyboard::Keycode;
 use std::collections;
 
-use constants::KEY_COUNT;
+use memory_constants::KEY_COUNT;
 
 pub struct Keypad {
     keys: [u8; 16],
