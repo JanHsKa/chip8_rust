@@ -11,7 +11,7 @@ use io::Result;
 use std::thread;
 use std::time::Duration;
 use std::sync::mpsc;
-use std::sync::mpsc::{Sender, Receiver};
+use mpsc::{Sender, Receiver};
 use std::rc::Rc;
 use std::cell::RefCell;
 use sdl2::Sdl;

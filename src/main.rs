@@ -3,9 +3,9 @@ pub mod utils;
 pub mod keypad;
 pub mod input_checker;
 pub mod sound_manager;
-pub mod layout_constants;
 pub mod processor;
 pub mod display;
+pub mod interfaces;
 
 extern crate sdl2;
 use emulator::Emulator;

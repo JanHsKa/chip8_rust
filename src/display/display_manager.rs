@@ -1,33 +1,26 @@
 use crate::sdl2;
 use crate::processor::memory_constants;
+use crate::display::layout_constants;
 use crate::keypad::Keypad;
-use crate::layout_constants;
 
 use sdl2::pixels::Color;
 use sdl2::event::Event;
-use sdl2::render;
-use sdl2::rect;
+use sdl2::{render, Sdl, rect};
 use std::rc::Rc;
 use std::cell::RefCell;
-use sdl2::Sdl;
+use sdl2::ttf;
 
-use memory_constants::ROWS;
-use memory_constants::COLUMNS;
+use memory_constants::{ROWS, COLUMNS};
 
-use layout_constants::PIXEL_SCALE;
-use layout_constants::WINDOW_HEIGHT;
-use layout_constants::WINDOW_WIDTH;
-use layout_constants::GAME_START_X;
-use layout_constants::GAME_START_Y;
-use layout_constants::MEMORY_HEIGHT;
-use layout_constants::MEMORY_WIDTH;
-use layout_constants::INFO_START_X;
-use layout_constants::INFO_START_Y;
-use layout_constants::OUTLINE;
+use layout_constants::{PIXEL_SCALE, 
+    WINDOW_HEIGHT, WINDOW_WIDTH, GAME_START_X, 
+    GAME_START_Y, MEMORY_HEIGHT, MEMORY_WIDTH, 
+    INFO_START_X, INFO_START_Y, OUTLINE};
 
 
 pub struct DisplayManager {
     canvas: render::Canvas<sdl2::video::Window>,
+    //font: sdl2::ttf::Font;
     event_pump: sdl2::EventPump,
     keypad:  Rc<RefCell<Keypad>>,
     quit: bool,
