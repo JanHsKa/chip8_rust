@@ -1,4 +1,4 @@
-use crate::processor;
+use crate::processor::{Cpu, Memory};
 use crate::utils::FileManager;
 use crate::display::DisplayManager;
 use crate::keypad::Keypad;
@@ -6,13 +6,12 @@ use crate::sound_manager::SoundManager;
 use crate::sdl2;
 use crate::interfaces::Display;
 
-use processor::Cpu;
 use std::io;
-use io::Result;
+use self::io::Result;
 use std::thread;
 use std::time::Duration;
-use std::sync::mpsc;
-use mpsc::{Sender, Receiver};
+//use std::sync::mpsc;
+//use mpsc::{Sender, Receiver};
 use std::rc::Rc;
 use std::cell::RefCell;
 use sdl2::Sdl;
@@ -28,7 +27,7 @@ pub struct Emulator {
 impl Emulator {
     pub fn new(file_path: String, new_keypad: Rc<RefCell<Keypad>>, sdl_context: Sdl) -> Self {
         Emulator {
-            cpu: Cpu::new(Rc::clone(&new_keypad)),
+            cpu: Cpu::new(Rc::clone(&new_keypad), Memory::new()),
             file_manager: FileManager::new(file_path),
             game_display: DisplayManager::new(Rc::clone(&new_keypad), &sdl_context),
             sound_manager: SoundManager::new(&sdl_context),

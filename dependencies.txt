@@ -1,0 +1,9 @@
+[dependencies.sdl2]
+version = "0.34"
+default-features = false
+features = ["ttf","image","mixer"]
+
+[dependencies.sdl2]
+version = "0.31.0"
+default-features = false
+features = ["bundled", "static-link"]

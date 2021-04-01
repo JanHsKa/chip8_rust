@@ -1,12 +1,17 @@
 use sdl2::pixels::Color;
 use crate::processor::memory_constants;
+use crate::lazy_static;
 
-pub const WINDOW_BACKGROUND: Color = Color::RGB(25,35,45);  
-pub const GAME_BACKGROUND: Color = Color::RGB(40, 40, 40);  
-pub const GAME_FOREGROUND: Color = Color::RGB(170, 255, 170);
-pub const DARK_OUTLINE: Color = Color::RGB(5, 10, 15);
-pub const BRIGHT_OUTLINE: Color = Color::RGB(60, 80, 90);
 
+lazy_static! {
+    pub static ref WINDOW_BACKGROUND: Color = Color::RGB(25,35,45); 
+    pub static ref GAME_BACKGROUND: Color = Color::RGB(40, 40, 40); 
+    pub static ref GAME_FOREGROUND: Color = Color::RGB(170, 255, 170);
+    pub static ref DARK_OUTLINE: Color = Color::RGB(5, 10, 15);
+    pub static ref BRIGHT_OUTLINE: Color = Color::RGB(60, 80, 90);
+    
+    
+}
 
 pub const PIXEL_SCALE: usize = 15;
 pub const EDGE_SIZE: i32 = 12;

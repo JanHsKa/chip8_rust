@@ -1,11 +1,8 @@
-pub const MEMORYSIZE: usize = 4096;
-pub const STACKSIZE: usize = 16;
-pub const VARIABLES_COUNT: usize = 16;
-pub const COLUMNS: usize = 64;
-pub const ROWS: usize = 32;
-pub const KEY_COUNT: usize = 16;
-pub const MAX_PROGRAM_SIZE: usize = 3584;
-pub const PROGRAM_START: usize = 0x200;
+use crate::processor::memory_constants::{
+    MEMORYSIZE, VARIABLES_COUNT, COLUMNS, 
+    ROWS, STACKSIZE, CARRY_FLAG, 
+    MAX_PROGRAM_SIZE, PROGRAM_START, 
+    PROGRAM_STEP, GRAPHIC_SIZE};
 
 pub struct Memory {
     pub memory:[u8; MEMORYSIZE],

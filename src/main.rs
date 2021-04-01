@@ -8,6 +8,11 @@ pub mod display;
 pub mod interfaces;
 
 extern crate sdl2;
+extern crate rand;
+
+#[macro_use]
+extern crate lazy_static;
+
 use emulator::Emulator;
 use std::env;
 use std::thread;

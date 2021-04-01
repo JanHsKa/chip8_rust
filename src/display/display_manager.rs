@@ -1,5 +1,5 @@
 use crate::sdl2;
-use crate::processor::memory_constants;
+use crate::processor::memory_constants::{ROWS, COLUMNS};
 use crate::display::{layout_constants, MemoryDisplay, InfoDisplay, OpcodeDisplay, GameDisplay};
 use crate::keypad::Keypad;
 use crate::interfaces::Display;
@@ -9,11 +9,11 @@ use sdl2::event::Event;
 use sdl2::{render, Sdl, rect};
 use std::rc::Rc;
 use std::cell::RefCell;
-use sdl2::ttf;
+//use sdl2::ttf;
+use std::boxed::Box;
 
-use memory_constants::{ROWS, COLUMNS};
 
-use layout_constants::{PIXEL_SCALE, 
+use self::layout_constants::{PIXEL_SCALE, 
     WINDOW_HEIGHT, WINDOW_WIDTH, GAME_START_X, 
     GAME_START_Y, MEMORY_HEIGHT, MEMORY_WIDTH, 
     INFO_START_X, INFO_START_Y, OUTLINE};
@@ -25,7 +25,7 @@ pub struct DisplayManager {
     event_pump: sdl2::EventPump,
     keypad:  Rc<RefCell<Keypad>>,
     quit: bool,
-    displays: Vec<u8>,
+    displays: Vec<Box<Display>>,
 }
 
 impl DisplayManager {
@@ -51,7 +51,7 @@ impl DisplayManager {
     }
 
     pub fn initialize(&mut self) {
-        self.canvas.set_draw_color(layout_constants::WINDOW_BACKGROUND);
+        self.canvas.set_draw_color(*layout_constants::WINDOW_BACKGROUND);
         let mut rect = rect::Rect::new(0, 0 , WINDOW_WIDTH, WINDOW_HEIGHT); 
         self.canvas.fill_rect(rect);
 
@@ -67,7 +67,7 @@ impl DisplayManager {
             OUTLINE as u32);
 
          //HORIZONTAL
-         self.canvas.set_draw_color(layout_constants::DARK_OUTLINE);
+         self.canvas.set_draw_color(*layout_constants::DARK_OUTLINE);
          self.canvas.fill_rect(rect);
  
          rect.set_x(layout_constants::OPCODE_START_X);
@@ -104,7 +104,7 @@ impl DisplayManager {
          rect.set_height(layout_constants::MEMORY_HEIGHT + OUTLINE as u32);
          self.canvas.fill_rect(rect);
          
-         self.canvas.set_draw_color(layout_constants::BRIGHT_OUTLINE);
+         self.canvas.set_draw_color(*layout_constants::BRIGHT_OUTLINE);
          //HORIZONTAL
          rect.set_x(layout_constants::EDGE_SIZE);
          rect.set_y(layout_constants::EDGE_SIZE + layout_constants::GAME_HEIGHT as i32+ OUTLINE);
