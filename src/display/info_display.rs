@@ -1,6 +1,9 @@
 use crate::interfaces::Display;
 
 pub struct InfoDisplay {
+    game_name: String,
+    controls: Vec<String>,
+    game_size: u32,
 
 }
 
@@ -9,7 +12,7 @@ impl Display for InfoDisplay {
 
     }
 
-    fn redraw(&mut self, canvas: &sdl2::render::WindowCanvas) {
+    fn redraw(&mut self, canvas: &mut sdl2::render::WindowCanvas) {
 
     }
 }

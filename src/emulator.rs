@@ -60,9 +60,7 @@ impl Emulator {
             self.cpu.run_opcode();
             if timer == 16 {
                 self.cpu.tick_timer();
-                if self.cpu.play_sound() {
-                    self.sound_manager.play_sound();
-                }
+                self.sound_check();
                 self.game_display.draw(self.cpu.get_graphic_array());
                 timer = 0;
             }
@@ -75,6 +73,14 @@ impl Emulator {
     fn initialize(&mut self) {
         self.cpu.load_program_code(self.file_manager.get_file_content());
         println!("INIT");
+    }
+
+    fn sound_check(&mut self) {
+        if self.cpu.play_sound() {
+            self.sound_manager.play_sound();
+        } else {
+            self.sound_manager.stop_sound();
+        }
     }
 } 
 

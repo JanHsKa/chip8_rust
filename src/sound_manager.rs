@@ -1,6 +1,6 @@
 use crate::sdl2;
 
-use sdl2::audio::{AudioCallback, AudioSpecDesired};
+use sdl2::audio::{AudioCallback, AudioSpecDesired, AudioDevice};
 use std::time::Duration;
 use std::option;
 
@@ -29,27 +29,19 @@ impl AudioCallback for SquareWave {
 }
 
 pub struct SoundManager {
-    desired_spec: AudioSpecDesired, 
-    audio_subsystem: sdl2::AudioSubsystem,
+    audio_device: AudioDevice<SquareWave>,
 }
 
 impl SoundManager {
     pub fn new(context: &Sdl) -> SoundManager {
         let subsystem = context.audio().unwrap();
+        let desired_spec =  AudioSpecDesired {
+            freq: Some(44100),
+            channels: Some(1),  // mono
+            samples: None, 
+        };
 
-        SoundManager {
-            desired_spec: AudioSpecDesired {
-                freq: Some(44100),
-                channels: Some(1),  // mono
-                samples: None, 
-            }, 
-
-            audio_subsystem: subsystem, 
-        }
-    }
-
-    pub fn play_sound(&mut self) {
-        let device = self.audio_subsystem.open_playback(None, &self.desired_spec, |spec| {
+        let device = subsystem.open_playback(None, &desired_spec, |spec| {
             // initialize the audio callback
             SquareWave {
                 phase_inc: 240.0 / spec.freq as f32,
@@ -57,11 +49,17 @@ impl SoundManager {
                 volume: 0.25
             }
         }).unwrap();
-        
-        // Start playback
-        device.resume();
-        
-        // Play for 2 seconds
-        std::thread::sleep(Duration::from_millis(1));
+
+        SoundManager {
+            audio_device: device, 
+        }
+    }
+
+    pub fn play_sound(&mut self) {
+        self.audio_device.resume();
+    }
+
+    pub fn stop_sound(&mut self) {
+        self.audio_device.pause();
     }
 }

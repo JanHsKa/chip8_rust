@@ -9,8 +9,8 @@ lazy_static! {
     pub static ref GAME_FOREGROUND: Color = Color::RGB(170, 255, 170);
     pub static ref DARK_OUTLINE: Color = Color::RGB(5, 10, 15);
     pub static ref BRIGHT_OUTLINE: Color = Color::RGB(60, 80, 90);
-    
-    
+    pub static ref GAME_PIXEL_SET: Color = Color::RGB(170, 255, 170);
+    pub static ref GAME_PIXEL_UNSET: Color = Color::RGB(40, 40, 40);
 }
 
 pub const PIXEL_SCALE: usize = 15;

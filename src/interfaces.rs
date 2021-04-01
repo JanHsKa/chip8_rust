@@ -4,5 +4,5 @@ use std::rc::Rc;
 
 pub trait Display {
     fn update_info(&mut self);
-    fn redraw(&mut self, canvas: &sdl2::render::WindowCanvas);
+    fn redraw(&mut self, canvas: &mut sdl2::render::WindowCanvas);
 }
