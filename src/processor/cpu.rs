@@ -1,8 +1,7 @@
 use crate::keypad::Keypad;
-use crate::processor::{memory_constants, fontset, memory};
+use crate::processor::{memory_constants, FONTSET, Memory, MemoryAccess};
 use std::rc::Rc;
 use std::cell::{RefCell, RefMut};
-use self::memory::Memory;
 
 use rand::Rng;
 
@@ -25,7 +24,7 @@ pub struct Cpu {
 }
 
 impl Cpu {
-    pub fn new(new_keypad: Rc<RefCell<Keypad>>, new_data: Memory) -> Cpu {
+    pub fn new(new_keypad: Rc<RefCell<Keypad>>, new_data: Memory) -> Self {
         let mut cpu = Cpu{
             data: new_data,
             keypad: new_keypad,
@@ -37,9 +36,13 @@ impl Cpu {
             n: 0,
         };
 
-        cpu.data.memory[..fontset::FONTSET.len()].copy_from_slice(&fontset::FONTSET[..]);
+        cpu.data.memory[..FONTSET.len()].copy_from_slice(&FONTSET[..]);
         
         cpu
+    }
+
+    pub fn reset(&mut self) {
+
     }
 
     pub fn load_program_code(&mut self, code: [u8; MAX_PROGRAM_SIZE]) {
@@ -55,6 +58,10 @@ impl Cpu {
 
     pub fn get_state(&mut self) -> bool {
         return self.running;
+    }
+
+    pub fn get_memory_access(&mut self) -> MemoryAccess {
+        MemoryAccess::new(&self.data)
     }
 
     pub fn run_opcode(&mut self) {

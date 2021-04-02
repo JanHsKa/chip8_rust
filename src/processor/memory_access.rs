@@ -8,14 +8,14 @@ use self::memory_constants::{
     MAX_PROGRAM_SIZE, PROGRAM_START, 
     PROGRAM_STEP, GRAPHIC_SIZE};
 
-pub struct MemoryAccess {
-    memory: Rc<Memory>,
+pub struct MemoryAccess<'a> {
+    memory: &'a Memory,
 }
 
-impl MemoryAccess {
-    pub fn new(memory_ref: Rc<Memory>) -> MemoryAccess {
+impl<'a> MemoryAccess<'a> {
+    pub fn new(memory_ref: & Memory) -> MemoryAccess {
         MemoryAccess {
-            memory: Rc::clone(&memory_ref),
+            memory: memory_ref,
         }
     }
 

@@ -15,21 +15,22 @@ use self::layout_constants::{
 
 
    
-pub struct GameDisplay {
-    access: Rc<RefCell<MemoryAccess>>,
+pub struct GameDisplay<'a> {
+    access: Rc<RefCell<MemoryAccess<'a>>>,
     pixel_state: [u8; GRAPHIC_SIZE],
 }
 
-impl GameDisplay {
-    pub fn new(mem_access: &Rc<RefCell<MemoryAccess>>) -> Self {
+impl GameDisplay<'_> {
+    pub fn new(mem_access: Rc<RefCell<MemoryAccess<'_>>>) -> GameDisplay<'_> {
+        let mut array = mem_access.borrow_mut().get_graphic_array();
         GameDisplay {
-            access: Rc::clone(mem_access),
-            pixel_state: mem_access.borrow_mut().get_graphic_array(),
+            access: mem_access,
+            pixel_state: array,
         }
     }
 }
 
-impl Display for GameDisplay {
+impl Display for GameDisplay<'_> {
     fn update_info(&mut self) {
         self.pixel_state = self.access.borrow_mut().get_graphic_array();
     }

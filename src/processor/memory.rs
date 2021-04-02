@@ -32,4 +32,8 @@ impl Memory {
             index_register: 0,
         }
     }
+
+    pub fn reset(&mut self) {
+        
+    }
 }

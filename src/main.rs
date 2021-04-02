@@ -6,6 +6,7 @@ pub mod sound_manager;
 pub mod processor;
 pub mod display;
 pub mod interfaces;
+pub mod builder;
 
 extern crate sdl2;
 extern crate rand;

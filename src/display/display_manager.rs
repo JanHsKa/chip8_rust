@@ -60,6 +60,10 @@ impl DisplayManager {
         self.canvas.present();
     }
 
+    pub fn add_display(&mut self, display: Box<Display>) {
+        self.displays.push(display);
+    }
+
     pub fn draw_outline(&mut self) {
         let mut rect = rect::Rect::new(layout_constants::EDGE_SIZE + OUTLINE, 
             layout_constants::EDGE_SIZE, 
@@ -148,17 +152,13 @@ impl DisplayManager {
     }
 
     pub fn draw(&mut self, pixels: [u8; COLUMNS * ROWS ]) {
-        /* let texture_creator = self.canvas.texture_creator();
-        let mut texture = texture_creator.create_texture_streaming(
-            sdl2::pixels::PixelFormatEnum::ARGB8888,
-            COLUMNS as u32,
-            ROWS as u32)
-            .expect("Error: Could not create texture"); */
-
-        //texture.update(None, &pixels, COLUMNS * 4).expect("Error: Could not copy framebuffer to texture");
-
-        // self.canvas.copy(&texture, None, None).expect("Error: Could not copy texture to canvas");
         self.draw_pixels(pixels);
+        
+        for display in self.displays.iter_mut() {
+            display.as_mut().update_info();
+            display.as_mut().redraw(&mut self.canvas);
+        }
+        
         self.canvas.present();
     }
 
