@@ -15,6 +15,8 @@ extern crate rand;
 extern crate lazy_static;
 
 use emulator::Emulator;
+use crate::builder::Builder;
+use crate::processor::Memory;
 use std::env;
 use std::thread;
 use std::time::Duration;
@@ -28,7 +30,10 @@ fn main() {
     if args.len() > 1 {
         let keypad = Rc::new(RefCell::new(Keypad::new()));
         let sdl_context = sdl2::init().unwrap();
-        let mut emulator = Emulator::new(args[1].clone(), keypad, sdl_context);
+        let mut memory = Memory::new();
+        let mut builder = Builder::new();
+        let mut emulator = builder.build_emulator(keypad, sdl_context, args[1].clone(), memory);
+        //let mut emulator = Emulator::new(args[1].clone(), keypad, sdl_context);
         emulator.start_program();
     }
 }

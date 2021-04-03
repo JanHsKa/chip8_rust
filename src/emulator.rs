@@ -18,27 +18,25 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use sdl2::Sdl;
 
-pub struct Emulator<'a> {
+pub struct Emulator {
     cpu: Cpu,
     file_manager: FileManager,
     display_manager: DisplayManager,
     sound_manager: SoundManager,
-    builder: Builder,
-    mem_access: MemoryAccess<'a>,
+    memory_access: MemoryAccess,
 }
 
 
-impl Emulator<'_> {
-    pub fn new(file_path: String, new_keypad: Rc<RefCell<Keypad>>, sdl_context: Sdl) -> Self {
-        let mut processor = Cpu::new(Rc::clone(&new_keypad), Memory::new());
-        let mut access = processor.get_memory_access();
+impl Emulator {
+    pub fn new(file: FileManager, display: DisplayManager, new_cpu: Cpu, sound: SoundManager, new_access: MemoryAccess) -> Emulator {
+        //let mut processor = Cpu::new(Rc::clone(&new_keypad), Memory::new());
+
         Emulator {
-            cpu: processor,
-            file_manager: FileManager::new(file_path),
-            display_manager: DisplayManager::new(Rc::clone(&new_keypad), &sdl_context),
-            sound_manager: SoundManager::new(&sdl_context),
-            builder: Builder::new(),
-            mem_access: access,
+            cpu: new_cpu,
+            file_manager: file,
+            display_manager: display,
+            sound_manager: sound,
+            memory_access: new_access,
         }
     }
 

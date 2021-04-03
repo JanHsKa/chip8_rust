@@ -28,6 +28,8 @@ pub struct DisplayManager {
     displays: Vec<Box<Display>>,
 }
 
+
+
 impl DisplayManager {
     pub fn new(new_keypad: Rc<RefCell<Keypad>>, context: &Sdl) -> DisplayManager {
         let video = context.video().unwrap();
