@@ -1,7 +1,5 @@
 mod emulator;
 pub mod utils;
-pub mod keypad;
-pub mod input_checker;
 pub mod sound_manager;
 pub mod processor;
 pub mod display;
@@ -20,7 +18,7 @@ use crate::processor::Memory;
 use std::env;
 use std::thread;
 use std::time::Duration;
-use keypad::Keypad;
+use utils::Keypad;
 use std::rc::Rc;
 use std::cell::RefCell;
 

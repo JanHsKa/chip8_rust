@@ -1,13 +1,9 @@
 use crate::processor::{Cpu, Memory, MemoryAccess};
-use crate::utils::FileManager;
-use crate::display::{DisplayManager, GameDisplay};
-use crate::keypad::Keypad;
+use crate::utils::{FileManager};
+use crate::display::{DisplayManager};
 use crate::sound_manager::SoundManager;
-use crate::builder::Builder;
 
 use crate::sdl2;
-use crate::interfaces::Display;
-
 use std::io;
 use self::io::Result;
 use std::thread;

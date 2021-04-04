@@ -1,8 +1,8 @@
 use crate::processor::{Cpu, Memory, MemoryAccess};
 use crate::display::{GameDisplay, DisplayManager};
-use crate::{Keypad, Emulator, sound_manager};
-use crate::interfaces::Display;
-use crate::utils::FileManager;
+use crate::{Emulator, sound_manager};
+use crate::interfaces::IDisplay;
+use crate::utils::{FileManager, Keypad};
 use sound_manager::SoundManager;
 use crate::sdl2::Sdl;
 use std::cell::RefCell;

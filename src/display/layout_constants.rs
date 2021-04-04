@@ -13,12 +13,16 @@ lazy_static! {
     pub static ref GAME_PIXEL_UNSET: Color = Color::RGB(40, 40, 40);
 }
 
-pub const PIXEL_SCALE: usize = 15;
+//original 15
+//low scale 9
+pub const PIXEL_SCALE: usize = 9;
 pub const EDGE_SIZE: i32 = 12;
 pub const OUTLINE: i32 = 4;
 
-pub const WINDOW_WIDTH: u32 = 1350;
-pub const WINDOW_HEIGHT: u32 = 850;
+//original 1350 / 850
+//low scale 800 / 550
+pub const WINDOW_WIDTH: u32 = 800;
+pub const WINDOW_HEIGHT: u32 = 550;
 
 pub const GAME_WIDTH: u32 = (memory_constants::COLUMNS * PIXEL_SCALE) as u32;
 pub const GAME_HEIGHT: u32 = (memory_constants::ROWS * PIXEL_SCALE) as u32;

@@ -1,4 +1,5 @@
-use crate::keypad::Keypad;
+use crate::utils::{Keypad};
+
 use crate::processor::{memory_constants, FONTSET, Memory, MemoryAccess};
 use std::rc::Rc;
 use std::cell::{RefCell, RefMut};
@@ -23,7 +24,6 @@ pub struct Cpu {
     nnn: u16,
     kk: u8,
     n: usize,
-    nibbles: Nibbles,
 }
 
 impl Cpu {
@@ -38,7 +38,6 @@ impl Cpu {
             nnn: 0,
             kk: 0,
             n: 0,
-            nibbles: Nibbles (0, 0, 0, 0),
         }
     }
 

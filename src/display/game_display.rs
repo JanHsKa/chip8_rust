@@ -1,6 +1,6 @@
 use crate::display::layout_constants;
 use crate::processor::MemoryAccess;
-use crate::interfaces::Display;
+use crate::interfaces::IDisplay;
 use crate::processor::memory_constants::{ROWS, COLUMNS, GRAPHIC_SIZE};
 
 use std::rc::Rc;
@@ -30,7 +30,7 @@ impl GameDisplay {
     }
 }
 
-impl Display for GameDisplay {
+impl IDisplay for GameDisplay {
     fn update_info(&mut self) {
         self.pixel_state = self.access.borrow_mut().get_graphic_array();
     }

@@ -1,4 +1,4 @@
-use crate::interfaces::Display;
+use crate::interfaces::IDisplay;
 
 pub struct InfoDisplay {
     game_name: String,
@@ -7,7 +7,7 @@ pub struct InfoDisplay {
 
 }
 
-impl Display for InfoDisplay {
+impl IDisplay for InfoDisplay {
     fn update_info(&mut self) {
 
     }
