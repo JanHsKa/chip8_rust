@@ -12,6 +12,7 @@ use std::io;
 use self::io::Result;
 use std::thread;
 use std::time::Duration;
+
 //use std::sync::mpsc;
 //use mpsc::{Sender, Receiver};
 use std::rc::Rc;
@@ -23,12 +24,12 @@ pub struct Emulator {
     file_manager: FileManager,
     display_manager: DisplayManager,
     sound_manager: SoundManager,
-    memory_access: MemoryAccess,
+    memory_access: Rc<RefCell<MemoryAccess>>,
 }
 
 
 impl Emulator {
-    pub fn new(file: FileManager, display: DisplayManager, new_cpu: Cpu, sound: SoundManager, new_access: MemoryAccess) -> Emulator {
+    pub fn new(file: FileManager, display: DisplayManager, new_cpu: Cpu, sound: SoundManager, new_access: Rc<RefCell<MemoryAccess>>) -> Emulator {
         //let mut processor = Cpu::new(Rc::clone(&new_keypad), Memory::new());
 
         Emulator {

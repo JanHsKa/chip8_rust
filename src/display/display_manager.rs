@@ -25,7 +25,7 @@ pub struct DisplayManager {
     event_pump: sdl2::EventPump,
     keypad:  Rc<RefCell<Keypad>>,
     quit: bool,
-    displays: Vec<Box<Display>>,
+    displays: Vec<Box<dyn Display>>,
 }
 
 
@@ -62,7 +62,7 @@ impl DisplayManager {
         self.canvas.present();
     }
 
-    pub fn add_display(&mut self, display: Box<Display>) {
+    pub fn add_display(&mut self, display: Box<dyn Display>) {
         self.displays.push(display);
     }
 
@@ -154,7 +154,7 @@ impl DisplayManager {
     }
 
     pub fn draw(&mut self, pixels: [u8; COLUMNS * ROWS ]) {
-        self.draw_pixels(pixels);
+        //self.draw_pixels(pixels);
         
         for display in self.displays.iter_mut() {
             display.as_mut().update_info();
