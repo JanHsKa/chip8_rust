@@ -30,4 +30,11 @@ impl MemoryAccess {
     pub fn get_program_counter(&mut self) -> usize {
         self.memory.borrow().program_counter
     }
+
+    pub fn get_complete_memory(&mut self) -> Vec<u8> {
+        let mut memory_content = vec![0; MEMORYSIZE];
+        memory_content.copy_from_slice(&self.memory.borrow().memory);
+        
+        memory_content
+    }
 }

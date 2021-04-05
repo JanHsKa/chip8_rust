@@ -8,6 +8,7 @@ pub mod builder;
 
 extern crate sdl2;
 extern crate rand;
+extern crate edit;
 
 #[macro_use]
 extern crate lazy_static;
@@ -21,6 +22,7 @@ use std::time::Duration;
 use utils::Keypad;
 use std::rc::Rc;
 use std::cell::RefCell;
+
 
 fn main() {
     println!("start program");

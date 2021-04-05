@@ -46,10 +46,12 @@ impl InputChecker {
         let mut keypad_ref = self.keypad.borrow_mut();
         match key {
             Keycode::F1 |
+            Keycode::F2 |
             Keycode::F5 |
             Keycode::F6 |
             Keycode::F7 |
             Keycode::F8 |
+            Keycode::F9 |
             Keycode::Plus |
             Keycode::Minus => self.program_manager.borrow_mut().press_key(key),
             _ => (*keypad_ref).press_key(key, KeyPress::Down as u8),

@@ -35,7 +35,7 @@ impl IDisplay for GameDisplay {
         self.pixel_state = self.access.borrow_mut().get_graphic_array();
     }
 
-    fn redraw(&mut self, canvas: &mut render::WindowCanvas) {
+    fn redraw(&mut self, canvas: &mut render::WindowCanvas, ttf_context: &mut sdl2::ttf::Sdl2TtfContext) {
         let mut rect = rect::Rect::new(GAME_START_X, GAME_START_Y , PIXEL_SCALE as u32, PIXEL_SCALE as u32); 
         for y in 0..ROWS {
             rect.set_y((y * PIXEL_SCALE) as i32 + GAME_START_Y);

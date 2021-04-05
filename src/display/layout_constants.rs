@@ -18,7 +18,7 @@ lazy_static! {
 pub const PIXEL_SCALE: usize = 9;
 pub const EDGE_SIZE: i32 = 12;
 pub const OUTLINE: i32 = 4;
-
+pub const PADDING: i32 = 3;
 //original 1350 / 850
 //low scale 800 / 550
 pub const WINDOW_WIDTH: u32 = 800;

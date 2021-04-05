@@ -7,10 +7,16 @@ use crate::interfaces::IDisplay;
 use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::{render, Sdl, rect};
+use sdl2::ttf::Sdl2TtfContext;
+use sdl2::ttf;
 use std::rc::Rc;
 use std::cell::RefCell;
 //use sdl2::ttf;
 use std::boxed::Box;
+
+pub const FONTPATH1: &str = "Font/8bitOperatorPlus8-Regular.ttf";
+
+pub const FONTPATH2: &str = "Font/8Bit-44Pl.ttf";
 
 
 use self::layout_constants::{PIXEL_SCALE, 
@@ -25,6 +31,7 @@ pub struct DisplayManager {
     keypad:  Rc<RefCell<Keypad>>,
     quit: bool,
     displays: Vec<Box<dyn IDisplay>>,
+    ttf_context: Sdl2TtfContext,
 }
 
 
@@ -40,19 +47,19 @@ impl DisplayManager {
         let canvas = sdl_window.into_canvas().build()
             .expect("could not init canvas");
 
+        let ttf = ttf::init().unwrap();
 
         DisplayManager {
             canvas: canvas,
             keypad: new_keypad,
             quit: false,
             displays: Vec::new(),
+            ttf_context: ttf,
         }
     }
 
     pub fn initialize(&mut self) {
-        self.canvas.set_draw_color(*layout_constants::WINDOW_BACKGROUND);
-        let mut rect = rect::Rect::new(0, 0 , WINDOW_WIDTH, WINDOW_HEIGHT); 
-        self.canvas.fill_rect(rect);
+        self.draw_window();
 
         self.draw_outline();
 
@@ -61,6 +68,12 @@ impl DisplayManager {
 
     pub fn add_display(&mut self, display: Box<dyn IDisplay>) {
         self.displays.push(display);
+    }
+
+    pub fn draw_window(&mut self) {
+        self.canvas.set_draw_color(*layout_constants::WINDOW_BACKGROUND);
+        let rect = rect::Rect::new(0, 0 , WINDOW_WIDTH, WINDOW_HEIGHT); 
+        self.canvas.fill_rect(rect);
     }
 
     pub fn draw_outline(&mut self) {
@@ -151,11 +164,12 @@ impl DisplayManager {
     }
 
     pub fn draw(&mut self) {
-        //self.draw_pixels(pixels);
-        
+        self.draw_window();
+        self.draw_outline();
+
         for display in self.displays.iter_mut() {
             display.as_mut().update_info();
-            display.as_mut().redraw(&mut self.canvas);
+            display.as_mut().redraw(&mut self.canvas, &mut self.ttf_context);
         }
         
         self.canvas.present();
@@ -181,16 +195,4 @@ impl DisplayManager {
     pub fn get_quit(&mut self) -> bool {
         self.quit
     }
-
-    /* pub fn check_input(&mut self) {
-        let mut keypad_ref = self.keypad.borrow_mut();
-        for event in self.event_pump.poll_iter() {
-            match event {
-                Event::KeyDown {keycode,..} => (*keypad_ref).press_key(keycode.unwrap(), 1),
-                Event::KeyUp {keycode,..} => (*keypad_ref).press_key(keycode.unwrap(), 0),
-                Event::Quit {..} => { self.quit = true },
-                _ => {}
-            }
-        }
-    } */
 }

@@ -51,9 +51,7 @@ impl Cpu {
 
     pub fn load_program_code(&mut self, code: [u8; MAX_PROGRAM_SIZE]) {
         let mut data = self.data_ref.borrow_mut();
-        for i in 0..MAX_PROGRAM_SIZE {
-            data.memory[i + PROGRAM_START] = code[i];
-        }
+        data.memory[PROGRAM_START..MEMORYSIZE].copy_from_slice(&code[..MAX_PROGRAM_SIZE]);
     }
 
     fn set_opcode(&mut self) {
@@ -205,7 +203,6 @@ impl Cpu {
     //JP addr
     fn op_1nnn(&mut self) {
         let mut data = self.data_ref.borrow_mut();
-
         data.program_counter = self.nnn as usize;
     }
     
@@ -221,7 +218,6 @@ impl Cpu {
     //SE Vx, byte
     fn op_3xkk(&mut self) {
         let mut data = self.data_ref.borrow_mut();
-
         if data.variable_register[self.x] == self.kk {
             data.program_counter += PROGRAM_STEP;
         }
@@ -230,7 +226,6 @@ impl Cpu {
     //SNE Vx, byte
     fn op_4xkk(&mut self) {
         let mut data = self.data_ref.borrow_mut();
-
         if data.variable_register[self.x] != self.kk {
             data.program_counter += PROGRAM_STEP;
         }
@@ -239,7 +234,6 @@ impl Cpu {
     //SE Vx, Vy
     fn op_5xy0(&mut self) {
         let mut data = self.data_ref.borrow_mut();
-
         if data.variable_register[self.x] == data.variable_register[self.y] {
             data.program_counter += PROGRAM_STEP;
         }
@@ -248,14 +242,12 @@ impl Cpu {
     //LD Vx, byte
     fn op_6xkk(&mut self) {
         let mut data = self.data_ref.borrow_mut();
-
         data.variable_register[self.x] = self.kk;
     }
 
     //ADD Vx, byte
     fn op_7xkk(&mut self) {
         let mut data = self.data_ref.borrow_mut();
-
         data.variable_register[self.x] = data.variable_register[self.x].overflowing_add(self.kk).0;
     }
 

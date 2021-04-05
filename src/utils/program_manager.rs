@@ -1,9 +1,13 @@
 
 use crate::utils::{FileManager};
-use crate::processor::{memory_constants};
+use crate::processor::{memory_constants, MemoryAccess};
 use sdl2::event::Event;
 use self::memory_constants::{MAX_PROGRAM_SIZE};
 use crate::sdl2::keyboard::Keycode;
+use std::rc::Rc;
+use std::cell::RefCell;
+use sdl2::render::TextureQuery;
+use sdl2::ttf;
 
 
 #[derive(Copy, Clone, PartialEq)]
@@ -20,13 +24,17 @@ pub enum ProgramState {
 pub struct ProgramManager {
     current_state: ProgramState,
     file_manager: FileManager,
+    memory_access: Rc<RefCell<MemoryAccess>>,
 }
 
 impl ProgramManager {
-    pub fn new(new_file_manager: FileManager) -> ProgramManager {
+    pub fn new(new_file_manager: FileManager, 
+        new_memory_access: Rc<RefCell<MemoryAccess>>) -> ProgramManager {
+
         ProgramManager {
             current_state: ProgramState::Running,
             file_manager: new_file_manager,
+            memory_access: new_memory_access,
         }
     }
 
@@ -41,6 +49,7 @@ impl ProgramManager {
             Keycode::F6 => {},
             Keycode::F7 => {},
             Keycode::F8 => {},
+            Keycode::F9 => self.dump_memory(),
             Keycode::Plus => {},
             Keycode::Minus => {},
             _ => {}
@@ -59,6 +68,10 @@ impl ProgramManager {
         }
     }
     
+    fn dump_memory(&mut self) {
+        self.file_manager.dump_memory(self.memory_access.borrow_mut().get_complete_memory());
+    }
+
     fn load_file(&mut self) {
         if self.file_manager.load_file().is_ok() {
             self.current_state = ProgramState::Running;
