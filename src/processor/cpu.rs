@@ -29,6 +29,7 @@ pub struct Cpu {
 impl Cpu {
     pub fn new(new_keypad: Rc<RefCell<Keypad>>, new_data: Rc<RefCell<Memory>>) -> Cpu {
         new_data.borrow_mut().memory[..FONTSET.len()].copy_from_slice(&FONTSET[..]);
+
         Cpu{
             data_ref: new_data,
             keypad: new_keypad,
@@ -42,6 +43,9 @@ impl Cpu {
     }
 
     pub fn reset(&mut self) {
+        self.running = true;
+        self.data_ref.borrow_mut().reset();
+        self.data_ref.borrow_mut().memory[..FONTSET.len()].copy_from_slice(&FONTSET[..]);
 
     }
 
@@ -91,6 +95,7 @@ impl Cpu {
     pub fn get_graphic_array(&mut self) -> [u8; GRAPHIC_SIZE] {
         self.data_ref.borrow_mut().grapphic_array.clone()
     }
+
     pub fn play_sound(&mut self) -> bool {
         self.data_ref.borrow_mut().sound_timer > 0
     }

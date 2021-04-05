@@ -34,6 +34,6 @@ impl Memory {
     }
 
     pub fn reset(&mut self) {
-        
+        *self = Memory::new();
     }
 }

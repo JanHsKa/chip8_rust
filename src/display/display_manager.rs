@@ -22,7 +22,6 @@ use self::layout_constants::{PIXEL_SCALE,
 pub struct DisplayManager {
     canvas: render::Canvas<sdl2::video::Window>,
     //font: sdl2::ttf::Font;
-    event_pump: sdl2::EventPump,
     keypad:  Rc<RefCell<Keypad>>,
     quit: bool,
     displays: Vec<Box<dyn IDisplay>>,
@@ -41,11 +40,9 @@ impl DisplayManager {
         let canvas = sdl_window.into_canvas().build()
             .expect("could not init canvas");
 
-        let event_pump = context.event_pump().unwrap();
 
         DisplayManager {
             canvas: canvas,
-            event_pump: event_pump,
             keypad: new_keypad,
             quit: false,
             displays: Vec::new(),
@@ -153,7 +150,7 @@ impl DisplayManager {
          self.canvas.fill_rect(rect);
     }
 
-    pub fn draw(&mut self, pixels: [u8; COLUMNS * ROWS ]) {
+    pub fn draw(&mut self) {
         //self.draw_pixels(pixels);
         
         for display in self.displays.iter_mut() {
@@ -165,7 +162,8 @@ impl DisplayManager {
     }
 
     fn draw_pixels(&mut self, pixels: [u8; COLUMNS * ROWS]) {
-        let mut rect = rect::Rect::new(GAME_START_X, GAME_START_Y , PIXEL_SCALE as u32, PIXEL_SCALE as u32); 
+        let mut rect = rect::Rect::new(GAME_START_X, GAME_START_Y,
+             PIXEL_SCALE as u32, PIXEL_SCALE as u32); 
         for y in 0..ROWS {
             rect.set_y((y * PIXEL_SCALE) as i32 + GAME_START_Y);
             for x in 0..COLUMNS {
@@ -184,7 +182,7 @@ impl DisplayManager {
         self.quit
     }
 
-    pub fn check_input(&mut self) {
+    /* pub fn check_input(&mut self) {
         let mut keypad_ref = self.keypad.borrow_mut();
         for event in self.event_pump.poll_iter() {
             match event {
@@ -194,5 +192,5 @@ impl DisplayManager {
                 _ => {}
             }
         }
-    }
+    } */
 }
