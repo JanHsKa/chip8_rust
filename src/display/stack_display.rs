@@ -1,6 +1,6 @@
 use crate::interfaces::IDisplay;
 use crate::utils::{ProgramManager, ProgramState};
-use crate::display::{FONTPATH1, FONTPATH2, FONTPATH4, FONTSIZE,
+use crate::display::{FONTPATH1, FONTPATH2, FONTPATH3, FONTPATH4, FONTSIZE,
     layout_constants::{STACK_START_X, STACK_START_Y, STACK_WIDTH, LINE_PADDING, HIGHLIGHT_PADDING}
 };
 use crate::processor::{MemoryAccess, memory_constants::{STACKSIZE}};
@@ -13,15 +13,6 @@ use sdl2::render::{TextureQuery, TextureCreator, WindowCanvas};
 use sdl2::pixels::Color;
 use sdl2::video::WindowContext;
 use sdl2::surface::Surface;
-//Controls: 
-// F5: contninue / stop
-// F6: step 
-// +/-: speed
-// F7: breakpoint
-// F8: (maybe) step into
-// F9:: Memory dump
-// F1: restart
-// F3: Open program in Editor
 
 pub struct StackDisplay {
     stack: Vec<String>,
@@ -37,12 +28,12 @@ impl IDisplay for StackDisplay {
         self.stack_pointer = access.get_stack_pointer();
 
         for (i, iter) in self.stack.iter_mut().enumerate() {
-            *iter = format!("Stack {:X}:{:04X}", stack_size - i, stack[stack_size - i]);
+            *iter = format!("Stack {:X}: {:04X}", stack_size - i, stack[stack_size - i]);
         }
     }
 
     fn redraw(&mut self, canvas: &mut WindowCanvas, ttf_context: &mut sdl2::ttf::Sdl2TtfContext) {
-        let mut font = ttf_context.load_font(FONTPATH2, FONTSIZE).unwrap();
+        let mut font = ttf_context.load_font(FONTPATH4, FONTSIZE).unwrap();
         //font.set_style(sdl2::ttf::FontStyle::BOLD);
 
         let texture_creator = canvas.texture_creator();
@@ -65,7 +56,7 @@ impl IDisplay for StackDisplay {
 
 impl StackDisplay {
     pub fn new(new_memory_access: Rc<RefCell<MemoryAccess>>) -> StackDisplay {
-        let mut display_text: Vec<String> = vec![String::new(); STACKSIZE];
+        let display_text: Vec<String> = vec![String::new(); STACKSIZE];
 
         StackDisplay {
             stack: display_text,

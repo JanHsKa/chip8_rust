@@ -11,13 +11,16 @@ use sdl2::ttf::Sdl2TtfContext;
 use sdl2::ttf;
 use std::rc::Rc;
 use std::cell::RefCell;
+use sdl2::surface::Surface;
 //use sdl2::ttf;
 use std::boxed::Box;
 
-pub const FONTPATH1: &str = "Font/8bitOperatorPlus8-Regular.ttf";
-pub const FONTPATH2: &str = "Font/PrintChar21.ttf";
-pub const FONTPATH3: &str = "Font/8bitOperatorPlus-Regular.ttf";
-pub const FONTPATH4: &str = "Font/8-BIT WONDER.ttf";
+pub const FONTPATH1: &str = "Data/Font/PrintChar21.ttf";
+pub const FONTPATH2: &str = "Data/Font/8-BIT WONDER.ttf";
+pub const FONTPATH3: &str = "Data/Font/C64_Pro-STYLE.ttf";
+pub const FONTPATH4: &str = "Data/Font/C64_Pro_Mono-STYLE.ttf";
+pub const ICONPATH: &str = "Data/Icons/Chip8_icon_24_21.bmp";
+
 pub const FONTSIZE: u16 = 18;
 
 
@@ -43,10 +46,13 @@ pub struct DisplayManager {
 impl DisplayManager {
     pub fn new(new_keypad: Rc<RefCell<Keypad>>, context: &Sdl) -> DisplayManager {
         let video = context.video().unwrap();
-        let sdl_window = video.window("Chip 8", WINDOW_WIDTH, WINDOW_HEIGHT)
+        let mut sdl_window = video.window("Chip 8", WINDOW_WIDTH, WINDOW_HEIGHT)
             .position_centered()
             .build()
             .expect("Error: Could not init Window");
+
+        let window_icon = Surface::load_bmp(ICONPATH).expect("Could not open icon");
+        sdl_window.set_icon(window_icon);
 
         let canvas = sdl_window.into_canvas().build()
             .expect("could not init canvas");

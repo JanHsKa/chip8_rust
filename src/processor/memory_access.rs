@@ -1,12 +1,10 @@
-use crate::processor::{Memory, memory_constants};
-use std::cell::RefCell;
-use std::rc::Rc;
-
-use self::memory_constants::{
+use crate::processor::{Memory, memory_constants::{
     MEMORYSIZE, VARIABLES_COUNT, COLUMNS, 
     ROWS, STACKSIZE, CARRY_FLAG, 
     MAX_PROGRAM_SIZE, PROGRAM_START, 
-    PROGRAM_STEP, GRAPHIC_SIZE};
+    PROGRAM_STEP, GRAPHIC_SIZE}};
+
+use std::{cell::RefCell, rc::Rc, option::Option};
 
 pub struct MemoryAccess {
     memory: Rc<RefCell<Memory>>,
@@ -47,5 +45,24 @@ impl MemoryAccess {
 
     pub fn get_stack_pointer(&mut self) -> usize {
         self.memory.borrow().stack_pointer
+    }
+
+    pub fn get_variable_register(&mut self) -> Vec<u8> {
+        let mut variable_register = vec![0; VARIABLES_COUNT];
+        variable_register.copy_from_slice(&self.memory.borrow().variable_register);
+        
+        variable_register
+    }
+
+    pub fn get_index_register(&mut self) -> u16 {
+        self.memory.borrow().index_register
+    }
+    
+    pub fn get_delay_timer(&mut self) -> u8 {
+        self.memory.borrow().delay_timer
+    }
+
+    pub fn get_sound_timer(&mut self) -> u8 {
+        self.memory.borrow().sound_timer
     }
 }

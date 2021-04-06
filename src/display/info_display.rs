@@ -1,6 +1,6 @@
 use crate::interfaces::IDisplay;
 use crate::utils::{ProgramManager, ProgramState};
-use crate::display::{FONTPATH1, FONTPATH2, FONTPATH4, FONTSIZE,
+use crate::display::{FONTPATH1, FONTPATH2, FONTPATH3, FONTPATH4, FONTSIZE,
     layout_constants::{INFO_START_X, INFO_START_Y, LINE_PADDING}
 };
 use std::rc::Rc;
@@ -35,8 +35,8 @@ impl IDisplay for InfoDisplay {
         let mut manager = self.program_manager.borrow_mut();  
         let file_info = manager.get_file_info();
 
-        self.controls[4] = format!("Game: {}", file_info.file_name.as_str());
-        self.controls[5] = format!("Size: {}", file_info.file_size);
+        self.controls[5] = format!("Game: {}", file_info.file_name.as_str());
+        self.controls[6] = format!("Size: {} Bytes", file_info.file_size);
 
         let mut state = String::new();
         
@@ -47,12 +47,12 @@ impl IDisplay for InfoDisplay {
             _ => {}
         }
 
-        self.controls[2] = format!("Status: {}", state);
+        self.controls[3] = format!("Status: {}", state);
 
     }
 
     fn redraw(&mut self, canvas: &mut WindowCanvas, ttf_context: &mut sdl2::ttf::Sdl2TtfContext) {
-        let mut font = ttf_context.load_font(FONTPATH2, FONTSIZE).unwrap();
+        let mut font = ttf_context.load_font(FONTPATH3, FONTSIZE).unwrap();
         //font.set_style(sdl2::ttf::FontStyle::BOLD);
 
         let texture_creator = canvas.texture_creator();
@@ -68,6 +68,7 @@ impl InfoDisplay {
     pub fn new(new_program_manager: Rc<RefCell<ProgramManager>>) -> InfoDisplay {
         let mut display_text: Vec<String> = Vec::new();
         display_text.push("Chip 8  Emulator".to_string());
+        display_text.push("by Jan Malle".to_string());
         display_text.push(" ".to_string());
         display_text.push("Status: ".to_string());
         display_text.push(" ".to_string());

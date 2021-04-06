@@ -102,7 +102,26 @@ impl ProgramManager {
         self.file_manager.get_file_info()
     }
 
+    pub fn get_program_size(&mut self) -> usize {
+        self.get_file_info().file_size as usize
+    }
+
     pub fn get_file_content(&mut self) -> [u8; MAX_PROGRAM_SIZE] {
         self.file_manager.get_file_content()
     }
+
+    pub fn get_code_snippet(&mut self, count: usize, offset: usize) -> Option<Vec<u16>> {
+        let program_size = self.get_program_size();
+        if offset + count * 2 > program_size {
+            return None;
+        }
+
+        let mut code_lines: Vec<u16> = vec![0; count];
+        let file_content = &self.get_file_content();
+        for (i, iter) in code_lines.iter_mut().enumerate() {
+            *iter = (file_content[offset + 2 * i] as u16) << 8 | file_content[offset + 2 * i + 1] as u16;
+        } 
+
+        Some(code_lines)
+    } 
 }

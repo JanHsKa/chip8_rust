@@ -22,7 +22,7 @@ pub struct GameDisplay {
 
 impl GameDisplay {
     pub fn new(mem_access: Rc<RefCell<MemoryAccess>>) -> GameDisplay {
-        let mut array = mem_access.borrow_mut().get_graphic_array();
+        let array = mem_access.borrow_mut().get_graphic_array();
         GameDisplay {
             access: mem_access,
             pixel_state: array,
