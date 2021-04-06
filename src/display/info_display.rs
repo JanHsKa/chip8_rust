@@ -35,8 +35,8 @@ impl IDisplay for InfoDisplay {
         let mut manager = self.program_manager.borrow_mut();  
         let file_info = manager.get_file_info();
 
-        self.controls[5] = format!("Game: {}", file_info.file_name.as_str());
-        self.controls[6] = format!("Size: {} Bytes", file_info.file_size);
+        self.controls[3] = format!("Game: {}", file_info.file_name.as_str());
+        self.controls[4] = format!("Size: {} Bytes", file_info.file_size);
 
         let mut state = String::new();
         
@@ -47,7 +47,9 @@ impl IDisplay for InfoDisplay {
             _ => {}
         }
 
-        self.controls[3] = format!("Status: {}", state);
+        self.controls[5] = format!("Status: {}", state);
+        self.controls[6] = format!("Speed: {}", manager.get_speed());
+
 
     }
 
@@ -70,10 +72,10 @@ impl InfoDisplay {
         display_text.push("Chip 8  Emulator".to_string());
         display_text.push("by Jan Malle".to_string());
         display_text.push(" ".to_string());
-        display_text.push("Status: ".to_string());
-        display_text.push(" ".to_string());
         display_text.push("Game: ".to_string());
         display_text.push("Size: ".to_string());
+        display_text.push("Status: ".to_string());
+        display_text.push("Speed: ".to_string());
         display_text.push(" ".to_string());
         display_text.push("Controls".to_string());
         display_text.push("F1 : Reset Program".to_string());

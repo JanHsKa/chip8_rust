@@ -70,7 +70,7 @@ impl IDisplay for OpcodeDisplay {
              OPCODE_WIDTH, 
              2 * (LINE_PADDING / 2) as u32 + FONTSIZE as u32);
 
-        canvas.set_draw_color(Color::BLUE);
+        canvas.set_draw_color(Color::RGB(51, 51, 255));
         canvas.fill_rect(rectangle);
 
         let texture_creator = canvas.texture_creator();

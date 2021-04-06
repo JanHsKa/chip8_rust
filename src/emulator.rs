@@ -72,7 +72,7 @@ impl Emulator {
             }
             self.update_state();
 
-            thread::sleep(Duration::from_millis(1));
+            thread::sleep(Duration::from_nanos(self.program_manager.borrow_mut().get_speed()));
         }
         /* while self.current_state != ProgramState::Quit {
             timer += 1;
@@ -112,8 +112,6 @@ impl Emulator {
 
     fn refresh_display(&mut self, timer: &mut i32) {
         if *timer == 16 {
-            self.cpu.tick_timer();
-            self.sound_check();
             self.display_manager.draw();
             *timer = 0;
         }

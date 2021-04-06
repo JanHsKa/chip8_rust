@@ -25,6 +25,7 @@ pub struct ProgramManager {
     current_state: ProgramState,
     file_manager: FileManager,
     memory_access: Rc<RefCell<MemoryAccess>>,
+    program_speed: u64,
 }
 
 impl ProgramManager {
@@ -35,6 +36,7 @@ impl ProgramManager {
             current_state: ProgramState::Running,
             file_manager: new_file_manager,
             memory_access: new_memory_access,
+            program_speed: 1000000,
         }
     }
 
@@ -50,9 +52,21 @@ impl ProgramManager {
             Keycode::F6 => {},
             Keycode::F7 => {},
             Keycode::F8 => {},
-            Keycode::Plus => {},
-            Keycode::Minus => {},
+            Keycode::Plus => self.increase_speed(),
+            Keycode::Minus => self.decrease_speed(),
             _ => {}
+        }
+    }
+
+    fn increase_speed(&mut self) {
+        if self.program_speed > 2 { 
+            self.program_speed /= 2;
+        }
+    }
+
+    fn decrease_speed(&mut self) {
+        if self.program_speed < 10000000 {
+            self.program_speed *= 2;
         }
     }
 
@@ -78,6 +92,10 @@ impl ProgramManager {
         } else {
             self.current_state = ProgramState::Idle;
         }
+    }
+
+    pub fn get_speed(&mut self) -> u64 {
+        self.program_speed
     }
 
     pub fn new_file(&mut self, file_name: &String) {
