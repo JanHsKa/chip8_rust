@@ -7,3 +7,9 @@ features = ["ttf","image","mixer"]
 version = "0.31.0"
 default-features = false
 features = ["bundled", "static-link"]
+
+
+[dependencies.sdl2]
+version = "0.34"
+default-features = false
+features = ["ttf"]

@@ -24,9 +24,7 @@ use sdl2::surface::Surface;
 // F3: Open program in Editor
 
 pub struct StackDisplay {
-    game_name: String,
     stack: Vec<String>,
-    game_size: u32,
     memory_access: Rc<RefCell<MemoryAccess>>,
 }
 
@@ -58,9 +56,7 @@ impl StackDisplay {
         let mut display_text: Vec<String> = vec![String::new(); STACKSIZE];
 
         StackDisplay {
-            game_name: String::new(),
             stack: display_text,
-            game_size: 0,
             memory_access: new_memory_access,
         }
     }
