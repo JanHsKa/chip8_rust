@@ -44,4 +44,8 @@ impl MemoryAccess {
         
         stack
     }
+
+    pub fn get_stack_pointer(&mut self) -> usize {
+        self.memory.borrow().stack_pointer
+    }
 }

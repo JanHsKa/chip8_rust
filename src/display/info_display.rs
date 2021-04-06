@@ -1,7 +1,7 @@
 use crate::interfaces::IDisplay;
 use crate::utils::{ProgramManager, ProgramState};
 use crate::display::{FONTPATH1, FONTPATH2, FONTPATH4, FONTSIZE,
-    layout_constants::{INFO_START_X, INFO_START_Y, PADDING}
+    layout_constants::{INFO_START_X, INFO_START_Y, LINE_PADDING}
 };
 use std::rc::Rc;
 use std::collections::HashMap;
@@ -26,6 +26,7 @@ pub struct InfoDisplay {
     game_name: String,
     controls: Vec<String>,
     game_size: u32,
+    game_state: ProgramState,
     program_manager: Rc<RefCell<ProgramManager>>,
 }
 
@@ -34,8 +35,20 @@ impl IDisplay for InfoDisplay {
         let mut manager = self.program_manager.borrow_mut();  
         let file_info = manager.get_file_info();
 
-        self.controls[2] = format!("Game: {}", file_info.file_name.as_str());
-        self.controls[3] = format!("Size: {}", file_info.file_size);
+        self.controls[4] = format!("Game: {}", file_info.file_name.as_str());
+        self.controls[5] = format!("Size: {}", file_info.file_size);
+
+        let mut state = String::new();
+        
+        match manager.get_state() {
+            ProgramState::Running => state = "Running".to_string(),
+            ProgramState::Stopped |
+            ProgramState::Step => state = "Stopped".to_string(),
+            _ => {}
+        }
+
+        self.controls[2] = format!("Status: {}", state);
+
     }
 
     fn redraw(&mut self, canvas: &mut WindowCanvas, ttf_context: &mut sdl2::ttf::Sdl2TtfContext) {
@@ -56,6 +69,8 @@ impl InfoDisplay {
         let mut display_text: Vec<String> = Vec::new();
         display_text.push("Chip 8  Emulator".to_string());
         display_text.push(" ".to_string());
+        display_text.push("Status: ".to_string());
+        display_text.push(" ".to_string());
         display_text.push("Game: ".to_string());
         display_text.push("Size: ".to_string());
         display_text.push(" ".to_string());
@@ -73,6 +88,7 @@ impl InfoDisplay {
             controls: display_text,
             game_size: 0,
             program_manager: new_program_manager,
+            game_state: ProgramState::Running,
         }
     }
 
@@ -91,8 +107,8 @@ impl InfoDisplay {
         let TextureQuery { width, height, .. } = texture.query();
     
         let target = Rect::new(
-            INFO_START_X + PADDING,
-            INFO_START_Y + PADDING + ((FONTSIZE + PADDING as u16) * row as u16) as i32,
+            INFO_START_X + LINE_PADDING,
+            INFO_START_Y + LINE_PADDING + ((FONTSIZE + LINE_PADDING as u16) * row as u16) as i32,
             width,
             height,
         );

@@ -27,7 +27,7 @@ use std::cell::RefCell;
 fn main() {
     println!("start program");
     let args: Vec<String> = env::args().collect();
-    if args.len() > 1 {
+    if args.len() > 0 {
         let keypad = Rc::new(RefCell::new(Keypad::new()));
         let sdl_context = sdl2::init().unwrap();
         let mut memory = Memory::new();
