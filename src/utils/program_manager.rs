@@ -1,5 +1,5 @@
 
-use crate::utils::{FileManager};
+use crate::utils::{FileManager, FileInfo};
 use crate::processor::{memory_constants, MemoryAccess};
 use sdl2::event::Event;
 use self::memory_constants::{MAX_PROGRAM_SIZE};
@@ -45,11 +45,11 @@ impl ProgramManager {
     pub fn press_key(&mut self, key: Keycode) {
         match key { 
             Keycode::F1 => self.restart_program(),
+            Keycode::F4 => self.dump_memory(),
             Keycode::F5 => self.stop_or_continue(),
             Keycode::F6 => {},
             Keycode::F7 => {},
             Keycode::F8 => {},
-            Keycode::F9 => self.dump_memory(),
             Keycode::Plus => {},
             Keycode::Minus => {},
             _ => {}
@@ -96,6 +96,10 @@ impl ProgramManager {
 
     pub fn get_program_name(&mut self) -> String {
         self.file_manager.get_file_name()
+    }
+
+    pub fn get_file_info(&mut self) -> FileInfo {
+        self.file_manager.get_file_info()
     }
 
     pub fn get_file_content(&mut self) -> [u8; MAX_PROGRAM_SIZE] {

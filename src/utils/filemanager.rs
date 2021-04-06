@@ -4,7 +4,7 @@ use crate::edit;
 use std::{
     fs::{File, metadata}, 
     io::{Read, Result, Write, BufWriter},
-    path::Path,
+    path::{Path, PathBuf},
     convert::TryInto,
     process::Command,
     env::{temp_dir, var},
@@ -15,8 +15,8 @@ pub const MEMORY_DUMP_PATH : &str = "TempFiles/Memory_Content.bin";
 
 #[derive(Default, Clone)]
 pub struct FileInfo {
-    file_name: String,
-    file_size: u64,
+    pub file_name: String,
+    pub file_size: u64,
 }
 
 pub struct FileManager {
@@ -70,6 +70,7 @@ impl FileManager {
     }
 
     pub fn dump_memory(&mut self, memory: Vec<u8>) {
+        println!("Dump memory");
         let file = File::create(MEMORY_DUMP_PATH).expect("Unable to create file");
         let mut file = BufWriter::new(file);
         file.write_all(&memory).expect("Unable to write data");

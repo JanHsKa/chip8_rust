@@ -1,8 +1,9 @@
 use crate::interfaces::IDisplay;
 use crate::utils::{ProgramManager, ProgramState};
 use crate::display::{FONTPATH1, FONTPATH2, FONTPATH4, FONTSIZE,
-    layout_constants::{INFO_START_X, INFO_START_Y, PADDING}
+    layout_constants::{STACK_START_X, STACK_START_Y, PADDING}
 };
+use crate::processor::{MemoryAccess, memory_constants::{STACKSIZE}};
 use std::rc::Rc;
 use std::collections::HashMap;
 use sdl2::rect::Rect;
@@ -22,20 +23,22 @@ use sdl2::surface::Surface;
 // F1: restart
 // F3: Open program in Editor
 
-pub struct InfoDisplay {
+pub struct StackDisplay {
     game_name: String,
-    controls: Vec<String>,
+    stack: Vec<String>,
     game_size: u32,
-    program_manager: Rc<RefCell<ProgramManager>>,
+    memory_access: Rc<RefCell<MemoryAccess>>,
 }
 
-impl IDisplay for InfoDisplay {
+impl IDisplay for StackDisplay {
     fn update_info(&mut self) {
-        let mut manager = self.program_manager.borrow_mut();  
-        let file_info = manager.get_file_info();
+        let mut access = self.memory_access.borrow_mut();  
+        let stack = access.get_stack();
+        let stack_size = STACKSIZE - 1;
 
-        self.controls[2] = format!("Game: {}", file_info.file_name.as_str());
-        self.controls[3] = format!("Size: {}", file_info.file_size);
+        for (i, iter) in self.stack.iter_mut().enumerate() {
+            *iter = format!("Stack {:X}:{:04X}", stack_size - i, stack[stack_size - i]);
+        }
     }
 
     fn redraw(&mut self, canvas: &mut WindowCanvas, ttf_context: &mut sdl2::ttf::Sdl2TtfContext) {
@@ -43,36 +46,22 @@ impl IDisplay for InfoDisplay {
         //font.set_style(sdl2::ttf::FontStyle::BOLD);
 
         let texture_creator = canvas.texture_creator();
-        // render a surface, and convert it to a texture bound to the canvas
-        let mut lines_to_draw = self.controls.clone();
+        let mut lines_to_draw = self.stack.clone();
         for (i, iter) in lines_to_draw.iter_mut().enumerate() {
             self.render_text_line(canvas, &font, &texture_creator, iter, i);
         }
     }
 }
 
-impl InfoDisplay {
-    pub fn new(new_program_manager: Rc<RefCell<ProgramManager>>) -> InfoDisplay {
-        let mut display_text: Vec<String> = Vec::new();
-        display_text.push("Chip 8  Emulator".to_string());
-        display_text.push(" ".to_string());
-        display_text.push("Game: ".to_string());
-        display_text.push("Size: ".to_string());
-        display_text.push(" ".to_string());
-        display_text.push("Controls".to_string());
-        display_text.push("F1 : Reset Program".to_string());
-        display_text.push("F3 : Open in Editor".to_string());
-        display_text.push("F4 : Dump Memory".to_string());
-        display_text.push("F5 : Stop/Continue".to_string());
-        display_text.push("F6 : Step".to_string());
-        display_text.push("F7 : breakpoint".to_string());
-        display_text.push("+/-: Speed".to_string());
+impl StackDisplay {
+    pub fn new(new_memory_access: Rc<RefCell<MemoryAccess>>) -> StackDisplay {
+        let mut display_text: Vec<String> = vec![String::new(); STACKSIZE];
 
-        InfoDisplay {
+        StackDisplay {
             game_name: String::new(),
-            controls: display_text,
+            stack: display_text,
             game_size: 0,
-            program_manager: new_program_manager,
+            memory_access: new_memory_access,
         }
     }
 
@@ -91,12 +80,12 @@ impl InfoDisplay {
         let TextureQuery { width, height, .. } = texture.query();
     
         let target = Rect::new(
-            INFO_START_X + PADDING,
-            INFO_START_Y + PADDING + ((FONTSIZE + PADDING as u16) * row as u16) as i32,
+            STACK_START_X + PADDING,
+            STACK_START_Y + PADDING + ((FONTSIZE + PADDING as u16) * row as u16) as i32,
             width,
             height,
         );
-    
+
         canvas.copy(&texture, None, target);
     }
 }

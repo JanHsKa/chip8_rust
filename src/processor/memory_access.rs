@@ -37,4 +37,11 @@ impl MemoryAccess {
         
         memory_content
     }
+
+    pub fn get_stack(&mut self) -> Vec<u16> {
+        let mut stack = vec![0; STACKSIZE];
+        stack.copy_from_slice(&self.memory.borrow().stack);
+        
+        stack
+    }
 }

@@ -1,5 +1,5 @@
 use crate::processor::{Cpu, Memory, MemoryAccess};
-use crate::display::{GameDisplay, DisplayManager, InfoDisplay};
+use crate::display::{GameDisplay, DisplayManager, InfoDisplay, StackDisplay};
 use crate::{Emulator, sound_manager};
 use crate::interfaces::IDisplay;
 use crate::utils::{FileManager, Keypad, InputChecker, ProgramManager};
@@ -50,7 +50,11 @@ impl Builder {
         prog_manager: &Rc<RefCell<ProgramManager>>) {
         let game_display = GameDisplay::new(Rc::clone(&mem_access));
         let info_display = InfoDisplay::new(Rc::clone(&prog_manager));
+        let stack_display = StackDisplay::new(Rc::clone(&mem_access));
+
         display_manager.add_display(Box::new(game_display));
         display_manager.add_display(Box::new(info_display));
+        display_manager.add_display(Box::new(stack_display));
+
     }
 }

@@ -15,14 +15,18 @@ use std::cell::RefCell;
 use std::boxed::Box;
 
 pub const FONTPATH1: &str = "Font/8bitOperatorPlus8-Regular.ttf";
-
-pub const FONTPATH2: &str = "Font/8Bit-44Pl.ttf";
+pub const FONTPATH2: &str = "Font/PrintChar21.ttf";
+pub const FONTPATH3: &str = "Font/8bitOperatorPlus-Regular.ttf";
+pub const FONTPATH4: &str = "Font/8-BIT WONDER.ttf";
+pub const FONTSIZE: u16 = 18;
 
 
 use self::layout_constants::{PIXEL_SCALE, 
     WINDOW_HEIGHT, WINDOW_WIDTH, GAME_START_X, 
     GAME_START_Y, MEMORY_HEIGHT, MEMORY_WIDTH, 
-    INFO_START_X, INFO_START_Y, OUTLINE};
+    INFO_START_X, INFO_START_Y, STACK_HEIGHT,
+    STACK_WIDTH, STACK_START_X, STACK_START_Y, 
+    OUTLINE, EDGE_SIZE};
 
 
 pub struct DisplayManager {
@@ -82,7 +86,7 @@ impl DisplayManager {
             layout_constants::GAME_WIDTH, 
             OUTLINE as u32);
 
-         //HORIZONTAL
+         //HORIZONTAL Dark
          self.canvas.set_draw_color(*layout_constants::DARK_OUTLINE);
          self.canvas.fill_rect(rect);
  
@@ -90,9 +94,14 @@ impl DisplayManager {
          rect.set_width(layout_constants::OPCODE_WIDTH);
          self.canvas.fill_rect(rect);
  
-         rect.set_x(layout_constants::EDGE_SIZE);
+         rect.set_x(EDGE_SIZE);
          rect.set_y(layout_constants::INFO_START_Y - OUTLINE);
          rect.set_width(layout_constants::INFO_WIDTH + OUTLINE as u32);
+         self.canvas.fill_rect(rect);
+
+         rect.set_x(layout_constants::STACK_START_X - OUTLINE);
+         rect.set_y(layout_constants::STACK_START_Y - OUTLINE);
+         rect.set_width(layout_constants::STACK_WIDTH + OUTLINE as u32);
          self.canvas.fill_rect(rect);
  
          rect.set_x(layout_constants::MEMORY_START_X - OUTLINE);
@@ -100,7 +109,7 @@ impl DisplayManager {
          rect.set_width(layout_constants::MEMORY_WIDTH + OUTLINE as u32);
          self.canvas.fill_rect(rect);
  
-         //VERTIKAL
+         //VERTICAL Dark
          rect.set_x(layout_constants::EDGE_SIZE);
          rect.set_y(layout_constants::EDGE_SIZE);
          rect.set_width(OUTLINE as u32);
@@ -110,9 +119,14 @@ impl DisplayManager {
          rect.set_x(layout_constants::OPCODE_START_X - OUTLINE);
          self.canvas.fill_rect(rect);
  
-         rect.set_x(layout_constants::EDGE_SIZE);
+         rect.set_x(EDGE_SIZE);
          rect.set_y(layout_constants::INFO_START_Y - OUTLINE);
          rect.set_height(layout_constants::INFO_HEIGHT + OUTLINE as u32);
+         self.canvas.fill_rect(rect);
+
+         rect.set_x(layout_constants::STACK_START_X - OUTLINE);
+         rect.set_y(layout_constants::STACK_START_Y - OUTLINE);
+         rect.set_height(layout_constants::STACK_HEIGHT + OUTLINE as u32);
          self.canvas.fill_rect(rect);
  
          rect.set_x(layout_constants::MEMORY_START_X - OUTLINE);
@@ -121,7 +135,7 @@ impl DisplayManager {
          self.canvas.fill_rect(rect);
          
          self.canvas.set_draw_color(*layout_constants::BRIGHT_OUTLINE);
-         //HORIZONTAL
+         //HORIZONTAL Bright
          rect.set_x(layout_constants::EDGE_SIZE);
          rect.set_y(layout_constants::EDGE_SIZE + layout_constants::GAME_HEIGHT as i32+ OUTLINE);
          rect.set_width(layout_constants::GAME_WIDTH + OUTLINE as u32);
@@ -136,13 +150,18 @@ impl DisplayManager {
          rect.set_y(layout_constants::INFO_START_Y + layout_constants::INFO_HEIGHT as i32);
          rect.set_width(layout_constants::INFO_WIDTH + 2 * OUTLINE as u32);
          self.canvas.fill_rect(rect);
+
+         rect.set_x(layout_constants::STACK_START_X - OUTLINE);
+         rect.set_y(layout_constants::STACK_START_Y + layout_constants::STACK_HEIGHT as i32);
+         rect.set_width(layout_constants::STACK_WIDTH + 2 * OUTLINE as u32);
+         self.canvas.fill_rect(rect);
  
          rect.set_x(layout_constants::MEMORY_START_X - OUTLINE);
          rect.set_y(layout_constants::MEMORY_START_Y + layout_constants::MEMORY_HEIGHT as i32);
          rect.set_width(layout_constants::MEMORY_WIDTH + 2 * OUTLINE as u32);
          self.canvas.fill_rect(rect);
  
-         //VERTIKAL
+         //VERTIKAL Bright
          rect.set_x(GAME_START_X + layout_constants::GAME_WIDTH as i32);
          rect.set_y(layout_constants::EDGE_SIZE);
          rect.set_width(OUTLINE as u32);
@@ -155,6 +174,11 @@ impl DisplayManager {
          rect.set_x(layout_constants::INFO_START_X + layout_constants::INFO_WIDTH as i32);
          rect.set_y(layout_constants::INFO_START_Y - OUTLINE);
          rect.set_height(layout_constants::INFO_HEIGHT + OUTLINE as u32);
+         self.canvas.fill_rect(rect);
+
+         rect.set_x(layout_constants::STACK_START_X + layout_constants::STACK_WIDTH as i32);
+         rect.set_y(layout_constants::STACK_START_Y - OUTLINE);
+         rect.set_height(layout_constants::STACK_HEIGHT + OUTLINE as u32);
          self.canvas.fill_rect(rect);
  
          rect.set_x(layout_constants::MEMORY_START_X + layout_constants::MEMORY_WIDTH as i32);

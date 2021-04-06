@@ -196,8 +196,9 @@ impl Cpu {
     fn op_00ee(&mut self) {
         let mut data = self.data_ref.borrow_mut();
         data.stack_pointer -= 1;
-        data.program_counter = data.stack[data.stack_pointer] as usize;
-        //self.stack[self.stack_pointer] = 0;
+        let stack_pointer = data.stack_pointer;
+        data.program_counter = data.stack[stack_pointer] as usize;
+        data.stack[stack_pointer] = 0;
     }
 
     //JP addr
