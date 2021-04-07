@@ -1,6 +1,5 @@
 use sdl2::pixels::Color;
 use crate::processor::memory_constants;
-use crate::lazy_static;
 
 
 lazy_static! {
@@ -22,8 +21,12 @@ pub const LINE_PADDING: i32 = 4;
 pub const HIGHLIGHT_PADDING: i32 = LINE_PADDING / 2;
 //original 1350 / 850
 //low scale 800 / 550
-pub const WINDOW_WIDTH: u32 = 1350;
+pub const WINDOW_WIDTH: u32 = 1450;
 pub const WINDOW_HEIGHT: u32 = 890;
+pub const WINDOW_START_X: i32 = 0;
+pub const WINDOW_START_Y: i32 = 0;
+pub const WINDOW_NAME: &str = "Chip 8";
+
 
 pub const GAME_WIDTH: u32 = (memory_constants::COLUMNS * PIXEL_SCALE) as u32;
 pub const GAME_HEIGHT: u32 = (memory_constants::ROWS * PIXEL_SCALE) as u32;
@@ -36,7 +39,7 @@ pub const MEMORY_START_X: i32 = OPCODE_START_X;
 pub const MEMORY_START_Y: i32 = 2 * EDGE_SIZE + 3 * OUTLINE + GAME_HEIGHT as i32;
 
 pub const INFO_HEIGHT: u32 = MEMORY_HEIGHT;
-pub const INFO_WIDTH: u32 = MEMORY_WIDTH;
+pub const INFO_WIDTH: u32 = MEMORY_WIDTH / 3 * 2;
 pub const INFO_START_X: i32 = GAME_START_X;
 pub const INFO_START_Y: i32 = MEMORY_START_Y;
 
@@ -47,8 +50,7 @@ pub const OPCODE_START_Y: i32 = GAME_START_Y;
 pub const OPCODE_LINES: usize = 21;
 
 pub const STACK_HEIGHT: u32 = MEMORY_HEIGHT;
-pub const STACK_WIDTH: u32 = MEMORY_WIDTH / 4 * 3; /// 2 + 3 * EDGE_SIZE as u32;
-// WINDOW_WIDTH - INFO_WIDTH - MEMORY_WIDTH - 5 * EDGE_SIZE as u32 - 6 * OUTLINE as u32;
+pub const STACK_WIDTH: u32 = MEMORY_WIDTH / 2; /// 2 + 3 * EDGE_SIZE as u32;
 pub const STACK_START_X: i32 = MEMORY_START_X - STACK_WIDTH as i32 - EDGE_SIZE - 2 * OUTLINE;
 pub const STACK_START_Y: i32 = MEMORY_START_Y;
 

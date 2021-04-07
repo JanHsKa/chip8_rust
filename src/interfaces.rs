@@ -1,8 +1,7 @@
-use crate::sdl2;
-use crate::processor::MemoryAccess;
-use std::rc::Rc;
+use crate::sdl2::{render::WindowCanvas, ttf::Sdl2TtfContext};
+use std::{result::Result};
 
 pub trait IDisplay {
     fn update_info(&mut self);
-    fn redraw(&mut self, canvas: &mut sdl2::render::WindowCanvas, &mut sdl2::ttf::Sdl2TtfContext);
+    fn redraw(&mut self, canvas: &mut WindowCanvas, &mut Sdl2TtfContext) -> Result<(), String>;
 }

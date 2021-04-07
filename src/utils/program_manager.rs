@@ -1,13 +1,10 @@
 
 use crate::utils::{FileManager, FileInfo};
-use crate::processor::{memory_constants, MemoryAccess};
-use sdl2::event::Event;
-use self::memory_constants::{MAX_PROGRAM_SIZE};
-use crate::sdl2::keyboard::Keycode;
-use std::rc::Rc;
-use std::cell::RefCell;
-use sdl2::render::TextureQuery;
-use sdl2::ttf;
+use crate::processor::{
+    memory_constants::{MAX_PROGRAM_SIZE}, 
+    MemoryAccess};
+use sdl2::{event::Event, keyboard::Keycode};
+use std::{rc::Rc, cell::RefCell};
 
 
 #[derive(Copy, Clone, PartialEq)]

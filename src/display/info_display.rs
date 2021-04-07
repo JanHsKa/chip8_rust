@@ -1,17 +1,15 @@
 use crate::interfaces::IDisplay;
 use crate::utils::{ProgramManager, ProgramState};
-use crate::display::{FONTPATH1, FONTPATH2, FONTPATH3, FONTPATH4, FONTSIZE,
-    layout_constants::{INFO_START_X, INFO_START_Y, LINE_PADDING}
+use crate::display::{
+    layout_constants::{INFO_START_X, INFO_START_Y, 
+        INFO_WIDTH, INFO_HEIGHT}, 
+        DisplayRenderHelper
 };
-use std::rc::Rc;
-use std::collections::HashMap;
-use sdl2::rect::Rect;
-use std::cell::RefCell;
-use sdl2::ttf::Font;
-use sdl2::render::{TextureQuery, TextureCreator, WindowCanvas};
-use sdl2::pixels::Color;
-use sdl2::video::WindowContext;
-use sdl2::surface::Surface;
+use std::{
+    rc::Rc, cell::RefCell};
+use sdl2::{
+    ttf::Sdl2TtfContext, 
+    render::{WindowCanvas}};
 //Controls: 
 // F5: contninue / stop
 // F6: step 
@@ -25,22 +23,26 @@ use sdl2::surface::Surface;
 pub struct InfoDisplay {
     game_name: String,
     controls: Vec<String>,
-    game_size: u32,
+    game_size: u64,
     game_state: ProgramState,
     program_manager: Rc<RefCell<ProgramManager>>,
+    render_helper: DisplayRenderHelper,
 }
 
 impl IDisplay for InfoDisplay {
     fn update_info(&mut self) {
         let mut manager = self.program_manager.borrow_mut();  
         let file_info = manager.get_file_info();
+        self.game_size = file_info.file_size;
+        self.game_name = file_info.file_name.clone();
 
         self.controls[3] = format!("Game: {}", file_info.file_name.as_str());
         self.controls[4] = format!("Size: {} Bytes", file_info.file_size);
 
         let mut state = String::new();
-        
-        match manager.get_state() {
+        self.game_state = manager.get_state();
+
+        match self.game_state {
             ProgramState::Running => state = "Running".to_string(),
             ProgramState::Stopped |
             ProgramState::Step => state = "Stopped".to_string(),
@@ -49,20 +51,12 @@ impl IDisplay for InfoDisplay {
 
         self.controls[5] = format!("Status: {}", state);
         self.controls[6] = format!("Speed: {}", manager.get_speed());
-
-
     }
 
-    fn redraw(&mut self, canvas: &mut WindowCanvas, ttf_context: &mut sdl2::ttf::Sdl2TtfContext) {
-        let mut font = ttf_context.load_font(FONTPATH3, FONTSIZE).unwrap();
-        //font.set_style(sdl2::ttf::FontStyle::BOLD);
+    fn redraw(&mut self, canvas: &mut WindowCanvas, ttf_context: &mut Sdl2TtfContext) -> Result<(), String> {
+        self.render_helper.draw_lines(&mut self.controls, canvas, ttf_context)?;
 
-        let texture_creator = canvas.texture_creator();
-        // render a surface, and convert it to a texture bound to the canvas
-        let mut lines_to_draw = self.controls.clone();
-        for (i, iter) in lines_to_draw.iter_mut().enumerate() {
-            self.render_text_line(canvas, &font, &texture_creator, iter, i);
-        }
+        Ok(())
     }
 }
 
@@ -78,8 +72,8 @@ impl InfoDisplay {
         display_text.push("Speed: ".to_string());
         display_text.push(" ".to_string());
         display_text.push("Controls".to_string());
-        display_text.push("F1 : Reset Program".to_string());
-        display_text.push("F3 : Open in Editor".to_string());
+        display_text.push("F1 : Reset".to_string());
+        display_text.push("F3 : Open Editor".to_string());
         display_text.push("F4 : Dump Memory".to_string());
         display_text.push("F5 : Stop/Continue".to_string());
         display_text.push("F6 : Step".to_string());
@@ -92,30 +86,7 @@ impl InfoDisplay {
             game_size: 0,
             program_manager: new_program_manager,
             game_state: ProgramState::Running,
+            render_helper: DisplayRenderHelper::new(INFO_START_X, INFO_START_Y, INFO_WIDTH, INFO_HEIGHT),
         }
-    }
-
-    fn render_text_line(&mut self, canvas: &mut WindowCanvas, font: &Font,
-            texture_creator: &TextureCreator<WindowContext>, text: &mut String, row: usize) {
-
-        let surface = font
-            .render((*text).as_str())
-            .blended(Color::WHITE)
-            .unwrap();
-
-        let texture = texture_creator
-            .create_texture_from_surface(&surface)
-            .unwrap();
-    
-        let TextureQuery { width, height, .. } = texture.query();
-    
-        let target = Rect::new(
-            INFO_START_X + LINE_PADDING,
-            INFO_START_Y + LINE_PADDING + ((FONTSIZE + LINE_PADDING as u16) * row as u16) as i32,
-            width,
-            height,
-        );
-    
-        canvas.copy(&texture, None, target);
     }
 }

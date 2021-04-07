@@ -1,11 +1,9 @@
-use crate::processor::{Cpu, Memory, MemoryAccess};
-use crate::utils::{FileManager, InputChecker, ProgramManager, ProgramState};
+use crate::processor::{Cpu, MemoryAccess};
+use crate::utils::{InputChecker, ProgramManager, ProgramState, SoundManager};
 use crate::display::{DisplayManager};
-use crate::sound_manager::SoundManager;
 
-use crate::sdl2;
-use std::io;
-use self::io::Result;
+use std::{result::Result};
+
 use std::thread;
 use std::time::Duration;
 
@@ -13,7 +11,6 @@ use std::time::Duration;
 //use mpsc::{Sender, Receiver};
 use std::rc::Rc;
 use std::cell::RefCell;
-use sdl2::Sdl;
 
 pub struct Emulator {
     cpu: Cpu,
@@ -55,7 +52,6 @@ impl Emulator {
     }
 
     fn run_program(&mut self) {
-        let mut run = true;
         let mut timer = 0;
 
         'running: loop {
@@ -100,7 +96,6 @@ impl Emulator {
     fn refresh(&mut self, timer: &mut i32) {
         self.refresh_cpu_timer(timer);
         self.refresh_display(timer);
-;
     }
 
     fn refresh_cpu_timer(&mut self, timer: &mut i32) {
@@ -129,12 +124,14 @@ impl Emulator {
         }
     }
 
-    fn initialize(& mut self) {
+    fn initialize(& mut self) -> Result<(), String> {
         let mut manager = self.program_manager.borrow_mut();
         manager.initialize();
         self.cpu.load_program_code(manager.get_file_content());
-        self.display_manager.initialize();
+        self.display_manager.initialize()?;
         println!("INIT");
+
+        Ok(())
     }
 
     fn new_program(&mut self) {

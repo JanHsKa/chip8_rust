@@ -1,7 +1,6 @@
 use crate::processor::{Memory, memory_constants::{
     MEMORYSIZE, VARIABLES_COUNT, COLUMNS, 
-    ROWS, STACKSIZE, CARRY_FLAG, 
-    MAX_PROGRAM_SIZE, PROGRAM_START, 
+    ROWS, STACKSIZE, MAX_PROGRAM_SIZE,  
     PROGRAM_STEP, GRAPHIC_SIZE}};
 
 use std::{cell::RefCell, rc::Rc, option::Option};

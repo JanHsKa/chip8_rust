@@ -1,8 +1,4 @@
-use crate::sdl2;
-
 use sdl2::audio::{AudioCallback, AudioSpecDesired, AudioDevice};
-use std::time::Duration;
-use std::option;
 
 use sdl2::Sdl;
 
@@ -16,7 +12,6 @@ impl AudioCallback for SquareWave {
     type Channel = f32;
 
     fn callback(&mut self, out: &mut [f32]) {
-        // Generate a square wave
         for x in out.iter_mut() {
             *x = if self.phase <= 0.5 {
                 self.volume
@@ -42,7 +37,6 @@ impl SoundManager {
         };
 
         let device = subsystem.open_playback(None, &desired_spec, |spec| {
-            // initialize the audio callback
             SquareWave {
                 phase_inc: 240.0 / spec.freq as f32,
                 phase: 0.0,

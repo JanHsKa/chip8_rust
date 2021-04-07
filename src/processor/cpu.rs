@@ -1,10 +1,7 @@
 use crate::utils::{Keypad};
-
-use crate::processor::{memory_constants, FONTSET, Memory, MemoryAccess};
+use crate::processor::{memory_constants, FONTSET, Memory};
 use std::rc::Rc;
 use std::cell::{RefCell, RefMut};
-use std::option::Option;
-
 use rand::Rng;
 
 use self::memory_constants::{
@@ -68,15 +65,9 @@ impl Cpu {
     pub fn run_opcode(&mut self) {
         if self.running {
             self.set_opcode();
-            //self.print_memory();
             let nibbles = self.decode_opcode();
             self.match_opcode(nibbles);
         }
-    }
-
-    fn print_memory(&mut self) {
-        //println!("opcode: {:#04X?}", self.data.opcode);
-        //println!("program counter: {:#04X?}", self.data.program_counter);
     }
 
     pub fn tick_timer(&mut self) {
@@ -96,27 +87,6 @@ impl Cpu {
 
     pub fn play_sound(&mut self) -> bool {
         self.data_ref.borrow_mut().sound_timer > 0
-    }
-
-    fn print_graphic_array(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
-        for row in 0..ROWS as usize {
-            for column in 0..COLUMNS {
-                print!("{},", data.grapphic_array[(row * COLUMNS) + column]);
-            }
-            print!("\n");
-        }
-        print!("\n");
-        print!("\n");
-    }
-
-    fn print_fontset(&mut self) {
-        for i in 0..80 {
-            if i % 5 == 0 {
-                print!("\n");
-            }
-            print!("{:#02X?}, ", self.data_ref.borrow_mut().memory[i]);
-        }
     }
 
     fn no_match(&mut self) {

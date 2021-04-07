@@ -1,6 +1,5 @@
 mod emulator;
 pub mod utils;
-pub mod sound_manager;
 pub mod processor;
 pub mod display;
 pub mod interfaces;
@@ -17,8 +16,6 @@ use emulator::Emulator;
 use crate::builder::Builder;
 use crate::processor::Memory;
 use std::env;
-use std::thread;
-use std::time::Duration;
 use utils::Keypad;
 use std::rc::Rc;
 use std::cell::RefCell;
@@ -30,7 +27,7 @@ fn main() {
     if args.len() > 0 {
         let keypad = Rc::new(RefCell::new(Keypad::new()));
         let sdl_context = sdl2::init().unwrap();
-        let mut memory = Memory::new();
+        let memory = Memory::new();
         let mut builder = Builder::new();
         let mut emulator = builder.build_emulator(keypad, sdl_context, args[1].clone(), memory);
         //let mut emulator = Emulator::new(args[1].clone(), keypad, sdl_context);
