@@ -1,4 +1,4 @@
-use crate::processor::{Memory, memory_constants::{
+use crate::processor::{Memory, Resolution, memory_constants::{
     MEMORYSIZE, VARIABLES_COUNT, COLUMNS, 
     ROWS, STACKSIZE, MAX_PROGRAM_SIZE,  
     PROGRAM_STEP, GRAPHIC_SIZE}};
@@ -16,7 +16,7 @@ impl MemoryAccess {
         }
     }
 
-    pub fn get_graphic_array(&mut self) -> [u8; GRAPHIC_SIZE] {
+    pub fn get_graphic_array(&mut self) -> Vec<u8> {
         self.memory.borrow().grapphic_array.clone()
     }
 
@@ -63,5 +63,9 @@ impl MemoryAccess {
 
     pub fn get_sound_timer(&mut self) -> u8 {
         self.memory.borrow().sound_timer
+    }
+
+    pub fn get_resolution(&mut self) -> Resolution {
+        self.memory.borrow().resolution
     }
 }

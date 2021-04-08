@@ -1,6 +1,7 @@
 use crate::display::{
     FONTPATH1, FONTPATH2, 
-    FONTPATH3, FONTPATH4, FONTSIZE,
+    FONTPATH3, FONTPATH4, 
+    FONTSIZE_LINE, FONTSIZE_KEYPAD,
     layout_constants::{
         LINE_PADDING, HIGHLIGHT_PADDING}
 };
@@ -14,7 +15,7 @@ pub struct DisplayRenderHelper {
     display_x: i32,
     display_y: i32,
     display_width: u32,
-    display_heigth: u32,
+    display_height: u32,
 }
 
 impl DisplayRenderHelper {
@@ -23,7 +24,7 @@ impl DisplayRenderHelper {
             display_x: x,
             display_y: y,
             display_width: width,
-            display_heigth: height,
+            display_height: height,
         }
     }
 
@@ -50,9 +51,44 @@ impl DisplayRenderHelper {
     fn get_rectangle(&mut self, y: i32) -> Rect{
         Rect::new(
             self.display_x,
-            self.display_y + HIGHLIGHT_PADDING + y * (FONTSIZE as i32 + LINE_PADDING),
+            self.display_y + HIGHLIGHT_PADDING + y * (FONTSIZE_LINE as i32 + LINE_PADDING),
              self.display_width, 
-             2 * (LINE_PADDING / 2) as u32 + FONTSIZE as u32)
+             2 * (LINE_PADDING / 2) as u32 + FONTSIZE_LINE as u32)
+    } 
+
+    pub fn draw_keypad(&mut self, keys: Vec<String>, x: i32, y: i32, 
+        canvas: &mut WindowCanvas, ttf_context: &mut Sdl2TtfContext) -> Result<(), String> {
+
+        let font = ttf_context.load_font(FONTPATH3, FONTSIZE_KEYPAD).unwrap();
+        let texture_creator = canvas.texture_creator();
+
+        Ok(())
+    }
+
+    fn draw_key(&mut self, character: &str, canvas: &mut WindowCanvas, font: &Font,
+        texture_creator: &TextureCreator<WindowContext>, text: &mut String) -> Result<(), String> {
+
+        let surface = font
+            .render(character)
+            .blended(Color::WHITE)
+            .unwrap();
+
+        let texture = texture_creator
+            .create_texture_from_surface(&surface)
+            .unwrap();
+
+        let TextureQuery { width, height, .. } = texture.query();
+        
+        let target = Rect::new(
+            LINE_PADDING,
+            self.display_y,
+            width,
+            height,
+        );
+        
+        canvas.copy(&texture, None, target)?;
+
+        Ok(())
     }
 
     pub fn draw_lines(&mut self, lines: &mut Vec<String>,
@@ -66,7 +102,7 @@ impl DisplayRenderHelper {
     pub fn draw_lines_with_x(&mut self, lines: &mut Vec<String>,
         canvas: &mut WindowCanvas, ttf_context: &mut Sdl2TtfContext, x: i32) -> Result<(), String> {
 
-        let font = ttf_context.load_font(FONTPATH3, FONTSIZE).unwrap();
+        let font = ttf_context.load_font(FONTPATH3, FONTSIZE_LINE).unwrap();
         //font.set_style(sdl2::ttf::FontStyle::BOLD);
 
         let texture_creator = canvas.texture_creator();
@@ -93,7 +129,7 @@ impl DisplayRenderHelper {
     
         let target = Rect::new(
             x + LINE_PADDING,
-            self.display_y + LINE_PADDING + ((FONTSIZE + LINE_PADDING as u16) * row as u16) as i32,
+            self.display_y + LINE_PADDING + ((FONTSIZE_LINE + LINE_PADDING as u16) * row as u16) as i32,
             width,
             height,
         );

@@ -1,16 +1,26 @@
 use crate::utils::{Keypad};
-use crate::processor::{memory_constants, FONTSET, Memory};
+use crate::processor::{memory_constants::{
+    MEMORYSIZE, VARIABLES_COUNT, COLUMNS, 
+    ROWS, STACKSIZE, CARRY_FLAG, 
+    MAX_PROGRAM_SIZE, PROGRAM_START, 
+    PROGRAM_STEP, GRAPHIC_SIZE,GRAPHIC_SIZE_HIGH, 
+    SPRITE_WIDTH, BIG_SPRITE, FLAG_REGISTER_SIZE}, 
+    FONTSET_LOW, FONTSET_HIGH, FONTSET_HIGH_SIZE,
+    FONTSET_LOW_SIZE, FONTSET_HIGH_START, 
+    Memory, Resolution};
 use std::rc::Rc;
 use std::cell::{RefCell, RefMut};
 use rand::Rng;
 
-use self::memory_constants::{
-    MEMORYSIZE, VARIABLES_COUNT, COLUMNS, 
-    ROWS, STACKSIZE, CARRY_FLAG, 
-    MAX_PROGRAM_SIZE, PROGRAM_START, 
-    PROGRAM_STEP, GRAPHIC_SIZE};
-
 struct Nibbles (u16, u16, u16, u16);
+
+#[derive(Copy, Clone, PartialEq)]
+pub struct BitState;
+
+impl BitState {
+    pub const UNSET: u8 = 0;
+    pub const SET: u8 = 1;
+}
 
 pub struct Cpu {
     data_ref: Rc<RefCell<Memory>>,
@@ -21,11 +31,16 @@ pub struct Cpu {
     nnn: u16,
     kk: u8,
     n: usize,
+    max_columns: usize,
+    max_rows: usize,
 }
 
 impl Cpu {
     pub fn new(new_keypad: Rc<RefCell<Keypad>>, new_data: Rc<RefCell<Memory>>) -> Cpu {
-        new_data.borrow_mut().memory[..FONTSET.len()].copy_from_slice(&FONTSET[..]);
+        new_data.borrow_mut().memory[..FONTSET_LOW_SIZE].copy_from_slice(&FONTSET_LOW[..]);
+        new_data.borrow_mut().memory[FONTSET_HIGH_START..FONTSET_HIGH_START + FONTSET_HIGH_SIZE]
+        .copy_from_slice(&FONTSET_HIGH[..]);
+
 
         Cpu{
             data_ref: new_data,
@@ -36,14 +51,18 @@ impl Cpu {
             nnn: 0,
             kk: 0,
             n: 0,
+            max_columns: COLUMNS,
+            max_rows: ROWS,
         }
     }
 
     pub fn reset(&mut self) {
         self.running = true;
-        self.data_ref.borrow_mut().reset();
-        self.data_ref.borrow_mut().memory[..FONTSET.len()].copy_from_slice(&FONTSET[..]);
-
+        let mut data = self.data_ref.borrow_mut();
+        data.reset();
+        data.memory[..FONTSET_LOW_SIZE].copy_from_slice(&FONTSET_LOW[..]);
+        data.memory[FONTSET_HIGH_START..FONTSET_HIGH_START + FONTSET_HIGH_SIZE]
+        .copy_from_slice(&FONTSET_HIGH[..]);
     }
 
     pub fn load_program_code(&mut self, code: [u8; MAX_PROGRAM_SIZE]) {
@@ -81,10 +100,6 @@ impl Cpu {
         }
     }
 
-    pub fn get_graphic_array(&mut self) -> [u8; GRAPHIC_SIZE] {
-        self.data_ref.borrow_mut().grapphic_array.clone()
-    }
-
     pub fn play_sound(&mut self) -> bool {
         self.data_ref.borrow_mut().sound_timer > 0
     }
@@ -109,6 +124,7 @@ impl Cpu {
         self.nnn = data.opcode & 0x0FFF;
         self.kk = (data.opcode & 0x00FF) as u8;
         self.n = nibbles.3 as usize;
+        
 
         data.program_counter += PROGRAM_STEP;
         
@@ -117,8 +133,13 @@ impl Cpu {
 
     fn match_opcode(&mut self, nibbles: (u16, u16, u16, u16)) {
         match nibbles {
+            (0x0, 0x0, 0xc, _) => self.op_00cn(),
             (0x0, 0x0, 0xe, 0x0) => self.op_00e0(),
             (0x0, 0x0, 0xe, 0xe) => self.op_00ee(),
+            (0x0, 0x0, 0xf, 0xb) => self.op_00fb(),
+            (0x0, 0x0, 0xf, 0xc) => self.op_00fc(),
+            (0x0, 0x0, 0xf, 0xe) => self.op_00fe(),
+            (0x0, 0x0, 0xf, 0xf) => self.op_00ff(),
             (0x1, _, _, _) => self.op_1nnn(),
             (0x2, _, _, _) => self.op_2nnn(),
             (0x3, _, _, _) => self.op_3xkk(),
@@ -139,6 +160,7 @@ impl Cpu {
             (0xA, _, _, _) => self.op_annn(),
             (0xB, _, _, _) => self.op_bnnn(),
             (0xC, _, _, _) => self.op_cxkk(),
+            (0xD, _, _, 0x0) => self.op_dxy0(),
             (0xD, _, _, _) => self.op_dxyn(),
             (0xE, _, 0x9, 0xE) => self.op_ex9e(),
             (0xE, _, 0xA, 0x1) => self.op_exa1(),
@@ -148,12 +170,25 @@ impl Cpu {
             (0xF, _, 0x1, 0x8) => self.op_fx18(),
             (0xF, _, 0x1, 0xE) => self.op_fx1e(),
             (0xF, _, 0x2, 0x9) => self.op_fx29(),
+            (0xF, _, 0x3, 0x0) => self.op_fx30(),
             (0xF, _, 0x3, 0x3) => self.op_fx33(),
             (0xF, _, 0x5, 0x5) => self.op_fx55(),
             (0xF, _, 0x6, 0x5) => self.op_fx65(),
+            (0xF, _, 0x7, 0x5) => self.op_fx75(),
+            (0xF, _, 0x8, 0x5) => self.op_fx85(),
             _ => self.no_match(),
         }
     }
+
+    //Scroll Down
+    fn op_00cn(&mut self) {
+        let mut data = self.data_ref.borrow_mut();
+        let graphic_copy = data.grapphic_array.clone();
+        let shift: usize = self.n * COLUMNS * data.resolution as usize;
+        data.grapphic_array[shift..GRAPHIC_SIZE]
+        .copy_from_slice(&graphic_copy[..GRAPHIC_SIZE-shift]); 
+    }
+
     //CLS
     fn op_00e0(&mut self) {
         let mut data = self.data_ref.borrow_mut();
@@ -169,6 +204,35 @@ impl Cpu {
         let stack_pointer = data.stack_pointer;
         data.program_counter = data.stack[stack_pointer] as usize;
         data.stack[stack_pointer] = 0;
+    }
+
+    //Scroll Right
+    fn op_00fb(&mut self) {
+        let mut data = self.data_ref.borrow_mut();
+        
+    }
+
+    //Scroll Left
+    fn op_00fc(&mut self) {
+
+    }
+
+    //Low Res
+    fn op_00fe(&mut self) {
+        let mut data = self.data_ref.borrow_mut();
+        data.resolution = Resolution::Low;
+        data.grapphic_array = vec![0; GRAPHIC_SIZE];
+        self.max_columns = COLUMNS * Resolution::Low as usize;
+        self.max_rows = ROWS * Resolution::Low as usize;
+    }
+
+    //High Res
+    fn op_00ff(&mut self) {
+        let mut data = self.data_ref.borrow_mut();
+        data.resolution = Resolution::High;
+        data.grapphic_array = vec![0; GRAPHIC_SIZE_HIGH];
+        self.max_columns = COLUMNS * Resolution::High as usize;
+        self.max_rows = ROWS * Resolution::High as usize;
     }
 
     //JP addr
@@ -320,17 +384,42 @@ impl Cpu {
         let mut y_coordinate : usize;
         let mut sprite : u8; 
 
-        data.variable_register[CARRY_FLAG] = 0;
+        data.variable_register[CARRY_FLAG] = BitState::UNSET;
         for row in 0..self.n as usize {
-            y_coordinate = (data.variable_register[self.y] as usize + row) % ROWS;
+            y_coordinate = (data.variable_register[self.y] as usize + row) % self.max_rows;
             sprite = data.memory[data.index_register as usize + row];
-            for column in 0..8 {
-                x_coordinate = (data.variable_register[self.x] as usize + column) % COLUMNS;
-                if (sprite & (0x80 >> column)) != 0 {
-                    if data.grapphic_array[(y_coordinate * COLUMNS) + x_coordinate] == 1 {
-                        data.variable_register[CARRY_FLAG] = 1;
+            for column in 0..SPRITE_WIDTH {
+                x_coordinate = (data.variable_register[self.x] as usize + column) % self.max_columns;
+                if (sprite & (0x80 >> column)) != BitState::UNSET {
+                    if data.grapphic_array[(y_coordinate * self.max_columns) + x_coordinate] == BitState::SET {
+                        data.variable_register[CARRY_FLAG] = BitState::SET;
                     }
-                data.grapphic_array[(y_coordinate * COLUMNS) + x_coordinate] ^= 1;
+                data.grapphic_array[(y_coordinate * self.max_columns) + x_coordinate] ^= BitState::SET;
+                }
+            }
+        }
+    }
+
+    //DRW 16x16
+    fn op_dxy0(&mut self) {
+        let mut data = self.data_ref.borrow_mut();
+        let mut x_coordinate : usize;
+        let mut y_coordinate : usize;
+        let mut sprite : u16; 
+
+        data.variable_register[CARRY_FLAG] = BitState::UNSET;
+        for row in (0..BIG_SPRITE * 2).step_by(2) {
+            y_coordinate = (data.variable_register[self.y] as usize + row) % self.max_rows;
+            sprite = (data.memory[data.index_register as usize + row] as u16) << 8 
+                | data.memory[data.index_register as usize + row + 1] as u16;
+
+            for column in 0..BIG_SPRITE {
+                x_coordinate = (data.variable_register[self.x] as usize + column) % self.max_columns;
+                if (sprite & (0x8000 >> column)) != BitState::UNSET as u16{
+                    if data.grapphic_array[(y_coordinate * self.max_columns) + x_coordinate] == BitState::SET {
+                        data.variable_register[CARRY_FLAG] = BitState::SET;
+                    }
+                data.grapphic_array[(y_coordinate * self.max_columns) + x_coordinate] ^= BitState::SET;
                 }
             }
         }
@@ -398,6 +487,12 @@ impl Cpu {
         data.index_register = (data.variable_register[self.x] as u16) * 0x5;
     }
 
+    //LD SF, Vx
+    fn op_fx30(&mut self) {
+        let mut data = self.data_ref.borrow_mut();
+        data.index_register = (data.variable_register[self.x] as u16) * 0xA + FONTSET_HIGH_START as u16;
+    } 
+
     //LD B, Vx
     fn op_fx33(&mut self) {
         let mut data = self.data_ref.borrow_mut();
@@ -427,7 +522,27 @@ impl Cpu {
                 data.variable_register[i] = data.memory[index + i];
             }
         }
-    }   
+    }  
+    
+    //LD Vx, FLAG
+    fn op_fx75(&mut self) {
+        let mut data = self.data_ref.borrow_mut();
+        if self.x < FLAG_REGISTER_SIZE {
+            for i in 0..self.x + 1 {
+                data.flag_register[i] = data.variable_register[i];
+            }
+        }
+    }
+
+    //LD FLAG, Vx
+    fn op_fx85(&mut self) {
+        let mut data = self.data_ref.borrow_mut();
+        if self.x < FLAG_REGISTER_SIZE {
+            for i in 0..self.x + 1 {
+                data.variable_register[i] = data.flag_register[i];
+            }
+        }
+    }
 }
 
 

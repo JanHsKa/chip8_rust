@@ -40,6 +40,11 @@ impl WindowRenderer {
          rect.set_width(INFO_WIDTH + OUTLINE as u32);
          canvas.fill_rect(rect)?;
 
+         rect.set_x(KEYPAD_START_X - OUTLINE);
+         rect.set_y(KEYPAD_START_Y - OUTLINE);
+         rect.set_width(KEYPAD_WIDTH + OUTLINE as u32);
+         canvas.fill_rect(rect)?;
+
          rect.set_x(STACK_START_X - OUTLINE);
          rect.set_y(STACK_START_Y - OUTLINE);
          rect.set_width(STACK_WIDTH + OUTLINE as u32);
@@ -63,6 +68,11 @@ impl WindowRenderer {
          rect.set_x(EDGE_SIZE);
          rect.set_y(INFO_START_Y - OUTLINE);
          rect.set_height(INFO_HEIGHT + OUTLINE as u32);
+         canvas.fill_rect(rect)?;
+
+         rect.set_x(KEYPAD_START_X - OUTLINE);
+         rect.set_y(KEYPAD_START_Y - OUTLINE);
+         rect.set_height(KEYPAD_HEIGHT + OUTLINE as u32);
          canvas.fill_rect(rect)?;
 
          rect.set_x(STACK_START_X - OUTLINE);
@@ -92,6 +102,11 @@ impl WindowRenderer {
          rect.set_width(INFO_WIDTH + 2 * OUTLINE as u32);
          canvas.fill_rect(rect)?;
 
+         rect.set_x(KEYPAD_START_X - OUTLINE);
+         rect.set_y(KEYPAD_START_Y + KEYPAD_HEIGHT as i32);
+         rect.set_width(KEYPAD_WIDTH + 2 * OUTLINE as u32);
+         canvas.fill_rect(rect)?;
+
          rect.set_x(STACK_START_X - OUTLINE);
          rect.set_y(STACK_START_Y + STACK_HEIGHT as i32);
          rect.set_width(STACK_WIDTH + 2 * OUTLINE as u32);
@@ -115,6 +130,11 @@ impl WindowRenderer {
          rect.set_x(INFO_START_X + INFO_WIDTH as i32);
          rect.set_y(INFO_START_Y - OUTLINE);
          rect.set_height(INFO_HEIGHT + OUTLINE as u32);
+         canvas.fill_rect(rect)?;
+
+         rect.set_x(KEYPAD_START_X + KEYPAD_WIDTH as i32);
+         rect.set_y(KEYPAD_START_Y - OUTLINE);
+         rect.set_height(KEYPAD_HEIGHT + OUTLINE as u32);
          canvas.fill_rect(rect)?;
 
          rect.set_x(STACK_START_X + STACK_WIDTH as i32);

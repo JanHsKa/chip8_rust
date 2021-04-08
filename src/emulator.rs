@@ -2,10 +2,9 @@ use crate::processor::{Cpu, MemoryAccess};
 use crate::utils::{InputChecker, ProgramManager, ProgramState, SoundManager};
 use crate::display::{DisplayManager};
 
-use std::{result::Result};
+use std::{result::Result, thread, time::Duration, 
+    sync::{Arc, Mutex, mpsc::{Sender, Receiver, channel}}};
 
-use std::thread;
-use std::time::Duration;
 
 //use std::sync::mpsc;
 //use mpsc::{Sender, Receiver};
@@ -53,7 +52,7 @@ impl Emulator {
 
     fn run_program(&mut self) {
         let mut timer = 0;
-
+        
         'running: loop {
             timer += 1;
             self.input_checker.check_input();

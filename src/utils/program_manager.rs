@@ -4,7 +4,7 @@ use crate::processor::{
     memory_constants::{MAX_PROGRAM_SIZE}, 
     MemoryAccess};
 use sdl2::{event::Event, keyboard::Keycode};
-use std::{rc::Rc, cell::RefCell};
+use std::{rc::Rc, cell::RefCell, collections::{HashMap, HashSet}};
 
 
 #[derive(Copy, Clone, PartialEq)]
