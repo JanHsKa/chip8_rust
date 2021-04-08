@@ -21,23 +21,24 @@ impl Builder {
         }
     }
 
-    pub fn build_emulator(&mut self, new_keypad: Rc<RefCell<Keypad>>, 
+    pub fn build_emulator(&mut self, new_keypad: Arc<Mutex<Keypad>>, 
         sdl_context: Sdl, file_path: String, data: Memory) -> Emulator{
-
+        
+        let context = Arc::new(sdl_context);
         let data_ref = self.package_arc_mutex(data);
         let file_manager =  FileManager::new(file_path);
         let access = self.package_arc_mutex(MemoryAccess::new(Arc::clone(&data_ref)));
         let program_manager = self.package_arc_mutex(ProgramManager::new(file_manager, Arc::clone(&access)));
-        let cpu = Cpu::new(Rc::clone(&new_keypad), Arc::clone(&data_ref));
-        let sound_manager = SoundManager::new(&sdl_context);
-        let input_checker = InputChecker::new(&sdl_context, 
-            Rc::clone(&new_keypad), Arc::clone(&program_manager));
-        let mut display_manager = DisplayManager::new(sdl_context);
+        let cpu = Cpu::new(Arc::clone(&new_keypad), Arc::clone(&data_ref));
+        let sound_manager = SoundManager::new(Arc::clone(&context));
+        let input_checker = InputChecker::new(Arc::clone(&context), 
+            Arc::clone(&new_keypad), Arc::clone(&program_manager));
+        let mut display_manager = DisplayManager::new(Arc::clone(&context));
         self.build_displays(&mut display_manager, &access, &program_manager);
 
         Emulator::new(display_manager, cpu, 
-            sound_manager, Arc::clone(&access), input_checker, 
-            Arc::clone(&program_manager))
+            sound_manager, Arc::clone(&access),  
+            Arc::clone(&program_manager), input_checker)
     }
 
     fn build_displays(&mut self, display_manager: &mut DisplayManager, 

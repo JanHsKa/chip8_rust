@@ -10,7 +10,7 @@ use std::{rc::Rc, cell::RefCell,
     sync::{Arc, Mutex, mpsc::{
     Sender, Receiver, channel}}};
 
-pub const BASE_PROGRAM_SPEED: u64 = 100000;
+pub const BASE_PROGRAM_SPEED: u64 = 300;
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum ProgramState {
@@ -61,14 +61,14 @@ impl ProgramManager {
     }
 
     fn increase_speed(&mut self) {
-        if self.program_speed > 2 { 
-            self.program_speed /= 2;
+        if self.program_speed > 100 {
+            self.program_speed -= 100;
         }
     }
 
     fn decrease_speed(&mut self) {
-        if self.program_speed < 10000000 {
-            self.program_speed *= 2;
+        if self.program_speed < 10000 { 
+            self.program_speed += 100;
         }
     }
 

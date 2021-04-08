@@ -6,21 +6,24 @@ use sdl2::Sdl;
 use std::{
     rc::Rc, cell::RefCell,
      result::Result, thread, time::Duration, 
-    sync::{Arc, Mutex, mpsc::{
+    sync::{Arc, Mutex, MutexGuard, mpsc::{
         Sender, Receiver, channel}}};
 
 enum KeyPress {
     Up,
     Down,
 }
+
 pub struct InputChecker {
     event_pump: EventPump,
-    keypad: Rc<RefCell<Keypad>>,
+    keypad: Arc<Mutex<Keypad>>,
     program_manager: Arc<Mutex<ProgramManager>>,
 }
 
+unsafe impl Send for InputChecker {}
+
 impl InputChecker {
-    pub fn new(sdl_context: &Sdl, new_keypad: Rc<RefCell<Keypad>>, 
+    pub fn new(sdl_context: Arc<Sdl>, new_keypad: Arc<Mutex<Keypad>>, 
         new_program_manager: Arc<Mutex<ProgramManager>>) -> InputChecker {
         InputChecker {
             event_pump: sdl_context.event_pump().unwrap(),
@@ -30,24 +33,29 @@ impl InputChecker {
     }
 
     pub fn check_input(&mut self) {
-        let mut events: Vec<Event> = Vec::new();
-        for event in self.event_pump.poll_iter() {
-            events.push(event);
-        }
-
-        for event in events.iter() {
-            match event {
-                Event::KeyDown {keycode,..} => self.process_keydown(keycode.unwrap()),
-                Event::KeyUp {keycode,..} => self.process_keyup(keycode.unwrap()),
-                Event::DropFile {filename, ..} => self.program_manager.lock().unwrap().new_file(filename),
-                Event::Quit {..} => self.program_manager.lock().unwrap().set_state(ProgramState::Quit),
-                _ => {}
+        let mut events: Vec<Event>;
+        //loop {
+            events = Vec::new();
+            for event in self.event_pump.poll_iter() {
+                events.push(event);
             }
-        }
+
+
+            for event in events.iter() {
+                match event {
+                    Event::KeyDown {keycode,..} => self.process_keydown(keycode.unwrap()),
+                    Event::KeyUp {keycode,..} => self.process_keyup(keycode.unwrap()),
+                    Event::DropFile {filename, ..} => self.program_manager.lock().unwrap().new_file(filename),
+                    Event::Quit {..} => self.program_manager.lock().unwrap().set_state(ProgramState::Quit),
+                    _ => {}
+                }
+            }
+            //thread::sleep(Duration::from_millis(2));
+        //}
     }
 
     fn process_keydown(&mut self, key: Keycode) {
-        let mut keypad_ref = self.keypad.borrow_mut();
+        let mut keypad_ref = self.keypad.lock().unwrap();
         match key {
             Keycode::F1 |
             Keycode::F2 |
@@ -64,7 +72,7 @@ impl InputChecker {
     }
 
     fn process_keyup(&mut self, key: Keycode) {
-        let mut keypad_ref = self.keypad.borrow_mut();
+        let mut keypad_ref = self.keypad.lock().unwrap();
         match key {
             _ => (*keypad_ref).press_key(key, KeyPress::Up as u8),
 

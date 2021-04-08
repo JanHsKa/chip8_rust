@@ -2,7 +2,6 @@ use crate::display::layout_constants;
 use crate::processor::{MemoryAccess, Resolution,
     memory_constants::{ROWS, COLUMNS, GRAPHIC_SIZE}};
 use crate::interfaces::IDisplay;
-
 use sdl2::{
     render::WindowCanvas, rect, 
     ttf::Sdl2TtfContext};

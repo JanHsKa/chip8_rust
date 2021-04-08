@@ -12,7 +12,7 @@ use crate::processor::{memory_constants::{
 use std::{
     rc::Rc, cell::{RefCell, RefMut},
         result::Result, thread, time::Duration, 
-    sync::{Arc, Mutex, mpsc::{
+    sync::{Arc, Mutex, MutexGuard, mpsc::{
         Sender, Receiver, channel}}};
 use rand::Rng;
 
@@ -28,7 +28,7 @@ impl BitState {
 
 pub struct Cpu {
     data_ref: Arc<Mutex<Memory>>,
-    keypad: Rc<RefCell<Keypad>>,
+    keypad: Arc<Mutex<Keypad>>,
     running: bool,
     x: usize,
     y: usize,
@@ -40,7 +40,7 @@ pub struct Cpu {
 }
 
 impl Cpu {
-    pub fn new(new_keypad: Rc<RefCell<Keypad>>, new_data: Arc<Mutex<Memory>>) -> Cpu {
+    pub fn new(new_keypad: Arc<Mutex<Keypad>>, new_data: Arc<Mutex<Memory>>) -> Cpu {
         new_data.lock().unwrap().memory[..FONTSET_LOW_SIZE].copy_from_slice(&FONTSET_LOW[..]);
         new_data.lock().unwrap().memory[FONTSET_HIGH_START..FONTSET_HIGH_START + FONTSET_HIGH_SIZE]
         .copy_from_slice(&FONTSET_HIGH[..]);
@@ -432,7 +432,7 @@ impl Cpu {
     //SKP Vx
     fn op_ex9e(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        let mut keypad_borrow :RefMut<Keypad> = self.keypad.borrow_mut();
+        let mut keypad_borrow :MutexGuard<Keypad> = self.keypad.lock().unwrap();
         if keypad_borrow.get_key(data.variable_register[self.x]) == 1 {
             data.program_counter += PROGRAM_STEP;
             keypad_borrow.reset_key(data.variable_register[self.x]);
@@ -442,7 +442,7 @@ impl Cpu {
      //SKNP Vx
      fn op_exa1(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        let mut keypad_borrow :RefMut<Keypad> = self.keypad.borrow_mut();
+        let mut keypad_borrow :MutexGuard<Keypad> = self.keypad.lock().unwrap();
         if keypad_borrow.get_key(data.variable_register[self.x]) == 0 {
             data.program_counter += PROGRAM_STEP;
         }
@@ -458,7 +458,7 @@ impl Cpu {
     //LD Vx, K
     fn op_fx0a(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        let mut keypad_borrow :RefMut<Keypad> = self.keypad.borrow_mut();
+        let mut keypad_borrow :MutexGuard<Keypad> = self.keypad.lock().unwrap();
         if let Some(key) = (*keypad_borrow).get_pressed_key() {
             data.variable_register[self.x] = key;
             keypad_borrow.reset_key(key);

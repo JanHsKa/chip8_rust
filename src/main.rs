@@ -18,14 +18,15 @@ use crate::processor::Memory;
 use std::env;
 use utils::Keypad;
 use std::rc::Rc;
-use std::cell::RefCell;
+use std::{cell::RefCell, sync::{Arc, Mutex, mpsc::{
+    Sender, Receiver, channel}}};
 
 
 fn main() {
     println!("start program");
     let args: Vec<String> = env::args().collect();
     if args.len() > 0 {
-        let keypad = Rc::new(RefCell::new(Keypad::new()));
+        let keypad = Arc::new(Mutex::new(Keypad::new()));
         let sdl_context = sdl2::init().unwrap();
         let memory = Memory::new();
         let mut builder = Builder::new();

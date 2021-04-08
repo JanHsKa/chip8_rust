@@ -1,6 +1,7 @@
 use sdl2::audio::{AudioCallback, AudioSpecDesired, AudioDevice};
 
 use sdl2::Sdl;
+use std::{sync::{Arc, Mutex}};
 
 struct SquareWave {
     phase_inc: f32,
@@ -28,7 +29,7 @@ pub struct SoundManager {
 }
 
 impl SoundManager {
-    pub fn new(context: &Sdl) -> SoundManager {
+    pub fn new(context: Arc<Sdl>) -> SoundManager {
         let subsystem = context.audio().unwrap();
         let desired_spec =  AudioSpecDesired {
             freq: Some(44100),

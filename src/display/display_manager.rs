@@ -4,7 +4,7 @@ use crate::display::{
         WindowRenderer};
 use crate::interfaces::IDisplay;
 
-use crate::utils::{TimeManager, TimeTo};
+use crate::utils::{TimeManager, TimeTo, InputChecker};
 use sdl2::{
     render, Sdl, rect, 
     ttf::{Sdl2TtfContext}, 
@@ -29,13 +29,12 @@ pub struct DisplayManager {
     displays: Vec<Box<dyn IDisplay>>,
     ttf_context: Sdl2TtfContext,
     window_renderer: WindowRenderer,
-    receiver: Receiver<TimeTo>,
 }
 
 unsafe impl Send for DisplayManager {}
 
 impl DisplayManager {
-    pub fn new(context: Sdl) -> DisplayManager {
+    pub fn new(context: Arc<Sdl>) -> DisplayManager {
         let video = context.video().unwrap();
         let mut sdl_window = video.window(WINDOW_NAME, WINDOW_WIDTH, WINDOW_HEIGHT)
             .position_centered()
@@ -50,20 +49,11 @@ impl DisplayManager {
 
         let ttf = ttf::init().unwrap();
 
-        let (new_sender, new_receiver) = channel();
-
-        std::thread::spawn(move || {
-            let mut time_manager = TimeManager::new(new_sender);
-            time_manager.start_clock();
-        });
-
         DisplayManager {
             canvas: canvas,
             displays: Vec::new(),
             ttf_context: ttf,
             window_renderer: WindowRenderer::new(),
-            receiver: new_receiver,
-
         }
     }
 
@@ -72,25 +62,9 @@ impl DisplayManager {
         self.window_renderer.render_outline(&mut self.canvas)?;
         self.canvas.present();
 
-        'running: loop {
-            if self.check_for_redraw() {
-                if self.draw().is_err() {
-                    break 'running;
-                }
-            }
-
-            thread::sleep(Duration::from_millis(1));
-        }
+        self.draw();
+        
         Ok(())
-    }
-
-    fn check_for_redraw(&mut self) -> bool{
-        let message = self.receiver.try_recv();
-        if message.is_ok() {
-            return message.unwrap() == TimeTo::Update
-        }
-
-        return false;
     }
 
     pub fn add_display(&mut self, display: Box<dyn IDisplay>) {
