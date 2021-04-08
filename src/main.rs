@@ -1,9 +1,8 @@
-pub mod builder;
-pub mod display;
-mod emulator;
+pub mod controller;
+pub mod defines;
 pub mod interfaces;
-pub mod processor;
-pub mod utils;
+pub mod model;
+pub mod view;
 
 extern crate edit;
 extern crate rand;
@@ -12,12 +11,10 @@ extern crate sdl2;
 #[macro_use]
 extern crate lazy_static;
 
-use crate::builder::Builder;
-use crate::processor::Memory;
-use emulator::Emulator;
+use crate::controller::Builder;
+use crate::model::{Keypad, Memory};
 use std::env;
 use std::sync::{Arc, Mutex};
-use utils::Keypad;
 
 fn main() {
     println!("start program");
