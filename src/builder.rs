@@ -24,16 +24,16 @@ impl Builder {
     pub fn build_emulator(&mut self, new_keypad: Rc<RefCell<Keypad>>, 
         sdl_context: Sdl, file_path: String, data: Memory) -> Emulator{
 
-        let data_ref = self.package_rc_refcell(data);
+        let data_ref = self.package_arc_mutex(data);
         let file_manager =  FileManager::new(file_path);
-        let mut display_manager = DisplayManager::new(&sdl_context);
-        let access = self.package_arc_mutex(MemoryAccess::new(Rc::clone(&data_ref)));
+        let access = self.package_arc_mutex(MemoryAccess::new(Arc::clone(&data_ref)));
         let program_manager = self.package_arc_mutex(ProgramManager::new(file_manager, Arc::clone(&access)));
-        self.build_displays(&mut display_manager, &access, &program_manager);
-        let cpu = Cpu::new(Rc::clone(&new_keypad), Rc::clone(&data_ref));
+        let cpu = Cpu::new(Rc::clone(&new_keypad), Arc::clone(&data_ref));
         let sound_manager = SoundManager::new(&sdl_context);
         let input_checker = InputChecker::new(&sdl_context, 
             Rc::clone(&new_keypad), Arc::clone(&program_manager));
+        let mut display_manager = DisplayManager::new(sdl_context);
+        self.build_displays(&mut display_manager, &access, &program_manager);
 
         Emulator::new(display_manager, cpu, 
             sound_manager, Arc::clone(&access), input_checker, 

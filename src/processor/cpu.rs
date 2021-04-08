@@ -8,8 +8,12 @@ use crate::processor::{memory_constants::{
     FONTSET_LOW, FONTSET_HIGH, FONTSET_HIGH_SIZE,
     FONTSET_LOW_SIZE, FONTSET_HIGH_START, 
     Memory, Resolution};
-use std::rc::Rc;
-use std::cell::{RefCell, RefMut};
+
+use std::{
+    rc::Rc, cell::{RefCell, RefMut},
+        result::Result, thread, time::Duration, 
+    sync::{Arc, Mutex, mpsc::{
+        Sender, Receiver, channel}}};
 use rand::Rng;
 
 struct Nibbles (u16, u16, u16, u16);
@@ -23,7 +27,7 @@ impl BitState {
 }
 
 pub struct Cpu {
-    data_ref: Rc<RefCell<Memory>>,
+    data_ref: Arc<Mutex<Memory>>,
     keypad: Rc<RefCell<Keypad>>,
     running: bool,
     x: usize,
@@ -36,9 +40,9 @@ pub struct Cpu {
 }
 
 impl Cpu {
-    pub fn new(new_keypad: Rc<RefCell<Keypad>>, new_data: Rc<RefCell<Memory>>) -> Cpu {
-        new_data.borrow_mut().memory[..FONTSET_LOW_SIZE].copy_from_slice(&FONTSET_LOW[..]);
-        new_data.borrow_mut().memory[FONTSET_HIGH_START..FONTSET_HIGH_START + FONTSET_HIGH_SIZE]
+    pub fn new(new_keypad: Rc<RefCell<Keypad>>, new_data: Arc<Mutex<Memory>>) -> Cpu {
+        new_data.lock().unwrap().memory[..FONTSET_LOW_SIZE].copy_from_slice(&FONTSET_LOW[..]);
+        new_data.lock().unwrap().memory[FONTSET_HIGH_START..FONTSET_HIGH_START + FONTSET_HIGH_SIZE]
         .copy_from_slice(&FONTSET_HIGH[..]);
 
 
@@ -58,7 +62,7 @@ impl Cpu {
 
     pub fn reset(&mut self) {
         self.running = true;
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.reset();
         data.memory[..FONTSET_LOW_SIZE].copy_from_slice(&FONTSET_LOW[..]);
         data.memory[FONTSET_HIGH_START..FONTSET_HIGH_START + FONTSET_HIGH_SIZE]
@@ -66,12 +70,12 @@ impl Cpu {
     }
 
     pub fn load_program_code(&mut self, code: [u8; MAX_PROGRAM_SIZE]) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.memory[PROGRAM_START..MEMORYSIZE].copy_from_slice(&code[..MAX_PROGRAM_SIZE]);
     }
 
     fn set_opcode(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.opcode = (data.memory[data.program_counter] as u16) << 8 
             | (data.memory[data.program_counter + 1] as u16);
     }
@@ -90,7 +94,7 @@ impl Cpu {
     }
 
     pub fn tick_timer(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         if self.running {
             data.delay_timer = data.delay_timer.saturating_sub(1);
             
@@ -101,7 +105,7 @@ impl Cpu {
     }
 
     pub fn play_sound(&mut self) -> bool {
-        self.data_ref.borrow_mut().sound_timer > 0
+        self.data_ref.lock().unwrap().sound_timer > 0
     }
 
     fn no_match(&mut self) {
@@ -110,7 +114,7 @@ impl Cpu {
     }
 
     fn decode_opcode(&mut self) -> (u16, u16, u16, u16) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
 
         let nibbles = (
             (data.opcode & 0xF000) >> 12,
@@ -182,7 +186,7 @@ impl Cpu {
 
     //Scroll Down
     fn op_00cn(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         let graphic_copy = data.grapphic_array.clone();
         let shift: usize = self.n * COLUMNS * data.resolution as usize;
         data.grapphic_array[shift..GRAPHIC_SIZE]
@@ -191,7 +195,7 @@ impl Cpu {
 
     //CLS
     fn op_00e0(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         for i in 0..data.grapphic_array.len() {
             data.grapphic_array[i] = 0;
         }
@@ -199,7 +203,7 @@ impl Cpu {
 
     //RET from subroutine
     fn op_00ee(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.stack_pointer -= 1;
         let stack_pointer = data.stack_pointer;
         data.program_counter = data.stack[stack_pointer] as usize;
@@ -208,7 +212,7 @@ impl Cpu {
 
     //Scroll Right
     fn op_00fb(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         
     }
 
@@ -219,7 +223,7 @@ impl Cpu {
 
     //Low Res
     fn op_00fe(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.resolution = Resolution::Low;
         data.grapphic_array = vec![0; GRAPHIC_SIZE];
         self.max_columns = COLUMNS * Resolution::Low as usize;
@@ -228,7 +232,7 @@ impl Cpu {
 
     //High Res
     fn op_00ff(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.resolution = Resolution::High;
         data.grapphic_array = vec![0; GRAPHIC_SIZE_HIGH];
         self.max_columns = COLUMNS * Resolution::High as usize;
@@ -237,13 +241,13 @@ impl Cpu {
 
     //JP addr
     fn op_1nnn(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.program_counter = self.nnn as usize;
     }
     
     //CALL addr
     fn op_2nnn(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         let stack_pointer = data.stack_pointer;
         data.stack[stack_pointer] = data.program_counter as u16;
         data.stack_pointer += 1;
@@ -252,7 +256,7 @@ impl Cpu {
 
     //SE Vx, byte
     fn op_3xkk(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         if data.variable_register[self.x] == self.kk {
             data.program_counter += PROGRAM_STEP;
         }
@@ -260,7 +264,7 @@ impl Cpu {
 
     //SNE Vx, byte
     fn op_4xkk(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         if data.variable_register[self.x] != self.kk {
             data.program_counter += PROGRAM_STEP;
         }
@@ -268,7 +272,7 @@ impl Cpu {
 
     //SE Vx, Vy
     fn op_5xy0(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         if data.variable_register[self.x] == data.variable_register[self.y] {
             data.program_counter += PROGRAM_STEP;
         }
@@ -276,43 +280,43 @@ impl Cpu {
 
     //LD Vx, byte
     fn op_6xkk(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.variable_register[self.x] = self.kk;
     }
 
     //ADD Vx, byte
     fn op_7xkk(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.variable_register[self.x] = data.variable_register[self.x].overflowing_add(self.kk).0;
     }
 
     //LD Vx, Vy
     fn op_8xy0(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.variable_register[self.x] = data.variable_register[self.y];
     }
 
     //OR Vx, Vy
     fn op_8xy1(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.variable_register[self.x] |= data.variable_register[self.y];
     }
 
     //AND Vx, Vy
     fn op_8xy2(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.variable_register[self.x] &= data.variable_register[self.y];
     }
 
     //XOR Vx, Vy
     fn op_8xy3(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.variable_register[self.x] ^= data.variable_register[self.y];
     }
 
     //ADD Vx, Vy
     fn op_8xy4(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         let (result, overflow) = data.variable_register[self.x].overflowing_add(data.variable_register[self.y]);
         data.variable_register[self.x] = result;
         data.variable_register[CARRY_FLAG] = overflow as u8;
@@ -320,7 +324,7 @@ impl Cpu {
     
     //SUB Vx, Vy
     fn op_8xy5(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
 
         let (result, overflow) = data.variable_register[self.x].overflowing_sub(data.variable_register[self.y]);
         data.variable_register[self.x] = result;
@@ -329,7 +333,7 @@ impl Cpu {
 
     //SHR Vx
     fn op_8xy6(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
 
         data.variable_register[CARRY_FLAG] = data.variable_register[self.x] & 0x1;
         data.variable_register[self.x] >>= 1;
@@ -337,7 +341,7 @@ impl Cpu {
 
     //SUBN Vx, Vy
     fn op_8xy7(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         let (result, overflow) = data.variable_register[self.y].overflowing_sub(data.variable_register[self.x]);
         data.variable_register[self.x] = result;
         data.variable_register[CARRY_FLAG] = !overflow as u8;
@@ -345,14 +349,14 @@ impl Cpu {
 
     //SHL Vx
     fn op_8xye(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.variable_register[CARRY_FLAG] = data.variable_register[self.x] >> 7;
         data.variable_register[self.x] <<= 1;
     }
 
     //SNE Vx, Vy
     fn op_9xy0(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         if data.variable_register[self.x] != data.variable_register[self.y] {
             data.program_counter += PROGRAM_STEP;
         }
@@ -360,26 +364,26 @@ impl Cpu {
 
     //LD I, addr
     fn op_annn(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.index_register = self.nnn;
     }
 
     //JP V0, addr
     fn op_bnnn(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.program_counter = (self.nnn + data.variable_register[0] as u16) as usize;
     }
 
     //RND Vx, byte
     fn op_cxkk(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         let mut rng = rand::thread_rng();
         data.variable_register[self.x] = rng.gen_range(0..0xFF + 1) as u8 & self.kk;
     }
 
     //DRW Vx, Vy, nibble
     fn op_dxyn(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         let mut x_coordinate : usize;
         let mut y_coordinate : usize;
         let mut sprite : u8; 
@@ -402,7 +406,7 @@ impl Cpu {
 
     //DRW 16x16
     fn op_dxy0(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         let mut x_coordinate : usize;
         let mut y_coordinate : usize;
         let mut sprite : u16; 
@@ -427,7 +431,7 @@ impl Cpu {
 
     //SKP Vx
     fn op_ex9e(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         let mut keypad_borrow :RefMut<Keypad> = self.keypad.borrow_mut();
         if keypad_borrow.get_key(data.variable_register[self.x]) == 1 {
             data.program_counter += PROGRAM_STEP;
@@ -437,7 +441,7 @@ impl Cpu {
 
      //SKNP Vx
      fn op_exa1(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         let mut keypad_borrow :RefMut<Keypad> = self.keypad.borrow_mut();
         if keypad_borrow.get_key(data.variable_register[self.x]) == 0 {
             data.program_counter += PROGRAM_STEP;
@@ -447,13 +451,13 @@ impl Cpu {
 
     //LD Vx, DT
     fn op_fx07(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.variable_register[self.x] = data.delay_timer;
     }
 
     //LD Vx, K
     fn op_fx0a(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         let mut keypad_borrow :RefMut<Keypad> = self.keypad.borrow_mut();
         if let Some(key) = (*keypad_borrow).get_pressed_key() {
             data.variable_register[self.x] = key;
@@ -465,37 +469,37 @@ impl Cpu {
 
     //LD DT, Vx
     fn op_fx15(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.delay_timer = data.variable_register[self.x];
     }
 
     //LD ST, Vx
     fn op_fx18(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.sound_timer = data.variable_register[self.x];
     }
 
     //LD ADD I, Vx
     fn op_fx1e(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.index_register += data.variable_register[self.x] as u16;
     }
 
     //LD F, Vx
     fn op_fx29(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.index_register = (data.variable_register[self.x] as u16) * 0x5;
     }
 
     //LD SF, Vx
     fn op_fx30(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         data.index_register = (data.variable_register[self.x] as u16) * 0xA + FONTSET_HIGH_START as u16;
     } 
 
     //LD B, Vx
     fn op_fx33(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         let index = data.index_register as usize;
         data.memory[index] = data.variable_register[self.x] / 100;
         data.memory[index + 1] = (data.variable_register[self.x] / 10) % 10;
@@ -505,7 +509,7 @@ impl Cpu {
 
     //LD [I], Vx
     fn op_fx55(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         let index = data.index_register as usize;
         for i in 0..self.x + 1 {
             data.memory[index + i] = data.variable_register[i];
@@ -515,7 +519,7 @@ impl Cpu {
 
     //LD Vx, [I]
     fn op_fx65(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         let index = data.index_register as usize;
         if index + self.x < MEMORYSIZE {
             for i in 0..self.x + 1{
@@ -526,7 +530,7 @@ impl Cpu {
     
     //LD Vx, FLAG
     fn op_fx75(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         if self.x < FLAG_REGISTER_SIZE {
             for i in 0..self.x + 1 {
                 data.flag_register[i] = data.variable_register[i];
@@ -536,7 +540,7 @@ impl Cpu {
 
     //LD FLAG, Vx
     fn op_fx85(&mut self) {
-        let mut data = self.data_ref.borrow_mut();
+        let mut data = self.data_ref.lock().unwrap();
         if self.x < FLAG_REGISTER_SIZE {
             for i in 0..self.x + 1 {
                 data.variable_register[i] = data.flag_register[i];

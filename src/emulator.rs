@@ -15,7 +15,7 @@ use std::cell::RefCell;
 
 pub struct Emulator {
     cpu: Cpu,
-    display_manager: DisplayManager,
+    //display_manager: DisplayManager,
     sound_manager: SoundManager,
     memory_access: Arc<Mutex<MemoryAccess>>,
     input_checker: InputChecker,
@@ -38,9 +38,14 @@ impl Emulator {
             time_manager.start_clock();
         });
 
+        std::thread::spawn(move || {
+            let mut display_manager = display;
+            display_manager.initialize();
+        });
+
         Emulator {
             cpu: new_cpu,
-            display_manager: display,
+            //display_manager: display,
             sound_manager: sound,
             memory_access: new_access,
             input_checker: new_input_checker,
@@ -69,7 +74,7 @@ impl Emulator {
                 ProgramState::NewProgram => self.new_program(),
                 ProgramState::Running => self.run_code(),
                 ProgramState::Restart => self.new_program(),
-                ProgramState::Stopped => self.refresh_only_display(),
+                ProgramState::Stopped => {},
                 ProgramState::Idle => {},
                 ProgramState::Quit => break 'running,
                 _ => {}
@@ -113,7 +118,7 @@ impl Emulator {
     }
 
     fn refresh_display(&mut self) {
-        self.display_manager.draw();
+        //self.display_manager.draw();
     }
 
     fn update_state(&mut self) {
@@ -132,7 +137,7 @@ impl Emulator {
         let mut manager = self.program_manager.lock().unwrap();
         manager.initialize();
         self.cpu.load_program_code(manager.get_file_content());
-        self.display_manager.initialize()?;
+        //self.display_manager.initialize()?;
         println!("INIT");
 
         Ok(())

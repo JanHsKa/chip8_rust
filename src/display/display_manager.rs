@@ -32,9 +32,10 @@ pub struct DisplayManager {
     receiver: Receiver<TimeTo>,
 }
 
+unsafe impl Send for DisplayManager {}
 
 impl DisplayManager {
-    pub fn new(context: &Sdl) -> DisplayManager {
+    pub fn new(context: Sdl) -> DisplayManager {
         let video = context.video().unwrap();
         let mut sdl_window = video.window(WINDOW_NAME, WINDOW_WIDTH, WINDOW_HEIGHT)
             .position_centered()
@@ -71,14 +72,15 @@ impl DisplayManager {
         self.window_renderer.render_outline(&mut self.canvas)?;
         self.canvas.present();
 
-        /* 'running: loop {
+        'running: loop {
             if self.check_for_redraw() {
-                self.draw()?;
+                if self.draw().is_err() {
+                    break 'running;
+                }
             }
 
-            thread.sleep(Duration::from_millis(1));
-        } */
-
+            thread::sleep(Duration::from_millis(1));
+        }
         Ok(())
     }
 
