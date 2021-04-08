@@ -6,7 +6,11 @@ use crate::display::{
         DisplayRenderHelper
 };
 use std::{
-    rc::Rc, cell::RefCell};
+    rc::Rc, cell::RefCell,
+     result::Result, thread, time::Duration, 
+    sync::{Arc, Mutex, mpsc::{
+        Sender, Receiver, channel}}};
+
 use sdl2::{
     ttf::Sdl2TtfContext, 
     render::{WindowCanvas}};
@@ -25,13 +29,13 @@ pub struct InfoDisplay {
     controls: Vec<String>,
     game_size: u64,
     game_state: ProgramState,
-    program_manager: Rc<RefCell<ProgramManager>>,
+    program_manager: Arc<Mutex<ProgramManager>>,
     render_helper: DisplayRenderHelper,
 }
 
 impl IDisplay for InfoDisplay {
     fn update_info(&mut self) {
-        let mut manager = self.program_manager.borrow_mut();  
+        let mut manager = self.program_manager.lock().unwrap();  
         let file_info = manager.get_file_info();
         self.game_size = file_info.file_size;
         self.game_name = file_info.file_name.clone();
@@ -61,7 +65,7 @@ impl IDisplay for InfoDisplay {
 }
 
 impl InfoDisplay {
-    pub fn new(new_program_manager: Rc<RefCell<ProgramManager>>) -> InfoDisplay {
+    pub fn new(new_program_manager: Arc<Mutex<ProgramManager>>) -> InfoDisplay {
         let mut display_text: Vec<String> = Vec::new();
         display_text.push("Chip 8  Emulator".to_string());
         display_text.push("by Jan Malle".to_string());

@@ -8,7 +8,11 @@ use crate::display::{
 };
 use crate::processor::{MemoryAccess, memory_constants::{PROGRAM_START}};
 use std::{
-    rc::Rc, cell::RefCell};
+    rc::Rc, cell::RefCell,
+     result::Result, thread, time::Duration, 
+    sync::{Arc, Mutex, mpsc::{
+        Sender, Receiver, channel}}};
+
 use sdl2::{
     ttf::Sdl2TtfContext, 
     render::{WindowCanvas}, 
@@ -16,8 +20,8 @@ use sdl2::{
 
 pub struct OpcodeDisplay {
     code_lines: Vec<String>,
-    memory_access: Rc<RefCell<MemoryAccess>>,
-    program_manager: Rc<RefCell<ProgramManager>>,
+    memory_access: Arc<Mutex<MemoryAccess>>,
+    program_manager: Arc<Mutex<ProgramManager>>,
     offset: usize,
     current_line: usize,
     render_helper: DisplayRenderHelper,
@@ -25,8 +29,8 @@ pub struct OpcodeDisplay {
 
 impl IDisplay for OpcodeDisplay {
     fn update_info(&mut self) {
-        let mut access = self.memory_access.borrow_mut();  
-        let mut manager = self.program_manager.borrow_mut();
+        let mut access = self.memory_access.lock().unwrap();  
+        let mut manager = self.program_manager.lock().unwrap();
 
         self.current_line = access.get_program_counter() - PROGRAM_START;
         let program_size = manager.get_program_size();
@@ -70,8 +74,8 @@ impl IDisplay for OpcodeDisplay {
 }
 
 impl OpcodeDisplay {
-    pub fn new(new_memory_access: Rc<RefCell<MemoryAccess>>, 
-        new_program_manager: Rc<RefCell<ProgramManager>>) -> OpcodeDisplay {
+    pub fn new(new_memory_access: Arc<Mutex<MemoryAccess>>, 
+        new_program_manager: Arc<Mutex<ProgramManager>>) -> OpcodeDisplay {
 
         let display_text: Vec<String> = vec![String::with_capacity(10); OPCODE_LINES];
 

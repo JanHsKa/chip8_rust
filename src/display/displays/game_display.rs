@@ -7,7 +7,10 @@ use sdl2::{
     render::WindowCanvas, rect, 
     ttf::Sdl2TtfContext};
 use std::{
-    rc::Rc, cell::RefCell};
+    rc::Rc, cell::RefCell,
+     result::Result, thread, time::Duration, 
+    sync::{Arc, Mutex, mpsc::{
+        Sender, Receiver, channel}}};
 
 use self::layout_constants::{
     PIXEL_SCALE, 
@@ -18,15 +21,15 @@ use self::layout_constants::{
 
    
 pub struct GameDisplay {
-    memory_access: Rc<RefCell<MemoryAccess>>,
+    memory_access: Arc<Mutex<MemoryAccess>>,
     pixel_state: Vec<u8>,
     resolution: Resolution,
     pixel_scale: usize,
 }
 
 impl GameDisplay {
-    pub fn new(mem_access: Rc<RefCell<MemoryAccess>>) -> GameDisplay {
-        let array = mem_access.borrow_mut().get_graphic_array();
+    pub fn new(mem_access: Arc<Mutex<MemoryAccess>>) -> GameDisplay {
+        let array = mem_access.lock().unwrap().get_graphic_array();
         GameDisplay {
             memory_access: mem_access,
             pixel_state: array,
@@ -38,7 +41,7 @@ impl GameDisplay {
 
 impl IDisplay for GameDisplay {
     fn update_info(&mut self) {
-        let mut access = self.memory_access.borrow_mut();
+        let mut access = self.memory_access.lock().unwrap();
         self.pixel_state = access.get_graphic_array();
         self.resolution = access.get_resolution();
         self.pixel_scale = PIXEL_SCALE / self.resolution as usize;

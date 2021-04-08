@@ -6,7 +6,11 @@ use crate::display::{
         DisplayRenderHelper};
 use crate::processor::{MemoryAccess, memory_constants::{VARIABLES_COUNT}};
 use std::{
-    rc::Rc, cell::RefCell};
+    rc::Rc, cell::RefCell,
+     result::Result, thread, time::Duration, 
+    sync::{Arc, Mutex, mpsc::{
+        Sender, Receiver, channel}}};
+
 use sdl2::{
     ttf::Sdl2TtfContext, 
     render::{WindowCanvas}};
@@ -14,13 +18,13 @@ use sdl2::{
 pub struct MemoryDisplay {
     variable_register: Vec<String>,
     remaining_register: Vec<String>,
-    memory_access: Rc<RefCell<MemoryAccess>>,
+    memory_access: Arc<Mutex<MemoryAccess>>,
     render_helper: DisplayRenderHelper,
 }
 
 impl IDisplay for MemoryDisplay {
     fn update_info(&mut self) {
-        let mut access = self.memory_access.borrow_mut();  
+        let mut access = self.memory_access.lock().unwrap();  
         let variables = access.get_variable_register();
         let register_index = VARIABLES_COUNT - 1;
 
@@ -46,7 +50,7 @@ impl IDisplay for MemoryDisplay {
 }
 
 impl MemoryDisplay {
-    pub fn new(new_memory_access: Rc<RefCell<MemoryAccess>>) -> MemoryDisplay {
+    pub fn new(new_memory_access: Arc<Mutex<MemoryAccess>>) -> MemoryDisplay {
         let display_text: Vec<String> = vec![String::with_capacity(6); VARIABLES_COUNT];
 
         MemoryDisplay {

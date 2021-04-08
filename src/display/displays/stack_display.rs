@@ -7,21 +7,25 @@ use crate::display::{
 };
 use crate::processor::{MemoryAccess, memory_constants::{STACKSIZE}};
 use std::{
-    rc::Rc, cell::RefCell};
+    rc::Rc, cell::RefCell,
+     result::Result, thread, time::Duration, 
+    sync::{Arc, Mutex, mpsc::{
+        Sender, Receiver, channel}}};
+
 use sdl2::{
     ttf::Sdl2TtfContext, 
     render::{WindowCanvas}, pixels::Color};
 
 pub struct StackDisplay {
     stack: Vec<String>,
-    memory_access: Rc<RefCell<MemoryAccess>>,
+    memory_access: Arc<Mutex<MemoryAccess>>,
     stack_pointer: usize,
     render_helper: DisplayRenderHelper,
 }
 
 impl IDisplay for StackDisplay {
     fn update_info(&mut self) {
-        let mut access = self.memory_access.borrow_mut();  
+        let mut access = self.memory_access.lock().unwrap();  
         let stack = access.get_stack();
         let stack_size = STACKSIZE - 1;
         self.stack_pointer = access.get_stack_pointer();
@@ -42,7 +46,7 @@ impl IDisplay for StackDisplay {
 }
 
 impl StackDisplay {
-    pub fn new(new_memory_access: Rc<RefCell<MemoryAccess>>) -> StackDisplay {
+    pub fn new(new_memory_access: Arc<Mutex<MemoryAccess>>) -> StackDisplay {
         let display_text: Vec<String> = vec![String::new(); STACKSIZE];
 
         StackDisplay {

@@ -4,8 +4,13 @@ use crate::processor::{
     memory_constants::{MAX_PROGRAM_SIZE}, 
     MemoryAccess};
 use sdl2::{event::Event, keyboard::Keycode};
-use std::{rc::Rc, cell::RefCell, collections::{HashMap, HashSet}};
+use std::{rc::Rc, cell::RefCell, 
+    collections::{HashMap, HashSet},
+    thread, time::Duration, 
+    sync::{Arc, Mutex, mpsc::{
+    Sender, Receiver, channel}}};
 
+pub const BASE_PROGRAM_SPEED: u64 = 100000;
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum ProgramState {
@@ -21,19 +26,19 @@ pub enum ProgramState {
 pub struct ProgramManager {
     current_state: ProgramState,
     file_manager: FileManager,
-    memory_access: Rc<RefCell<MemoryAccess>>,
+    memory_access: Arc<Mutex<MemoryAccess>>,
     program_speed: u64,
 }
 
 impl ProgramManager {
     pub fn new(new_file_manager: FileManager, 
-        new_memory_access: Rc<RefCell<MemoryAccess>>) -> ProgramManager {
+        new_memory_access: Arc<Mutex<MemoryAccess>>) -> ProgramManager {
 
         ProgramManager {
             current_state: ProgramState::Running,
             file_manager: new_file_manager,
             memory_access: new_memory_access,
-            program_speed: 1000000,
+            program_speed: BASE_PROGRAM_SPEED,
         }
     }
 
@@ -80,7 +85,7 @@ impl ProgramManager {
     }
     
     fn dump_memory(&mut self) {
-        self.file_manager.dump_memory(self.memory_access.borrow_mut().get_complete_memory());
+        self.file_manager.dump_memory(self.memory_access.lock().unwrap().get_complete_memory());
     }
 
     fn load_file(&mut self) {

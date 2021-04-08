@@ -7,8 +7,8 @@ mod time_manager;
 
 pub use self::filemanager::{FileManager, FileInfo};
 pub use self::keypad::Keypad;
-pub use self::program_manager::{ProgramManager, ProgramState};
+pub use self::program_manager::{ProgramManager, ProgramState, BASE_PROGRAM_SPEED};
 pub use self::input_checker::InputChecker;
 pub use self::sound_manager::SoundManager;
-pub use self::time_manager::TimeManager;
+pub use self::time_manager::{TimeManager, TimeTo};
 

@@ -4,12 +4,14 @@ use crate::display::{
         WindowRenderer};
 use crate::interfaces::IDisplay;
 
+use crate::utils::{TimeManager, TimeTo};
 use sdl2::{
     render, Sdl, rect, 
     ttf::{Sdl2TtfContext}, 
     ttf, surface::Surface, video::Window};
 
-use std::boxed::Box;
+use std::{boxed::Box, result::Result, thread, time::Duration, 
+    sync::{Arc, Mutex, mpsc::{Sender, Receiver, channel}}};
 
 pub const FONTPATH1: &str = "Data/Font/PrintChar21.ttf";
 pub const FONTPATH2: &str = "Data/Font/8-BIT WONDER.ttf";
@@ -27,6 +29,7 @@ pub struct DisplayManager {
     displays: Vec<Box<dyn IDisplay>>,
     ttf_context: Sdl2TtfContext,
     window_renderer: WindowRenderer,
+    receiver: Receiver<TimeTo>,
 }
 
 
@@ -46,11 +49,19 @@ impl DisplayManager {
 
         let ttf = ttf::init().unwrap();
 
+        let (new_sender, new_receiver) = channel();
+
+        std::thread::spawn(move || {
+            let mut time_manager = TimeManager::new(new_sender);
+            time_manager.start_clock();
+        });
+
         DisplayManager {
             canvas: canvas,
             displays: Vec::new(),
             ttf_context: ttf,
             window_renderer: WindowRenderer::new(),
+            receiver: new_receiver,
 
         }
     }
@@ -60,7 +71,24 @@ impl DisplayManager {
         self.window_renderer.render_outline(&mut self.canvas)?;
         self.canvas.present();
 
+        /* 'running: loop {
+            if self.check_for_redraw() {
+                self.draw()?;
+            }
+
+            thread.sleep(Duration::from_millis(1));
+        } */
+
         Ok(())
+    }
+
+    fn check_for_redraw(&mut self) -> bool{
+        let message = self.receiver.try_recv();
+        if message.is_ok() {
+            return message.unwrap() == TimeTo::Update
+        }
+
+        return false;
     }
 
     pub fn add_display(&mut self, display: Box<dyn IDisplay>) {
