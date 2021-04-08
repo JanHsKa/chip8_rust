@@ -1,16 +1,17 @@
+use crate::display::{
+    layout_constants::{KEYPAD_HEIGHT, KEYPAD_START_X, KEYPAD_START_Y, KEYPAD_WIDTH},
+    KeypadRenderer,
+};
 use crate::interfaces::IDisplay;
 use crate::utils::{ProgramManager, ProgramState};
-use crate::display::{
-    layout_constants::{KEYPAD_START_Y, KEYPAD_START_X, 
-        KEYPAD_WIDTH, KEYPAD_HEIGHT},
-        KeypadRenderer};
-        
-use crate::processor::{MemoryAccess, memory_constants::{STACKSIZE}};
+
+use crate::processor::{memory_constants::STACKSIZE, MemoryAccess};
+use sdl2::{pixels::Color, render::WindowCanvas, ttf::Sdl2TtfContext};
 use std::{
-    rc::Rc, cell::RefCell, sync::{Mutex, MutexGuard, Arc}};
-use sdl2::{
-    ttf::Sdl2TtfContext, 
-    render::{WindowCanvas}, pixels::Color};
+    cell::RefCell,
+    rc::Rc,
+    sync::{Arc, Mutex, MutexGuard},
+};
 
 pub struct KeypadDisplay {
     stack: Vec<String>,
@@ -20,12 +21,15 @@ pub struct KeypadDisplay {
 }
 
 impl IDisplay for KeypadDisplay {
-    fn update_info(&mut self) {
-       
-    }
+    fn update_info(&mut self) {}
 
-    fn redraw(&mut self, canvas: &mut WindowCanvas, ttf_context: &mut Sdl2TtfContext) -> Result<(), String> {
-        self.render_helper.draw_lines(&mut self.stack, canvas, ttf_context)?;
+    fn redraw(
+        &mut self,
+        canvas: &mut WindowCanvas,
+        ttf_context: &mut Sdl2TtfContext,
+    ) -> Result<(), String> {
+        self.render_helper
+            .draw_lines(&mut self.stack, canvas, ttf_context)?;
 
         let y = STACKSIZE - self.stack_pointer - 1;
         //self.render_helper.draw_rectangle(canvas, y as i32, Color::RED)?;

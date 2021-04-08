@@ -1,7 +1,6 @@
 use crate::processor::memory_constants::{
-    MEMORYSIZE, VARIABLES_COUNT, 
-     STACKSIZE, PROGRAM_START, 
-    GRAPHIC_SIZE, FLAG_REGISTER_SIZE};
+    FLAG_REGISTER_SIZE, GRAPHIC_SIZE, MEMORYSIZE, PROGRAM_START, STACKSIZE, VARIABLES_COUNT,
+};
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum Resolution {
@@ -10,11 +9,11 @@ pub enum Resolution {
 }
 
 pub struct Memory {
-    pub memory:[u8; MEMORYSIZE],
+    pub memory: [u8; MEMORYSIZE],
     pub delay_timer: u8,
     pub sound_timer: u8,
     pub grapphic_array: Vec<u8>,
-    pub variable_register: [u8; VARIABLES_COUNT], 
+    pub variable_register: [u8; VARIABLES_COUNT],
     pub stack_pointer: usize,
     pub program_counter: usize,
     pub stack: [u16; STACKSIZE],
@@ -24,6 +23,12 @@ pub struct Memory {
     pub resolution: Resolution,
 }
 
+impl Default for Memory {
+    fn default() -> Self {
+        Memory::new()
+    }
+}
+
 impl Memory {
     pub fn new() -> Memory {
         Memory {
@@ -31,7 +36,7 @@ impl Memory {
             delay_timer: 0,
             sound_timer: 0,
             grapphic_array: vec![0; GRAPHIC_SIZE],
-            variable_register: [0; STACKSIZE], 
+            variable_register: [0; STACKSIZE],
             stack_pointer: 0,
             program_counter: PROGRAM_START,
             stack: [0; STACKSIZE],

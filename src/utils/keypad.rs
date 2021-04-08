@@ -2,10 +2,15 @@ use crate::processor::memory_constants::KEY_COUNT;
 use crate::sdl2::keyboard::Keycode;
 use std::collections;
 
-
 pub struct Keypad {
     keys: [u8; 16],
     keymap: collections::HashMap<Keycode, usize>,
+}
+
+impl Default for Keypad {
+    fn default() -> Self {
+        Keypad::new()
+    }
 }
 
 impl Keypad {
@@ -28,7 +33,7 @@ impl Keypad {
         new_keymap.insert(Keycode::C, 0xB);
         new_keymap.insert(Keycode::V, 0xF);
 
-        Keypad{
+        Keypad {
             keys: [0; KEY_COUNT],
             keymap: new_keymap,
         }
@@ -41,20 +46,20 @@ impl Keypad {
     }
 
     pub fn get_key(&mut self, key: u8) -> u8 {
-        return self.keys[key as usize];
+        self.keys[key as usize]
     }
-    
+
     pub fn get_pressed_key(&mut self) -> Option<u8> {
         for i in 0..KEY_COUNT {
             if self.keys[i] != 0 {
                 return Some(i as u8);
             }
         }
-        return None;
+        None
     }
 
     pub fn reset_key(&mut self, key: u8) {
-        if key < KEY_COUNT as u8{
+        if key < KEY_COUNT as u8 {
             self.keys[key as usize] = 0;
         }
     }
@@ -65,7 +70,7 @@ impl Keypad {
                 return true;
             }
         }
-        return false;
+        false
     }
 
     pub fn print_keys(&mut self) {

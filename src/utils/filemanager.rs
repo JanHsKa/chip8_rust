@@ -1,17 +1,15 @@
-use crate::processor::memory_constants::{MAX_PROGRAM_SIZE, MEMORYSIZE};
 use crate::edit;
+use crate::processor::memory_constants::{MAX_PROGRAM_SIZE, MEMORYSIZE};
 
 use std::{
-    fs::{File, metadata}, 
-    io::{Read, Result, Write, BufWriter},
-    path::{Path, PathBuf},
     convert::TryInto,
+    fs::{metadata, File},
+    io::{BufWriter, Read, Result, Write},
+    path::Path,
     process::Command,
-    env::{temp_dir, var},
 };
 
-
-pub const MEMORY_DUMP_PATH : &str = "TempFiles/Memory_Content.bin";
+pub const MEMORY_DUMP_PATH: &str = "TempFiles/Memory_Content.bin";
 
 #[derive(Default, Clone)]
 pub struct FileInfo {
@@ -39,11 +37,16 @@ impl FileManager {
         let meta_data = metadata(self.file_path.clone())?;
 
         assert!(meta_data.len() < MAX_PROGRAM_SIZE as u64);
-        self.file_info.file_name = Path::new(&self.file_path).file_name().unwrap().to_str().unwrap().to_string();
+        self.file_info.file_name = Path::new(&self.file_path)
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_string();
         let file_size = meta_data.len();
         let mut buffer = vec![0; file_size as usize];
-        file.read(&mut buffer)?;
-        self.filecontent[..buffer.len()].clone_from_slice(&buffer[0..buffer.len()]);    
+        file.read_exact(&mut buffer)?;
+        self.filecontent[..buffer.len()].clone_from_slice(&buffer[0..buffer.len()]);
         self.file_info.file_size = file_size;
 
         for i in buffer.len()..self.filecontent.len() {
@@ -53,18 +56,18 @@ impl FileManager {
         Ok(())
     }
 
-    pub fn load_file_if_possible(&mut self, file_path: &String) -> Result<()>{
+    pub fn load_file_if_possible(&mut self, file_path: &str) -> Result<()> {
         let old_file_name = self.file_info.file_name.clone();
         let old_file_content = self.filecontent.clone();
         self.filecontent = vec![0; MAX_PROGRAM_SIZE];
 
-        self.file_path = file_path.clone();
+        self.file_path = String::from(file_path);
         let success = self.load_file();
 
         if success.is_err() {
             self.file_info.file_name = old_file_name;
             self.filecontent = old_file_content;
-        } 
+        }
 
         success
     }

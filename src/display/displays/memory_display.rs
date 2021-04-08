@@ -1,19 +1,22 @@
-use crate::interfaces::IDisplay;
 use crate::display::{
-    layout_constants::{
-        MEMORY_START_X, MEMORY_START_Y, 
-        MEMORY_WIDTH, MEMORY_HEIGHT}, 
-        DisplayRenderHelper};
-use crate::processor::{MemoryAccess, memory_constants::{VARIABLES_COUNT}};
+    layout_constants::{MEMORY_HEIGHT, MEMORY_START_X, MEMORY_START_Y, MEMORY_WIDTH},
+    DisplayRenderHelper,
+};
+use crate::interfaces::IDisplay;
+use crate::processor::{memory_constants::VARIABLES_COUNT, MemoryAccess};
 use std::{
-    rc::Rc, cell::RefCell,
-     result::Result, thread, time::Duration, 
-    sync::{Arc, Mutex, mpsc::{
-        Sender, Receiver, channel}}};
+    cell::RefCell,
+    rc::Rc,
+    result::Result,
+    sync::{
+        mpsc::{channel, Receiver, Sender},
+        Arc, Mutex,
+    },
+    thread,
+    time::Duration,
+};
 
-use sdl2::{
-    ttf::Sdl2TtfContext, 
-    render::{WindowCanvas}};
+use sdl2::{render::WindowCanvas, ttf::Sdl2TtfContext};
 
 pub struct MemoryDisplay {
     variable_register: Vec<String>,
@@ -24,12 +27,16 @@ pub struct MemoryDisplay {
 
 impl IDisplay for MemoryDisplay {
     fn update_info(&mut self) {
-        let mut access = self.memory_access.lock().unwrap();  
+        let mut access = self.memory_access.lock().unwrap();
         let variables = access.get_variable_register();
         let register_index = VARIABLES_COUNT - 1;
 
         for (i, iter) in self.variable_register.iter_mut().enumerate() {
-            *iter = format!("V{:X}: {:02X}", register_index - i, variables[register_index - i]);
+            *iter = format!(
+                "V{:X}: {:02X}",
+                register_index - i,
+                variables[register_index - i]
+            );
         }
 
         self.remaining_register[0] = format!("PC:  {:04X}", access.get_program_counter());
@@ -40,10 +47,20 @@ impl IDisplay for MemoryDisplay {
         self.remaining_register[5] = format!("ST:  {:02X}", access.get_sound_timer());
     }
 
-    fn redraw(&mut self, canvas: &mut WindowCanvas, ttf_context: &mut Sdl2TtfContext) -> Result<(), String> {
-        self.render_helper.draw_lines(&mut self.variable_register, canvas, ttf_context)?;
+    fn redraw(
+        &mut self,
+        canvas: &mut WindowCanvas,
+        ttf_context: &mut Sdl2TtfContext,
+    ) -> Result<(), String> {
+        self.render_helper
+            .draw_lines(&mut self.variable_register, canvas, ttf_context)?;
         let start_x: i32 = MEMORY_START_X + MEMORY_WIDTH as i32 / 2;
-        self.render_helper.draw_lines_with_x(&mut self.remaining_register, canvas, ttf_context, start_x)?;
+        self.render_helper.draw_lines_with_x(
+            &mut self.remaining_register,
+            canvas,
+            ttf_context,
+            start_x,
+        )?;
 
         Ok(())
     }
@@ -58,10 +75,11 @@ impl MemoryDisplay {
             remaining_register: vec![String::with_capacity(6); 6],
             memory_access: new_memory_access,
             render_helper: DisplayRenderHelper::new(
-                MEMORY_START_X, MEMORY_START_Y, 
-                MEMORY_WIDTH, MEMORY_HEIGHT),
+                MEMORY_START_X,
+                MEMORY_START_Y,
+                MEMORY_WIDTH,
+                MEMORY_HEIGHT,
+            ),
         }
     }
 }
-
-

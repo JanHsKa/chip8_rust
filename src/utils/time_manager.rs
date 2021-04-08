@@ -2,15 +2,19 @@ pub const DISPLAY_REFRESH: u128 = 17;
 pub const OPCODE_REFRESH: u128 = 2000;
 pub const TIMER_TICK: u64 = 10;
 
-use std::{result::Result, thread, time::{Duration, Instant}, 
-    sync::{Arc, Mutex, mpsc::{Sender, Receiver, channel}}};
-
+use std::{
+    sync::mpsc::Sender,
+    thread,
+    time::{Duration, Instant},
+};
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum TimeTo {
     Update,
     Sleep,
-    Process, 
+    Process,
+    PlaySound,
+    StopSound,
 }
 
 pub struct TimeManager {
@@ -33,7 +37,7 @@ impl TimeManager {
     pub fn start_clock(&mut self) {
         loop {
             if self.time.elapsed().as_millis() > DISPLAY_REFRESH {
-                self.sender.send(TimeTo::Update).unwrap();
+                self.sender.send(TimeTo::Update).unwrap_or(());
                 self.time = Instant::now();
             }
 
@@ -59,7 +63,7 @@ impl TimeManager {
             self.tick();
         }
 
-        return TimeTo::Sleep;
+        TimeTo::Sleep
     }
 
     pub fn set_speed(&mut self, speed: u128) {

@@ -1,22 +1,16 @@
-use crate::utils::{Keypad};
-use crate::processor::{memory_constants::{
-    MEMORYSIZE, VARIABLES_COUNT, COLUMNS, 
-    ROWS, STACKSIZE, CARRY_FLAG, 
-    MAX_PROGRAM_SIZE, PROGRAM_START, 
-    PROGRAM_STEP, GRAPHIC_SIZE,GRAPHIC_SIZE_HIGH, 
-    SPRITE_WIDTH, BIG_SPRITE, FLAG_REGISTER_SIZE}, 
-    FONTSET_LOW, FONTSET_HIGH, FONTSET_HIGH_SIZE,
-    FONTSET_LOW_SIZE, FONTSET_HIGH_START, 
-    Memory, Resolution};
+use crate::processor::{
+    memory_constants::{
+        BIG_SPRITE, CARRY_FLAG, COLUMNS, FLAG_REGISTER_SIZE, GRAPHIC_SIZE, GRAPHIC_SIZE_HIGH,
+        MAX_PROGRAM_SIZE, MEMORYSIZE, PROGRAM_START, PROGRAM_STEP, ROWS, SPRITE_WIDTH, STACKSIZE,
+        VARIABLES_COUNT,
+    },
+    Memory, Resolution, FONTSET_HIGH, FONTSET_HIGH_SIZE, FONTSET_HIGH_START, FONTSET_LOW,
+    FONTSET_LOW_SIZE,
+};
+use crate::utils::Keypad;
 
-use std::{
-    rc::Rc, cell::{RefCell, RefMut},
-        result::Result, thread, time::Duration, 
-    sync::{Arc, Mutex, MutexGuard, mpsc::{
-        Sender, Receiver, channel}}};
 use rand::Rng;
-
-struct Nibbles (u16, u16, u16, u16);
+use std::sync::{Arc, Mutex, MutexGuard};
 
 #[derive(Copy, Clone, PartialEq)]
 pub struct BitState;
@@ -43,10 +37,9 @@ impl Cpu {
     pub fn new(new_keypad: Arc<Mutex<Keypad>>, new_data: Arc<Mutex<Memory>>) -> Cpu {
         new_data.lock().unwrap().memory[..FONTSET_LOW_SIZE].copy_from_slice(&FONTSET_LOW[..]);
         new_data.lock().unwrap().memory[FONTSET_HIGH_START..FONTSET_HIGH_START + FONTSET_HIGH_SIZE]
-        .copy_from_slice(&FONTSET_HIGH[..]);
+            .copy_from_slice(&FONTSET_HIGH[..]);
 
-
-        Cpu{
+        Cpu {
             data_ref: new_data,
             keypad: new_keypad,
             running: true,
@@ -66,7 +59,7 @@ impl Cpu {
         data.reset();
         data.memory[..FONTSET_LOW_SIZE].copy_from_slice(&FONTSET_LOW[..]);
         data.memory[FONTSET_HIGH_START..FONTSET_HIGH_START + FONTSET_HIGH_SIZE]
-        .copy_from_slice(&FONTSET_HIGH[..]);
+            .copy_from_slice(&FONTSET_HIGH[..]);
     }
 
     pub fn load_program_code(&mut self, code: [u8; MAX_PROGRAM_SIZE]) {
@@ -76,14 +69,13 @@ impl Cpu {
 
     fn set_opcode(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        data.opcode = (data.memory[data.program_counter] as u16) << 8 
+        data.opcode = (data.memory[data.program_counter] as u16) << 8
             | (data.memory[data.program_counter + 1] as u16);
     }
 
     pub fn get_state(&mut self) -> bool {
-        return self.running;
+        self.running
     }
-
 
     pub fn run_opcode(&mut self) {
         if self.running {
@@ -97,7 +89,7 @@ impl Cpu {
         let mut data = self.data_ref.lock().unwrap();
         if self.running {
             data.delay_timer = data.delay_timer.saturating_sub(1);
-            
+
             if data.sound_timer > 0 {
                 data.sound_timer -= 1;
             }
@@ -120,7 +112,7 @@ impl Cpu {
             (data.opcode & 0xF000) >> 12,
             (data.opcode & 0x0F00) >> 8,
             (data.opcode & 0x00F0) >> 4,
-            data.opcode & 0x000F
+            data.opcode & 0x000F,
         );
 
         self.x = nibbles.1 as usize;
@@ -128,10 +120,9 @@ impl Cpu {
         self.nnn = data.opcode & 0x0FFF;
         self.kk = (data.opcode & 0x00FF) as u8;
         self.n = nibbles.3 as usize;
-        
 
         data.program_counter += PROGRAM_STEP;
-        
+
         nibbles
     }
 
@@ -158,7 +149,7 @@ impl Cpu {
             (0x8, _, _, 0x4) => self.op_8xy4(),
             (0x8, _, _, 0x5) => self.op_8xy5(),
             (0x8, _, _, 0x6) => self.op_8xy6(),
-            (0x8, _, _, 0x7)=> self.op_8xy7(),
+            (0x8, _, _, 0x7) => self.op_8xy7(),
             (0x8, _, _, 0xE) => self.op_8xye(),
             (0x9, _, _, 0x0) => self.op_9xy0(),
             (0xA, _, _, _) => self.op_annn(),
@@ -190,7 +181,7 @@ impl Cpu {
         let graphic_copy = data.grapphic_array.clone();
         let shift: usize = self.n * COLUMNS * data.resolution as usize;
         data.grapphic_array[shift..GRAPHIC_SIZE]
-        .copy_from_slice(&graphic_copy[..GRAPHIC_SIZE-shift]); 
+            .copy_from_slice(&graphic_copy[..GRAPHIC_SIZE - shift]);
     }
 
     //CLS
@@ -213,13 +204,10 @@ impl Cpu {
     //Scroll Right
     fn op_00fb(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        
     }
 
     //Scroll Left
-    fn op_00fc(&mut self) {
-
-    }
+    fn op_00fc(&mut self) {}
 
     //Low Res
     fn op_00fe(&mut self) {
@@ -244,7 +232,7 @@ impl Cpu {
         let mut data = self.data_ref.lock().unwrap();
         data.program_counter = self.nnn as usize;
     }
-    
+
     //CALL addr
     fn op_2nnn(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
@@ -317,16 +305,18 @@ impl Cpu {
     //ADD Vx, Vy
     fn op_8xy4(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        let (result, overflow) = data.variable_register[self.x].overflowing_add(data.variable_register[self.y]);
+        let (result, overflow) =
+            data.variable_register[self.x].overflowing_add(data.variable_register[self.y]);
         data.variable_register[self.x] = result;
         data.variable_register[CARRY_FLAG] = overflow as u8;
     }
-    
+
     //SUB Vx, Vy
     fn op_8xy5(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
 
-        let (result, overflow) = data.variable_register[self.x].overflowing_sub(data.variable_register[self.y]);
+        let (result, overflow) =
+            data.variable_register[self.x].overflowing_sub(data.variable_register[self.y]);
         data.variable_register[self.x] = result;
         data.variable_register[CARRY_FLAG] = !overflow as u8;
     }
@@ -342,7 +332,8 @@ impl Cpu {
     //SUBN Vx, Vy
     fn op_8xy7(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        let (result, overflow) = data.variable_register[self.y].overflowing_sub(data.variable_register[self.x]);
+        let (result, overflow) =
+            data.variable_register[self.y].overflowing_sub(data.variable_register[self.x]);
         data.variable_register[self.x] = result;
         data.variable_register[CARRY_FLAG] = !overflow as u8;
     }
@@ -384,21 +375,25 @@ impl Cpu {
     //DRW Vx, Vy, nibble
     fn op_dxyn(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        let mut x_coordinate : usize;
-        let mut y_coordinate : usize;
-        let mut sprite : u8; 
+        let mut x_coordinate: usize;
+        let mut y_coordinate: usize;
+        let mut sprite: u8;
 
         data.variable_register[CARRY_FLAG] = BitState::UNSET;
         for row in 0..self.n as usize {
             y_coordinate = (data.variable_register[self.y] as usize + row) % self.max_rows;
             sprite = data.memory[data.index_register as usize + row];
             for column in 0..SPRITE_WIDTH {
-                x_coordinate = (data.variable_register[self.x] as usize + column) % self.max_columns;
+                x_coordinate =
+                    (data.variable_register[self.x] as usize + column) % self.max_columns;
                 if (sprite & (0x80 >> column)) != BitState::UNSET {
-                    if data.grapphic_array[(y_coordinate * self.max_columns) + x_coordinate] == BitState::SET {
+                    if data.grapphic_array[(y_coordinate * self.max_columns) + x_coordinate]
+                        == BitState::SET
+                    {
                         data.variable_register[CARRY_FLAG] = BitState::SET;
                     }
-                data.grapphic_array[(y_coordinate * self.max_columns) + x_coordinate] ^= BitState::SET;
+                    data.grapphic_array[(y_coordinate * self.max_columns) + x_coordinate] ^=
+                        BitState::SET;
                 }
             }
         }
@@ -407,23 +402,27 @@ impl Cpu {
     //DRW 16x16
     fn op_dxy0(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        let mut x_coordinate : usize;
-        let mut y_coordinate : usize;
-        let mut sprite : u16; 
+        let mut x_coordinate: usize;
+        let mut y_coordinate: usize;
+        let mut sprite: u16;
 
         data.variable_register[CARRY_FLAG] = BitState::UNSET;
         for row in (0..BIG_SPRITE * 2).step_by(2) {
             y_coordinate = (data.variable_register[self.y] as usize + row) % self.max_rows;
-            sprite = (data.memory[data.index_register as usize + row] as u16) << 8 
+            sprite = (data.memory[data.index_register as usize + row] as u16) << 8
                 | data.memory[data.index_register as usize + row + 1] as u16;
 
             for column in 0..BIG_SPRITE {
-                x_coordinate = (data.variable_register[self.x] as usize + column) % self.max_columns;
-                if (sprite & (0x8000 >> column)) != BitState::UNSET as u16{
-                    if data.grapphic_array[(y_coordinate * self.max_columns) + x_coordinate] == BitState::SET {
+                x_coordinate =
+                    (data.variable_register[self.x] as usize + column) % self.max_columns;
+                if (sprite & (0x8000 >> column)) != BitState::UNSET as u16 {
+                    if data.grapphic_array[(y_coordinate * self.max_columns) + x_coordinate]
+                        == BitState::SET
+                    {
                         data.variable_register[CARRY_FLAG] = BitState::SET;
                     }
-                data.grapphic_array[(y_coordinate * self.max_columns) + x_coordinate] ^= BitState::SET;
+                    data.grapphic_array[(y_coordinate * self.max_columns) + x_coordinate] ^=
+                        BitState::SET;
                 }
             }
         }
@@ -432,17 +431,17 @@ impl Cpu {
     //SKP Vx
     fn op_ex9e(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        let mut keypad_borrow :MutexGuard<Keypad> = self.keypad.lock().unwrap();
+        let mut keypad_borrow: MutexGuard<Keypad> = self.keypad.lock().unwrap();
         if keypad_borrow.get_key(data.variable_register[self.x]) == 1 {
             data.program_counter += PROGRAM_STEP;
             keypad_borrow.reset_key(data.variable_register[self.x]);
         }
     }
 
-     //SKNP Vx
-     fn op_exa1(&mut self) {
+    //SKNP Vx
+    fn op_exa1(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        let mut keypad_borrow :MutexGuard<Keypad> = self.keypad.lock().unwrap();
+        let mut keypad_borrow: MutexGuard<Keypad> = self.keypad.lock().unwrap();
         if keypad_borrow.get_key(data.variable_register[self.x]) == 0 {
             data.program_counter += PROGRAM_STEP;
         }
@@ -458,7 +457,7 @@ impl Cpu {
     //LD Vx, K
     fn op_fx0a(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        let mut keypad_borrow :MutexGuard<Keypad> = self.keypad.lock().unwrap();
+        let mut keypad_borrow: MutexGuard<Keypad> = self.keypad.lock().unwrap();
         if let Some(key) = (*keypad_borrow).get_pressed_key() {
             data.variable_register[self.x] = key;
             keypad_borrow.reset_key(key);
@@ -494,8 +493,9 @@ impl Cpu {
     //LD SF, Vx
     fn op_fx30(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        data.index_register = (data.variable_register[self.x] as u16) * 0xA + FONTSET_HIGH_START as u16;
-    } 
+        data.index_register =
+            (data.variable_register[self.x] as u16) * 0xA + FONTSET_HIGH_START as u16;
+    }
 
     //LD B, Vx
     fn op_fx33(&mut self) {
@@ -504,7 +504,6 @@ impl Cpu {
         data.memory[index] = data.variable_register[self.x] / 100;
         data.memory[index + 1] = (data.variable_register[self.x] / 10) % 10;
         data.memory[index + 2] = data.variable_register[self.x] % 10;
-
     }
 
     //LD [I], Vx
@@ -514,20 +513,19 @@ impl Cpu {
         for i in 0..self.x + 1 {
             data.memory[index + i] = data.variable_register[i];
         }
-
-    }    
+    }
 
     //LD Vx, [I]
     fn op_fx65(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
         let index = data.index_register as usize;
         if index + self.x < MEMORYSIZE {
-            for i in 0..self.x + 1{
+            for i in 0..self.x + 1 {
                 data.variable_register[i] = data.memory[index + i];
             }
         }
-    }  
-    
+    }
+
     //LD Vx, FLAG
     fn op_fx75(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
@@ -548,7 +546,3 @@ impl Cpu {
         }
     }
 }
-
-
-
-

@@ -1,24 +1,24 @@
 use crate::display::layout_constants;
-use crate::processor::{MemoryAccess, Resolution,
-    memory_constants::{ROWS, COLUMNS, GRAPHIC_SIZE}};
 use crate::interfaces::IDisplay;
-use sdl2::{
-    render::WindowCanvas, rect, 
-    ttf::Sdl2TtfContext};
+use crate::processor::{
+    memory_constants::{COLUMNS, GRAPHIC_SIZE, ROWS},
+    MemoryAccess, Resolution,
+};
+use sdl2::{rect, render::WindowCanvas, ttf::Sdl2TtfContext};
 use std::{
-    rc::Rc, cell::RefCell,
-     result::Result, thread, time::Duration, 
-    sync::{Arc, Mutex, mpsc::{
-        Sender, Receiver, channel}}};
-
-use self::layout_constants::{
-    PIXEL_SCALE, 
-    GAME_START_X, 
-    GAME_START_Y,
+    cell::RefCell,
+    rc::Rc,
+    result::Result,
+    sync::{
+        mpsc::{channel, Receiver, Sender},
+        Arc, Mutex,
+    },
+    thread,
+    time::Duration,
 };
 
+use self::layout_constants::{GAME_START_X, GAME_START_Y, PIXEL_SCALE};
 
-   
 pub struct GameDisplay {
     memory_access: Arc<Mutex<MemoryAccess>>,
     pixel_state: Vec<u8>,
@@ -46,10 +46,17 @@ impl IDisplay for GameDisplay {
         self.pixel_scale = PIXEL_SCALE / self.resolution as usize;
     }
 
-    fn redraw(&mut self, canvas: &mut WindowCanvas, _ttf_context: &mut Sdl2TtfContext) -> Result<(), String> {
+    fn redraw(
+        &mut self,
+        canvas: &mut WindowCanvas,
+        _ttf_context: &mut Sdl2TtfContext,
+    ) -> Result<(), String> {
         let mut rect = rect::Rect::new(
-            GAME_START_X, GAME_START_Y , 
-            self.pixel_scale as u32, self.pixel_scale as u32); 
+            GAME_START_X,
+            GAME_START_Y,
+            self.pixel_scale as u32,
+            self.pixel_scale as u32,
+        );
 
         for y in 0..ROWS {
             rect.set_y((y * self.pixel_scale) as i32 + GAME_START_Y);

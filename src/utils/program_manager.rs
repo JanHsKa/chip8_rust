@@ -1,14 +1,17 @@
-
-use crate::utils::{FileManager, FileInfo};
-use crate::processor::{
-    memory_constants::{MAX_PROGRAM_SIZE}, 
-    MemoryAccess};
+use crate::processor::{memory_constants::MAX_PROGRAM_SIZE, MemoryAccess};
+use crate::utils::{FileInfo, FileManager};
 use sdl2::{event::Event, keyboard::Keycode};
-use std::{rc::Rc, cell::RefCell, 
+use std::{
+    cell::RefCell,
     collections::{HashMap, HashSet},
-    thread, time::Duration, 
-    sync::{Arc, Mutex, mpsc::{
-    Sender, Receiver, channel}}};
+    rc::Rc,
+    sync::{
+        mpsc::{channel, Receiver, Sender},
+        Arc, Mutex,
+    },
+    thread,
+    time::Duration,
+};
 
 pub const BASE_PROGRAM_SPEED: u64 = 10;
 
@@ -31,9 +34,10 @@ pub struct ProgramManager {
 }
 
 impl ProgramManager {
-    pub fn new(new_file_manager: FileManager, 
-        new_memory_access: Arc<Mutex<MemoryAccess>>) -> ProgramManager {
-
+    pub fn new(
+        new_file_manager: FileManager,
+        new_memory_access: Arc<Mutex<MemoryAccess>>,
+    ) -> ProgramManager {
         ProgramManager {
             current_state: ProgramState::Running,
             file_manager: new_file_manager,
@@ -47,13 +51,13 @@ impl ProgramManager {
     }
 
     pub fn press_key(&mut self, key: Keycode) {
-        match key { 
+        match key {
             Keycode::F1 => self.restart_program(),
             Keycode::F4 => self.dump_memory(),
             Keycode::F5 => self.stop_or_continue(),
-            Keycode::F6 => {},
-            Keycode::F7 => {},
-            Keycode::F8 => {},
+            Keycode::F6 => {}
+            Keycode::F7 => {}
+            Keycode::F8 => {}
             Keycode::Plus => self.increase_speed(),
             Keycode::Minus => self.decrease_speed(),
             _ => {}
@@ -67,7 +71,7 @@ impl ProgramManager {
     }
 
     fn decrease_speed(&mut self) {
-        if self.program_speed > 1 { 
+        if self.program_speed > 1 {
             self.program_speed -= 1;
         }
     }
@@ -83,9 +87,10 @@ impl ProgramManager {
             self.current_state = ProgramState::Running;
         }
     }
-    
+
     fn dump_memory(&mut self) {
-        self.file_manager.dump_memory(self.memory_access.lock().unwrap().get_complete_memory());
+        self.file_manager
+            .dump_memory(self.memory_access.lock().unwrap().get_complete_memory());
     }
 
     fn load_file(&mut self) {
@@ -100,7 +105,7 @@ impl ProgramManager {
         self.program_speed
     }
 
-    pub fn new_file(&mut self, file_name: &String) {
+    pub fn new_file(&mut self, file_name: &str) {
         if self.file_manager.load_file_if_possible(file_name).is_ok() {
             self.current_state = ProgramState::NewProgram;
         }
@@ -139,9 +144,10 @@ impl ProgramManager {
         let mut code_lines: Vec<u16> = vec![0; count];
         let file_content = &self.get_file_content();
         for (i, iter) in code_lines.iter_mut().enumerate() {
-            *iter = (file_content[offset + 2 * i] as u16) << 8 | file_content[offset + 2 * i + 1] as u16;
-        } 
+            *iter = (file_content[offset + 2 * i] as u16) << 8
+                | file_content[offset + 2 * i + 1] as u16;
+        }
 
         Some(code_lines)
-    } 
+    }
 }

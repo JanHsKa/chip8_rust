@@ -1,7 +1,10 @@
-use sdl2::audio::{AudioCallback, AudioSpecDesired, AudioDevice};
-
+use crate::utils::TimeTo;
+use sdl2::audio::{AudioCallback, AudioDevice, AudioSpecDesired};
 use sdl2::Sdl;
-use std::{sync::{Arc, Mutex}};
+use std::sync::{
+    mpsc::{channel, Receiver, Sender, TryIter},
+    Arc,
+};
 
 struct SquareWave {
     phase_inc: f32,
@@ -26,27 +29,40 @@ impl AudioCallback for SquareWave {
 
 pub struct SoundManager {
     audio_device: AudioDevice<SquareWave>,
+    audio_receiver: Receiver<TimeTo>,
 }
 
 impl SoundManager {
-    pub fn new(context: Arc<Sdl>) -> SoundManager {
+    pub fn new(context: Arc<Sdl>, receiver: Receiver<TimeTo>) -> SoundManager {
         let subsystem = context.audio().unwrap();
-        let desired_spec =  AudioSpecDesired {
+        let desired_spec = AudioSpecDesired {
             freq: Some(44100),
-            channels: Some(1),  // mono
-            samples: None, 
+            channels: Some(1), // mono
+            samples: None,
         };
 
-        let device = subsystem.open_playback(None, &desired_spec, |spec| {
-            SquareWave {
+        let device = subsystem
+            .open_playback(None, &desired_spec, |spec| SquareWave {
                 phase_inc: 240.0 / spec.freq as f32,
                 phase: 0.0,
-                volume: 0.25
-            }
-        }).unwrap();
+                volume: 0.25,
+            })
+            .unwrap();
 
         SoundManager {
-            audio_device: device, 
+            audio_device: device,
+            audio_receiver: receiver,
+        }
+    }
+
+    pub fn check_sound(&mut self) {
+        let message = self.audio_receiver.try_recv();
+        if message.is_ok() {
+            match message.unwrap() {
+                TimeTo::PlaySound => self.play_sound(),
+                TimeTo::StopSound => self.stop_sound(),
+                _ => {}
+            };
         }
     }
 

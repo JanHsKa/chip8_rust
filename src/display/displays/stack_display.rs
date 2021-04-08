@@ -1,20 +1,23 @@
-use crate::interfaces::IDisplay;
-use crate::utils::{ProgramManager, ProgramState};
 use crate::display::{
-    layout_constants::{STACK_START_X, STACK_START_Y, 
-        STACK_WIDTH, STACK_HEIGHT},
-        DisplayRenderHelper
+    layout_constants::{STACK_HEIGHT, STACK_START_X, STACK_START_Y, STACK_WIDTH},
+    DisplayRenderHelper,
 };
-use crate::processor::{MemoryAccess, memory_constants::{STACKSIZE}};
+use crate::interfaces::IDisplay;
+use crate::processor::{memory_constants::STACKSIZE, MemoryAccess};
+use crate::utils::{ProgramManager, ProgramState};
 use std::{
-    rc::Rc, cell::RefCell,
-     result::Result, thread, time::Duration, 
-    sync::{Arc, Mutex, mpsc::{
-        Sender, Receiver, channel}}};
+    cell::RefCell,
+    rc::Rc,
+    result::Result,
+    sync::{
+        mpsc::{channel, Receiver, Sender},
+        Arc, Mutex,
+    },
+    thread,
+    time::Duration,
+};
 
-use sdl2::{
-    ttf::Sdl2TtfContext, 
-    render::{WindowCanvas}, pixels::Color};
+use sdl2::{pixels::Color, render::WindowCanvas, ttf::Sdl2TtfContext};
 
 pub struct StackDisplay {
     stack: Vec<String>,
@@ -25,7 +28,7 @@ pub struct StackDisplay {
 
 impl IDisplay for StackDisplay {
     fn update_info(&mut self) {
-        let mut access = self.memory_access.lock().unwrap();  
+        let mut access = self.memory_access.lock().unwrap();
         let stack = access.get_stack();
         let stack_size = STACKSIZE - 1;
         self.stack_pointer = access.get_stack_pointer();
@@ -35,11 +38,17 @@ impl IDisplay for StackDisplay {
         }
     }
 
-    fn redraw(&mut self, canvas: &mut WindowCanvas, ttf_context: &mut Sdl2TtfContext) -> Result<(), String> {
-        self.render_helper.draw_lines(&mut self.stack, canvas, ttf_context)?;
+    fn redraw(
+        &mut self,
+        canvas: &mut WindowCanvas,
+        ttf_context: &mut Sdl2TtfContext,
+    ) -> Result<(), String> {
+        self.render_helper
+            .draw_lines(&mut self.stack, canvas, ttf_context)?;
 
         let y = STACKSIZE - self.stack_pointer - 1;
-        self.render_helper.draw_rectangle(canvas, y as i32, Color::RED)?;
+        self.render_helper
+            .draw_rectangle(canvas, y as i32, Color::RED)?;
 
         Ok(())
     }
@@ -54,8 +63,11 @@ impl StackDisplay {
             memory_access: new_memory_access,
             stack_pointer: 0,
             render_helper: DisplayRenderHelper::new(
-                STACK_START_X, STACK_START_Y, 
-                STACK_WIDTH, STACK_HEIGHT),
+                STACK_START_X,
+                STACK_START_Y,
+                STACK_WIDTH,
+                STACK_HEIGHT,
+            ),
         }
     }
 }
