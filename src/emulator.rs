@@ -24,7 +24,6 @@ pub struct Emulator {
     speed: u64,
     instructioncounter: u64,
     input_checker: InputChecker,
-    time_manager: TimeManager,
 }
 
 
@@ -35,10 +34,10 @@ impl Emulator {
 
         let (new_sender, new_receiver) = channel();
         
-        /* std::thread::spawn(move || {
+        std::thread::spawn(move || {
             let mut time_manager = TimeManager::new(new_sender);
             time_manager.start_clock();
-        }); */
+        });
 
         /* std::thread::spawn(move || {
             let mut input_checker = new_input_checker;
@@ -61,7 +60,6 @@ impl Emulator {
             speed: BASE_PROGRAM_SPEED,
             instructioncounter: 0,
             input_checker: new_input_checker,
-            time_manager: TimeManager::new(new_sender),
         }
     }
 
@@ -90,7 +88,7 @@ impl Emulator {
             }
             self.update_state();
 
-            //thread::sleep(Duration::from_nanos(1));
+            thread::sleep(Duration::from_micros(10));
             //if self.instructioncounter > self.speed {
                 //thread::sleep(Duration::from_nanos(1));
                // self.instructioncounter = 0;
@@ -106,18 +104,21 @@ impl Emulator {
     fn run_code(&mut self) {
         self.cpu.run_opcode();
         self.instructioncounter += 1;
-        println!("instructions: {}", self.instructioncounter);
-        //self.refresh();
     }
 
     fn refresh(&mut self) {
         self.speed = self.program_manager.lock().unwrap().get_speed();
-        self.time_manager.set_speed(self.speed as u128);
+        self.run_code_based_on_timer();
         self.refresh_cpu_timer();
         self.refresh_display();
-        println!("update: ");
-        self.instructioncounter += 0;
+        self.instructioncounter = 0;
 
+    }
+
+    fn run_code_based_on_timer(&mut self) {
+        while self.instructioncounter < self.speed {
+            self.run_code();
+        }
     }
 
     fn refresh_cpu_timer(&mut self) {
@@ -125,41 +126,25 @@ impl Emulator {
         self.sound_check();
     }
 
-    fn receive_time_update(&mut self) -> Vec<TimeTo> {
-        //let message: Vec<TimeTo> = self.receiver.try_iter().filter_map(|s| Some(s)).collect();
-        let mut message: Vec<TimeTo> = Vec::new();
-        for i in self.receiver.try_iter() {
-            message.push(i);
+    fn check_time(&mut self) {
+        if self.instructioncounter <= self.speed {
+            self.run_code();
         }
 
-        return message;
+        let msg = self.receiver.try_recv();
+        if msg.is_ok() {
+            if msg.unwrap() == TimeTo::Update {
+            self.refresh();
+            }
+        }
     }
-
-    fn check_time(&mut self) {
-        match self.time_manager.check_time() {
-            TimeTo::Update => self.refresh(),
-            TimeTo::Process => self.run_code(),
-            _ => {},
-        };
-    }
-    /* fn check_time(&mut self) {
-        self.receive_time_update().iter().map(|m| match m {
-            TimeTo::Update => self.refresh(),
-            TimeTo::Process => self.run_code(),
-            _ => {},
-        });
-    } */
-
-    /* fn check_display(&mut self) {
-        self.receive_time_update().iter().map(|m| match m {
-            TimeTo::Update => self.refresh_display(),
-            _ => {},
-        });
-    } */
 
     fn check_display(&mut self) {
-        if self.time_manager.check_time() == TimeTo::Update {
-            self.refresh_display();
+        let msg = self.receiver.try_recv();
+        if msg.is_ok() {
+            if msg.unwrap() == TimeTo::Update {
+                self.refresh_display();
+            }
         }
     }
 

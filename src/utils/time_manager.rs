@@ -1,6 +1,6 @@
 pub const DISPLAY_REFRESH: u128 = 17;
 pub const OPCODE_REFRESH: u128 = 2000;
-pub const TIMER_TICK: u64 = 100;
+pub const TIMER_TICK: u64 = 10;
 
 use std::{result::Result, thread, time::{Duration, Instant}, 
     sync::{Arc, Mutex, mpsc::{Sender, Receiver, channel}}};
@@ -35,9 +35,6 @@ impl TimeManager {
             if self.time.elapsed().as_millis() > DISPLAY_REFRESH {
                 self.sender.send(TimeTo::Update).unwrap();
                 self.time = Instant::now();
-            } else if self.time.elapsed().as_millis() > self.speed {
-                self.sender.send(TimeTo::Process).unwrap();
-                self.instruction_time = Instant::now();
             }
 
             if self.time.elapsed().as_millis() > 10000000 {
@@ -49,7 +46,7 @@ impl TimeManager {
     }
 
     pub fn check_time(&mut self) -> TimeTo {
-        //println!("Elapsed time: {}", self.time.elapsed().as_millis());
+        println!("Elapsed time: {}", self.time.elapsed().as_millis());
         if self.time.elapsed().as_millis() > DISPLAY_REFRESH {
             self.time = Instant::now();
             return TimeTo::Update;
