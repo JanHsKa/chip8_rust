@@ -1,6 +1,6 @@
 use crate::defines::memory_constants::{
     COLUMNS, GRAPHIC_SIZE, MAX_PROGRAM_SIZE, MEMORYSIZE, PROGRAM_STEP, ROWS, STACKSIZE,
-    VARIABLES_COUNT,
+    VARIABLES_COUNT, FLAG_REGISTER_SIZE
 };
 
 use crate::model::{Memory, Resolution};
@@ -50,6 +50,13 @@ impl MemoryAccess {
         variable_register.copy_from_slice(&self.memory.lock().unwrap().variable_register);
 
         variable_register
+    }
+
+    pub fn get_flag_register(&mut self) -> Vec<u8> {
+        let mut flag_register = vec![0; FLAG_REGISTER_SIZE];
+        flag_register.copy_from_slice(&self.memory.lock().unwrap().flag_register);
+
+        flag_register
     }
 
     pub fn get_index_register(&mut self) -> u16 {

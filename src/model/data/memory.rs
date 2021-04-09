@@ -36,6 +36,7 @@ impl Memory {
             delay_timer: 0,
             sound_timer: 0,
             grapphic_array: vec![0; GRAPHIC_SIZE],
+            
             variable_register: [0; STACKSIZE],
             stack_pointer: 0,
             program_counter: PROGRAM_START,

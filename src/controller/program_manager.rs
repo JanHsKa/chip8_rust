@@ -1,6 +1,6 @@
 use crate::controller::{FileInfo, FileManager};
-use crate::defines::memory_constants::MAX_PROGRAM_SIZE;
-use crate::model::MemoryAccess;
+use crate::defines::memory_constants::{MAX_PROGRAM_SIZE, PROGRAM_START, VARIABLES_COUNT};
+use crate::model::{MemoryAccess, GameProperties};
 use sdl2::{event::Event, keyboard::Keycode};
 use std::{
     cell::RefCell,
@@ -38,18 +38,23 @@ pub struct ProgramManager {
     file_manager: FileManager,
     memory_access: Arc<Mutex<MemoryAccess>>,
     program_speed: u64,
+    game_properties: Arc<Mutex<GameProperties>>,
+    breakpoints: HashMap<usize, u16>,
 }
 
 impl ProgramManager {
     pub fn new(
         new_file_manager: FileManager,
         new_memory_access: Arc<Mutex<MemoryAccess>>,
+        new_game_properties: Arc<Mutex<GameProperties>>,
     ) -> ProgramManager {
         ProgramManager {
             current_state: ProgramState::Running,
             file_manager: new_file_manager,
             memory_access: new_memory_access,
             program_speed: BASE_PROGRAM_SPEED,
+            game_properties: new_game_properties,
+            breakpoints: HashMap::new(),
         }
     }
 
@@ -62,12 +67,29 @@ impl ProgramManager {
             Keycode::F1 => self.restart_program(),
             Keycode::F4 => self.dump_memory(),
             Keycode::F5 => self.stop_or_continue(),
-            Keycode::F6 => {}
-            Keycode::F7 => {}
+            Keycode::F6 => self.step_trough(),
+            Keycode::F7 => self.set_breakpoint(),
             Keycode::F8 => {}
             Keycode::Plus => self.increase_speed(),
             Keycode::Minus => self.decrease_speed(),
             _ => {}
+        }
+    }
+
+    fn step_trough(&mut self) {
+
+    }
+
+    fn set_breakpoint(&mut self) {
+        if self.current_state == ProgramState::Stopped {
+            let mut access = self.memory_access.lock().unwrap();
+            let line = access.get_program_counter() - PROGRAM_START;
+            if self.breakpoints.contains_key(&line) {
+                self.breakpoints.remove(&line);
+            } else if self.breakpoints.len() < VARIABLES_COUNT{
+                let opcode = access.get_opcode();
+                self.breakpoints.insert(line, opcode);
+            }
         }
     }
 
@@ -106,6 +128,10 @@ impl ProgramManager {
         } else {
             self.current_state = ProgramState::Idle;
         }
+    }
+
+    pub fn get_breakpoints(&mut self) -> HashMap<usize, u16>{
+        self.breakpoints.clone()
     }
 
     pub fn get_speed(&mut self) -> u64 {

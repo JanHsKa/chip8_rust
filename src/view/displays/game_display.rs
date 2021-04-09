@@ -1,8 +1,8 @@
 use crate::defines::{
-    layout_constants,
+    layout_constants::{GAME_PIXEL_SET, GAME_START_X, GAME_START_Y, PIXEL_SCALE, GAME_PIXEL_TEST, GAME_PIXEL_UNSET, GAME_PIXEL_UNTEST},
     memory_constants::{COLUMNS, GRAPHIC_SIZE, ROWS},
+    IDisplay,
 };
-use crate::interfaces::IDisplay;
 use crate::model::{MemoryAccess, Resolution};
 use sdl2::{rect, render::WindowCanvas, ttf::Sdl2TtfContext};
 use std::{
@@ -17,7 +17,6 @@ use std::{
     time::Duration,
 };
 
-use self::layout_constants::{GAME_START_X, GAME_START_Y, PIXEL_SCALE};
 
 pub struct GameDisplay {
     memory_access: Arc<Mutex<MemoryAccess>>,
@@ -62,9 +61,9 @@ impl IDisplay for GameDisplay {
             rect.set_y((y * self.pixel_scale) as i32 + GAME_START_Y);
             for x in 0..COLUMNS {
                 if self.pixel_state[(y * COLUMNS) + x] == 1 {
-                    canvas.set_draw_color(*layout_constants::GAME_PIXEL_SET);
+                    canvas.set_draw_color(GAME_PIXEL_TEST);
                 } else {
-                    canvas.set_draw_color(*layout_constants::GAME_PIXEL_UNSET);
+                    canvas.set_draw_color(GAME_PIXEL_UNSET);
                 }
                 rect.set_x((x * self.pixel_scale) as i32 + GAME_START_X);
                 canvas.fill_rect(rect)?;

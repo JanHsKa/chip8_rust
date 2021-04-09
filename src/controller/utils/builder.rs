@@ -1,8 +1,8 @@
 use crate::controller::{Emulator, FileManager, ProgramManager};
-use crate::model::{Cpu, Keypad, Memory, MemoryAccess};
+use crate::model::{Cpu, Keypad, Memory, MemoryAccess, GameProperties};
 use crate::sdl2::Sdl;
 use crate::view::{
-    DisplayManager, GameDisplay, InfoDisplay, InputChecker, MemoryDisplay, OpcodeDisplay,
+    DisplayManager, GameDisplay, InfoDisplay, InputChecker, MemoryDisplay, OpcodeDisplay, BreakPointDisplay,
     SoundManager, StackDisplay, View,
 };
 use std::cell::RefCell;
@@ -37,11 +37,12 @@ impl Builder {
         file_path: String,
         data: Memory,
     ) -> Emulator {
+        let game_properties = Arc::new(Mutex::new(GameProperties::new()));
         let data_ref = self.package_arc_mutex(data);
         let file_manager = FileManager::new(file_path);
         let access = self.package_arc_mutex(MemoryAccess::new(Arc::clone(&data_ref)));
         let program_manager =
-            self.package_arc_mutex(ProgramManager::new(file_manager, Arc::clone(&access)));
+            self.package_arc_mutex(ProgramManager::new(file_manager, Arc::clone(&access), Arc::clone(&game_properties)));
         let cpu = Cpu::new(Arc::clone(&new_keypad), Arc::clone(&data_ref));
         let (audio_sender, audio_receiver) = channel();
 
@@ -66,12 +67,14 @@ impl Builder {
         let stack_display = StackDisplay::new(Arc::clone(&mem_access));
         let memory_display = MemoryDisplay::new(Arc::clone(&mem_access));
         let opcode_display = OpcodeDisplay::new(Arc::clone(&mem_access), Arc::clone(&prog_manager));
+        let breakpoint_display = BreakPointDisplay::new(Arc::clone(prog_manager));
 
         display_manager.add_display(Box::new(game_display));
         display_manager.add_display(Box::new(info_display));
         display_manager.add_display(Box::new(stack_display));
         display_manager.add_display(Box::new(memory_display));
         display_manager.add_display(Box::new(opcode_display));
+        display_manager.add_display(Box::new(breakpoint_display));
     }
 
     fn package_rc_refcell<T>(&mut self, package: T) -> Rc<RefCell<T>> {

@@ -17,7 +17,6 @@ pub struct InputChecker {
     program_manager: Arc<Mutex<ProgramManager>>,
 }
 
-unsafe impl Send for InputChecker {}
 
 impl InputChecker {
     pub fn new(

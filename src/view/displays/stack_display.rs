@@ -1,10 +1,10 @@
 use crate::controller::{ProgramManager, ProgramState};
 use crate::defines::{
     layout_constants,
-    layout_constants::{STACK_HEIGHT, STACK_START_X, STACK_START_Y, STACK_WIDTH},
+    layout_constants::{STACK_HEIGHT, STACK_START_X, STACK_START_Y, STACK_WIDTH, STACK_HIGHLIGHT},
     memory_constants::STACKSIZE,
+    IDisplay,
 };
-use crate::interfaces::IDisplay;
 use crate::model::MemoryAccess;
 use crate::view::DisplayRenderHelper;
 use std::{
@@ -50,7 +50,7 @@ impl IDisplay for StackDisplay {
 
         let y = STACKSIZE - self.stack_pointer - 1;
         self.render_helper
-            .draw_rectangle(canvas, y as i32, *layout_constants::STACK_HIGHLIGHT)?;
+            .draw_rectangle(canvas, y as i32, STACK_HIGHLIGHT)?;
 
         Ok(())
     }

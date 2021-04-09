@@ -1,10 +1,10 @@
 use crate::controller::ProgramManager;
 use crate::defines::{
     layout_constants,
-    layout_constants::{OPCODE_HEIGHT, OPCODE_LINES, OPCODE_START_X, OPCODE_START_Y, OPCODE_WIDTH},
+    layout_constants::{OPCODE_HEIGHT, OPCODE_LINES, OPCODE_START_X, OPCODE_START_Y, OPCODE_WIDTH, OPCODE_HIGHLIGHT_NORMAL, OPCODE_HIGHLIGHT_TEST},
     memory_constants::PROGRAM_START,
+    IDisplay,
 };
-use crate::interfaces::IDisplay;
 use crate::model::MemoryAccess;
 use crate::view::DisplayRenderHelper;
 use std::{
@@ -73,7 +73,7 @@ impl IDisplay for OpcodeDisplay {
         self.render_helper.fill_rectangle(
             canvas,
             rect_y,
-            *layout_constants::OPCODE_HIGHLIGHT_TEST,
+            OPCODE_HIGHLIGHT_TEST,
         )?;
         self.render_helper
             .draw_lines(&mut self.code_lines, canvas, ttf_context)?;

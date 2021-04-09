@@ -1,5 +1,7 @@
-use crate::defines::layout_constants::{WINDOW_HEIGHT, WINDOW_NAME, WINDOW_WIDTH};
-use crate::interfaces::IDisplay;
+use crate::defines::{
+    layout_constants::{WINDOW_HEIGHT, WINDOW_NAME, WINDOW_WIDTH},
+    IDisplay,
+};
 use crate::view::{InputChecker, SoundManager, WindowRenderer};
 
 use crate::controller::{TimeManager, TimeTo};
@@ -29,13 +31,11 @@ pub struct DisplayManager {
     canvas: render::Canvas<Window>,
     displays: Vec<Box<dyn IDisplay>>,
     ttf_context: Sdl2TtfContext,
-    window_renderer: WindowRenderer,
     input_checker: InputChecker,
     update_receiver: Receiver<TimeTo>,
     sound_manager: SoundManager,
 }
 
-unsafe impl Send for DisplayManager {}
 
 impl DisplayManager {
     pub fn new(
@@ -71,7 +71,6 @@ impl DisplayManager {
             canvas: new_canvas,
             displays: Vec::new(),
             ttf_context: ttf,
-            window_renderer: WindowRenderer::new(),
             input_checker: new_input_checker,
             update_receiver: new_receiver,
             sound_manager: new_sound_manager,
@@ -79,8 +78,8 @@ impl DisplayManager {
     }
 
     pub fn initialize(&mut self) -> Result<(), String> {
-        self.window_renderer.render_background(&mut self.canvas)?;
-        self.window_renderer.render_outline(&mut self.canvas)?;
+        WindowRenderer::render_background(&mut self.canvas)?;
+        WindowRenderer::render_outline(&mut self.canvas)?;
         self.canvas.present();
 
         'running: loop {
@@ -89,7 +88,7 @@ impl DisplayManager {
             }
             self.input_checker.check_input();
             self.sound_manager.check_sound();
-            thread::sleep(Duration::from_micros(1));
+            thread::sleep(Duration::from_micros(100));
         }
     }
 
@@ -107,8 +106,8 @@ impl DisplayManager {
     }
 
     pub fn draw(&mut self) -> Result<(), String> {
-        self.window_renderer.render_background(&mut self.canvas)?;
-        self.window_renderer.render_outline(&mut self.canvas)?;
+        WindowRenderer::render_background(&mut self.canvas)?;
+        WindowRenderer::render_outline(&mut self.canvas)?;
 
         for display in self.displays.iter_mut() {
             display.as_mut().update_info();

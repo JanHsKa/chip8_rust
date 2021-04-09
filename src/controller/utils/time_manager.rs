@@ -1,6 +1,6 @@
 pub const DISPLAY_REFRESH: u128 = 17;
 pub const OPCODE_REFRESH: u128 = 2000;
-pub const TIMER_TICK: u64 = 10;
+pub const TIMER_TICK: u64 = 1000;
 
 use std::{
     sync::mpsc::Sender,

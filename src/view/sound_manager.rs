@@ -2,7 +2,7 @@ use crate::controller::TimeTo;
 use sdl2::audio::{AudioCallback, AudioDevice, AudioSpecDesired};
 use sdl2::Sdl;
 use std::sync::{
-    mpsc::{channel, Receiver, Sender, TryIter},
+    mpsc::{Receiver},
     Arc,
 };
 

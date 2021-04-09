@@ -1,12 +1,12 @@
 pub mod controller;
 pub mod defines;
-pub mod interfaces;
 pub mod model;
 pub mod view;
 
 extern crate edit;
 extern crate rand;
 extern crate sdl2;
+extern crate phf;
 
 #[macro_use]
 extern crate lazy_static;
@@ -24,7 +24,6 @@ fn main() {
         let memory = Memory::new();
         let mut builder = Builder::new();
         let mut emulator = builder.build_emulator(keypad, args[1].clone(), memory);
-        //let mut emulator = Emulator::new(args[1].clone(), keypad, sdl_context);
         emulator.start_program();
     }
 }

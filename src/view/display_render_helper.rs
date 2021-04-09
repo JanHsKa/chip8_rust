@@ -120,7 +120,7 @@ impl DisplayRenderHelper {
         ttf_context: &mut Sdl2TtfContext,
         x: i32,
     ) -> Result<(), String> {
-        let font = ttf_context.load_font(FONTPATH3, FONTSIZE_LINE).unwrap();
+        let font = ttf_context.load_font(FONTPATH4, FONTSIZE_LINE).unwrap();
         //font.set_style(sdl2::ttf::FontStyle::BOLD);
 
         let texture_creator = canvas.texture_creator();

@@ -14,3 +14,6 @@ pub const GRAPHIC_SIZE_HIGH: usize = GRAPHIC_SIZE * 4;
 pub const FLAG_REGISTER_SIZE: usize = 8;
 pub const SPRITE_WIDTH: usize = 8;
 pub const BIG_SPRITE: usize = 16;
+pub const FONTSET_LOW_SIZE: usize = 80;
+pub const FONTSET_HIGH_START: usize = FONTSET_LOW_SIZE;
+pub const FONTSET_HIGH_SIZE: usize = 160;

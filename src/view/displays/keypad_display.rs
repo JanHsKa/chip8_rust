@@ -2,8 +2,8 @@ use crate::controller::{ProgramManager, ProgramState};
 use crate::defines::{
     layout_constants::{KEYPAD_HEIGHT, KEYPAD_START_X, KEYPAD_START_Y, KEYPAD_WIDTH},
     memory_constants::STACKSIZE,
+    IDisplay,
 };
-use crate::interfaces::IDisplay;
 use crate::model::MemoryAccess;
 use crate::view::KeypadRenderer;
 use sdl2::{pixels::Color, render::WindowCanvas, ttf::Sdl2TtfContext};

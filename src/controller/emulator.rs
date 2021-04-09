@@ -74,7 +74,7 @@ impl Emulator {
             }
             self.update_state();
 
-            thread::sleep(Duration::from_micros(5));
+            thread::sleep(Duration::from_micros(1000));
         }
     }
 

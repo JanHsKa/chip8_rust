@@ -1,19 +1,21 @@
-use crate::defines::memory_constants;
+use crate::defines::constants::memory_constants;
 use sdl2::pixels::Color;
 
+pub const test: Color = Color::RGB(25, 35, 45);
+
+pub const WINDOW_BACKGROUND: Color = Color::RGB(25, 35, 45);
+pub const GAME_BACKGROUND: Color = Color::RGB(40, 40, 40);
+pub const GAME_FOREGROUND: Color = Color::RGB(170, 255, 170);
+pub const DARK_OUTLINE: Color = Color::RGB(5, 10, 15);
+pub const BRIGHT_OUTLINE: Color = Color::RGB(60, 80, 90);
+pub const GAME_PIXEL_SET: Color = Color::RGB(170, 255, 170);
+pub const GAME_PIXEL_UNSET: Color = Color::RGB(40, 40, 40);
+pub const GAME_PIXEL_TEST: Color = Color::RGB(200, 50, 12);
+pub const GAME_PIXEL_UNTEST: Color = Color::RGB(3, 0xC, 0x1F);
+pub const OPCODE_HIGHLIGHT_NORMAL: Color = Color::RGB(51, 51, 255);
+pub const OPCODE_HIGHLIGHT_TEST: Color = Color::RGB(0, 0, 204);
+pub const STACK_HIGHLIGHT: Color = Color::RGB(204, 0, 0);
 lazy_static! {
-    pub static ref WINDOW_BACKGROUND: Color = Color::RGB(25, 35, 45);
-    pub static ref GAME_BACKGROUND: Color = Color::RGB(40, 40, 40);
-    pub static ref GAME_FOREGROUND: Color = Color::RGB(170, 255, 170);
-    pub static ref DARK_OUTLINE: Color = Color::RGB(5, 10, 15);
-    pub static ref BRIGHT_OUTLINE: Color = Color::RGB(60, 80, 90);
-    pub static ref GAME_PIXEL_SET: Color = Color::RGB(170, 255, 170);
-    pub static ref GAME_PIXEL_UNSET: Color = Color::RGB(40, 40, 40);
-    pub static ref GAME_PIXEL_TEST: Color = Color::RGB(100, 0, 0);
-    pub static ref GAME_PIXEL_UNTEST: Color = Color::RGB(3, 0xC, 0x1F);
-    pub static ref OPCODE_HIGHLIGHT_NORMAL: Color = Color::RGB(51, 51, 255);
-    pub static ref OPCODE_HIGHLIGHT_TEST: Color = Color::RGB(0, 0, 204);
-    pub static ref STACK_HIGHLIGHT: Color = Color::RGB(204, 0, 0);
 }
 
 //original 15
@@ -43,7 +45,7 @@ pub const MEMORY_START_X: i32 = OPCODE_START_X;
 pub const MEMORY_START_Y: i32 = 2 * EDGE_SIZE + 3 * OUTLINE + GAME_HEIGHT as i32;
 
 pub const INFO_HEIGHT: u32 = MEMORY_HEIGHT;
-pub const INFO_WIDTH: u32 = MEMORY_WIDTH / 4 * 3;
+pub const INFO_WIDTH: u32 = MEMORY_WIDTH;
 pub const INFO_START_X: i32 = GAME_START_X;
 pub const INFO_START_Y: i32 = MEMORY_START_Y;
 
@@ -53,6 +55,12 @@ pub const KEYPAD_WIDTH: u32 =
 pub const KEYPAD_START_X: i32 = INFO_START_X + INFO_WIDTH as i32 + 2 * OUTLINE + EDGE_SIZE;
 pub const KEYPAD_START_Y: i32 = MEMORY_START_Y;
 
+pub const BREAKPOINT_HEIGHT: u32 = MEMORY_HEIGHT;
+pub const BREAKPOINT_WIDTH: u32 =
+    STACK_START_X as u32 - 2 * OUTLINE as u32 - EDGE_SIZE as u32 - KEYPAD_START_X as u32;
+pub const BEAKPOINT_START_X: i32 = INFO_START_X + INFO_WIDTH as i32 + 2 * OUTLINE + EDGE_SIZE;
+pub const BREAKPOINT_START_Y: i32 = MEMORY_START_Y;
+
 pub const OPCODE_HEIGHT: u32 = GAME_HEIGHT;
 pub const OPCODE_WIDTH: u32 = WINDOW_WIDTH - 3 * EDGE_SIZE as u32 - 4 * OUTLINE as u32 - GAME_WIDTH;
 pub const OPCODE_START_X: i32 = EDGE_SIZE * 2 + OUTLINE * 3 + GAME_WIDTH as i32;
@@ -60,7 +68,7 @@ pub const OPCODE_START_Y: i32 = GAME_START_Y;
 pub const OPCODE_LINES: usize = 23;
 
 pub const STACK_HEIGHT: u32 = MEMORY_HEIGHT;
-pub const STACK_WIDTH: u32 = MEMORY_WIDTH / 2;
+pub const STACK_WIDTH: u32 = MEMORY_WIDTH / 5 * 3;
 /// 2 + 3 * EDGE_SIZE as u32;
 pub const STACK_START_X: i32 = MEMORY_START_X - STACK_WIDTH as i32 - EDGE_SIZE - 2 * OUTLINE;
 pub const STACK_START_Y: i32 = MEMORY_START_Y;

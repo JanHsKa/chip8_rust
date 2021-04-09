@@ -1,6 +1,8 @@
 use crate::controller::{ProgramManager, ProgramState};
-use crate::defines::layout_constants::{INFO_HEIGHT, INFO_START_X, INFO_START_Y, INFO_WIDTH};
-use crate::interfaces::IDisplay;
+use crate::defines::{
+    layout_constants::{INFO_HEIGHT, INFO_START_X, INFO_START_Y, INFO_WIDTH},
+    IDisplay,
+};
 use crate::view::DisplayRenderHelper;
 use std::{
     cell::RefCell,

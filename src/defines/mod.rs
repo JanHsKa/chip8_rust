@@ -1,6 +1,7 @@
 mod enums;
-pub mod layout_constants;
-pub mod memory_constants;
+mod interfaces;
+pub mod constants;
 
-pub use self::layout_constants::*;
-pub use self::memory_constants::*;
+pub use self::interfaces::*;
+pub use self::enums::*;
+pub use self::constants::*;

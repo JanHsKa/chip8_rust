@@ -14,19 +14,19 @@ impl WindowRenderer {
         WindowRenderer {}
     }
 
-    pub fn render_background(&mut self, canvas: &mut WindowCanvas) -> Result<(), String> {
-        canvas.set_draw_color(*WINDOW_BACKGROUND);
+    pub fn render_background(canvas: &mut WindowCanvas) -> Result<(), String> {
+        canvas.set_draw_color(WINDOW_BACKGROUND);
         let rect = Rect::new(WINDOW_START_X, WINDOW_START_Y, WINDOW_WIDTH, WINDOW_HEIGHT);
         canvas.fill_rect(rect)?;
 
         Ok(())
     }
 
-    pub fn render_outline(&mut self, canvas: &mut WindowCanvas) -> Result<(), String> {
+    pub fn render_outline(canvas: &mut WindowCanvas) -> Result<(), String> {
         let mut rect = Rect::new(EDGE_SIZE + OUTLINE, EDGE_SIZE, GAME_WIDTH, OUTLINE as u32);
 
         //HORIZONTAL Dark
-        canvas.set_draw_color(*DARK_OUTLINE);
+        canvas.set_draw_color(DARK_OUTLINE);
         canvas.fill_rect(rect)?;
 
         rect.set_x(OPCODE_START_X);
@@ -83,7 +83,7 @@ impl WindowRenderer {
         rect.set_height(MEMORY_HEIGHT + OUTLINE as u32);
         canvas.fill_rect(rect)?;
 
-        canvas.set_draw_color(*BRIGHT_OUTLINE);
+        canvas.set_draw_color(BRIGHT_OUTLINE);
         //HORIZONTAL Bright
         rect.set_x(EDGE_SIZE);
         rect.set_y(EDGE_SIZE + GAME_HEIGHT as i32 + OUTLINE);

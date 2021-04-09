@@ -128,6 +128,7 @@ impl Cpu {
 
     fn match_opcode(&mut self, nibbles: (u16, u16, u16, u16)) {
         match nibbles {
+            (0x0, 0x0, 0xb, _) => self.op_00bn(),
             (0x0, 0x0, 0xc, _) => self.op_00cn(),
             (0x0, 0x0, 0xe, 0x0) => self.op_00e0(),
             (0x0, 0x0, 0xe, 0xe) => self.op_00ee(),
@@ -175,6 +176,15 @@ impl Cpu {
         }
     }
 
+    //Scroll Up
+    fn op_00bn(&mut self) {
+        let mut data = self.data_ref.lock().unwrap();
+        let graphic_copy = data.grapphic_array.clone();
+        let shift: usize = self.n * COLUMNS * data.resolution as usize;
+        data.grapphic_array[0..GRAPHIC_SIZE - shift]
+            .copy_from_slice(&graphic_copy[shift..GRAPHIC_SIZE]);
+    }
+
     //Scroll Down
     fn op_00cn(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
@@ -204,6 +214,10 @@ impl Cpu {
     //Scroll Right
     fn op_00fb(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
+        let resolution = data.resolution;
+
+
+
     }
 
     //Scroll Left

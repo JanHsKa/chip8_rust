@@ -1,4 +1,4 @@
-mod break_point_display;
+mod breakpoint_display;
 mod game_display;
 mod info_display;
 mod keypad_display;
@@ -6,7 +6,7 @@ mod memory_display;
 mod opcode_display;
 mod stack_display;
 
-pub use self::break_point_display::BreakPointDisplay;
+pub use self::breakpoint_display::BreakPointDisplay;
 pub use self::game_display::GameDisplay;
 pub use self::info_display::InfoDisplay;
 pub use self::keypad_display::KeypadDisplay;
