@@ -34,12 +34,7 @@ impl Builder {
         Builder {}
     }
 
-    pub fn build_emulator(
-        &mut self,
-        new_keypad: Arc<Mutex<Keypad>>,
-        file_path: String,
-        data: Memory,
-    ) -> Emulator {
+    pub fn build_emulator(&mut self, file_path: String) -> Emulator {
         let game_properties = self.package_arc_mutex(GameProperties::new());
         let game_properties_access =
             self.package_arc_mutex(GamePropertiesAccess::new(Arc::clone(&game_properties)));
@@ -48,7 +43,9 @@ impl Builder {
         let debug_properties_access =
             self.package_arc_mutex(DebugPropertiesAccess::new(Arc::clone(&debug_properties)));
 
-        let data_ref = self.package_arc_mutex(data);
+        let data_ref = self.package_arc_mutex(Memory::new());
+        let new_keypad = self.package_arc_mutex(Keypad::new());
+
         let file_manager = FileManager::new(file_path);
         let access = self.package_arc_mutex(MemoryAccess::new(Arc::clone(&data_ref)));
         let program_manager = self.package_arc_mutex(ProgramManager::new(
