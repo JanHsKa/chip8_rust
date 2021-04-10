@@ -30,4 +30,8 @@ impl GamePropertiesAccess {
     pub fn get_game_speed(&mut self) -> u64 {
         self.game_properties.lock().unwrap().game_speed
     }
+
+    pub fn get_game_code(&mut self) -> Vec<u8> {
+        self.game_properties.lock().unwrap().game_code.clone()
+    }
 }

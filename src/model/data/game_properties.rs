@@ -6,6 +6,7 @@ pub struct GameProperties {
     pub game_speed: u64,
     pub game_size: usize,
     pub game_name: String,
+    pub game_code: Vec<u8>,
 }
 
 impl Default for GameProperties {
@@ -21,6 +22,7 @@ impl GameProperties {
             game_speed: BASE_PROGRAM_SPEED,
             game_size: 0,
             game_name: String::new(),
+            game_code: Vec::new(),
         }
     }
 

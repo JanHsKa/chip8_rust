@@ -1,5 +1,8 @@
-use crate::controller::{Emulator, FileManager, ProgramManager};
-use crate::model::{Cpu, GameProperties, Keypad, Memory, MemoryAccess};
+use crate::controller::{DebugManager, Emulator, FileManager, ProgramManager};
+use crate::model::{
+    Cpu, DebugProperties, DebugPropertiesAccess, GameProperties, GamePropertiesAccess, Keypad,
+    Memory, MemoryAccess,
+};
 use crate::sdl2::Sdl;
 use crate::view::{
     BreakPointDisplay, DisplayManager, GameDisplay, InfoDisplay, InputChecker, MemoryDisplay,
@@ -37,7 +40,14 @@ impl Builder {
         file_path: String,
         data: Memory,
     ) -> Emulator {
-        let game_properties = Arc::new(Mutex::new(GameProperties::new()));
+        let game_properties = self.package_arc_mutex(GameProperties::new());
+        let game_properties_access =
+            self.package_arc_mutex(GamePropertiesAccess::new(Arc::clone(&game_properties)));
+
+        let debug_properties = self.package_arc_mutex(DebugProperties::new());
+        let debug_properties_access =
+            self.package_arc_mutex(DebugPropertiesAccess::new(Arc::clone(&debug_properties)));
+
         let data_ref = self.package_arc_mutex(data);
         let file_manager = FileManager::new(file_path);
         let access = self.package_arc_mutex(MemoryAccess::new(Arc::clone(&data_ref)));
@@ -46,31 +56,45 @@ impl Builder {
             Arc::clone(&access),
             Arc::clone(&game_properties),
         ));
+        let debug_manager = self.package_arc_mutex(DebugManager::new(
+            Arc::clone(&access),
+            Arc::clone(&debug_properties),
+        ));
         let cpu = Cpu::new(Arc::clone(&new_keypad), Arc::clone(&data_ref));
         let (audio_sender, audio_receiver) = channel();
 
         let view = View::new(
             Arc::clone(&new_keypad),
             Arc::clone(&program_manager),
+            Arc::clone(&game_properties_access),
+            Arc::clone(&debug_properties_access),
             Arc::clone(&access),
             audio_receiver,
         );
 
-        Emulator::new(cpu, Arc::clone(&program_manager), view, audio_sender)
+        Emulator::new(
+            cpu,
+            Arc::clone(&program_manager),
+            Arc::clone(&debug_manager),
+            view,
+            audio_sender,
+        )
     }
 
     pub fn build_displays(
         &mut self,
         display_manager: &mut DisplayManager,
         mem_access: &Arc<Mutex<MemoryAccess>>,
-        prog_manager: &Arc<Mutex<ProgramManager>>,
+        properties_access: &Arc<Mutex<GamePropertiesAccess>>,
+        debug_properties_access: &Arc<Mutex<DebugPropertiesAccess>>,
     ) {
         let game_display = GameDisplay::new(Arc::clone(&mem_access));
-        let info_display = InfoDisplay::new(Arc::clone(&prog_manager));
+        let info_display = InfoDisplay::new(Arc::clone(&properties_access));
         let stack_display = StackDisplay::new(Arc::clone(&mem_access));
         let memory_display = MemoryDisplay::new(Arc::clone(&mem_access));
-        let opcode_display = OpcodeDisplay::new(Arc::clone(&mem_access), Arc::clone(&prog_manager));
-        let breakpoint_display = BreakPointDisplay::new(Arc::clone(prog_manager));
+        let opcode_display =
+            OpcodeDisplay::new(Arc::clone(&mem_access), Arc::clone(&properties_access));
+        let breakpoint_display = BreakPointDisplay::new(Arc::clone(debug_properties_access));
 
         display_manager.add_display(Box::new(game_display));
         display_manager.add_display(Box::new(info_display));

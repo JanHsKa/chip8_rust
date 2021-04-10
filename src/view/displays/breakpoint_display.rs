@@ -6,7 +6,7 @@ use crate::defines::{
     memory_constants::VARIABLES_COUNT,
     Fill, IDisplay,
 };
-use crate::model::MemoryAccess;
+use crate::model::DebugPropertiesAccess;
 use crate::view::DisplayRenderHelper;
 use std::{
     cell::RefCell,
@@ -24,14 +24,14 @@ use sdl2::{render::WindowCanvas, ttf::Sdl2TtfContext};
 
 pub struct BreakPointDisplay {
     breakpoints: Vec<String>,
-    program_manager: Arc<Mutex<ProgramManager>>,
+    program_manager: Arc<Mutex<DebugPropertiesAccess>>,
     render_helper: DisplayRenderHelper,
 }
 
 impl IDisplay for BreakPointDisplay {
     fn update_info(&mut self) {
-        let mut manager = self.program_manager.lock().unwrap();
-        let breakpoint_map = manager.get_breakpoints();
+        let mut properties = self.program_manager.lock().unwrap();
+        let breakpoint_map = properties.get_breakpoints();
         let mut index: usize = 0;
 
         for (line, opcode) in breakpoint_map.iter() {
@@ -58,10 +58,10 @@ impl IDisplay for BreakPointDisplay {
 }
 
 impl BreakPointDisplay {
-    pub fn new(new_program_manager: Arc<Mutex<ProgramManager>>) -> BreakPointDisplay {
+    pub fn new(new_debug_properties: Arc<Mutex<DebugPropertiesAccess>>) -> BreakPointDisplay {
         BreakPointDisplay {
             breakpoints: vec![String::with_capacity(6); VARIABLES_COUNT - 1],
-            program_manager: new_program_manager,
+            program_manager: new_debug_properties,
             render_helper: DisplayRenderHelper::new(
                 BEAKPOINT_START_X,
                 BREAKPOINT_START_Y,

@@ -1,4 +1,5 @@
-use crate::controller::{ProgramManager, ProgramState};
+use crate::controller::ProgramManager;
+use crate::defines::ProgramState;
 use crate::model::Keypad;
 use crate::sdl2::keyboard::Keycode;
 use sdl2::event::Event;

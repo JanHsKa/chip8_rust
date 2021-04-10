@@ -1,9 +1,8 @@
-use crate::controller::{ProgramManager, ProgramState};
 use crate::defines::{
     layout_constants,
     layout_constants::{STACK_HEIGHT, STACK_HIGHLIGHT, STACK_START_X, STACK_START_Y, STACK_WIDTH},
     memory_constants::STACKSIZE,
-    IDisplay,
+    IDisplay, ProgramState,
 };
 use crate::model::MemoryAccess;
 use crate::view::DisplayRenderHelper;

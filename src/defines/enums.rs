@@ -13,6 +13,10 @@ pub enum ProgramState {
 pub enum DebugState {
     Enabled,
     Disabled,
+    Step,
+    Breakpoint,
+    Running,
+    Stopped,
 }
 
 #[derive(Copy, Clone, PartialEq)]

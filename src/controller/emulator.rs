@@ -1,4 +1,5 @@
-use crate::controller::{ProgramManager, ProgramState, TimeManager, TimeTo, BASE_PROGRAM_SPEED};
+use crate::controller::{DebugManager, ProgramManager, TimeManager, TimeTo, BASE_PROGRAM_SPEED};
+use crate::defines::ProgramState;
 use crate::model::{Cpu, MemoryAccess};
 use crate::view::{DisplayManager, View};
 
@@ -22,6 +23,7 @@ pub struct Emulator {
     cpu: Cpu,
     _view: View,
     program_manager: Arc<Mutex<ProgramManager>>,
+    debug_manager: Arc<Mutex<DebugManager>>,
     current_state: ProgramState,
     update_receiver: Receiver<TimeTo>,
     speed: u64,
@@ -33,6 +35,7 @@ impl Emulator {
     pub fn new(
         new_cpu: Cpu,
         new_program_manager: Arc<Mutex<ProgramManager>>,
+        new_debug_manager: Arc<Mutex<DebugManager>>,
         new_view: View,
         new_audio_sender: Sender<TimeTo>,
     ) -> Emulator {
@@ -47,6 +50,7 @@ impl Emulator {
             cpu: new_cpu,
             _view: new_view,
             program_manager: new_program_manager,
+            debug_manager: new_debug_manager,
             current_state: ProgramState::NewProgram,
             update_receiver: new_receiver,
             speed: BASE_PROGRAM_SPEED,
@@ -66,9 +70,9 @@ impl Emulator {
             match self.current_state {
                 ProgramState::NewProgram => self.new_program(),
                 ProgramState::Running => self.check_time(),
-                ProgramState::Step => self.step(),
+                //ProgramState::Step => self.step(),
                 ProgramState::Restart => self.new_program(),
-                ProgramState::Stopped => self.check_display(),
+                ProgramState::Stopped => self.check_debug(),
                 ProgramState::Idle => self.idle(),
                 ProgramState::Quit => break 'running,
                 _ => {}
@@ -77,6 +81,11 @@ impl Emulator {
 
             thread::sleep(Duration::from_micros(1000));
         }
+    }
+
+    fn check_debug(&mut self) {
+        let mut debug = self.debug_manager.lock().unwrap();
+        //let state = debug.get
     }
 
     fn idle(&mut self) {
@@ -93,7 +102,6 @@ impl Emulator {
         self.speed = self.program_manager.lock().unwrap().get_speed();
         self.run_code_based_on_timer();
         self.refresh_cpu_timer();
-        self.refresh_display();
         self.instructioncounter = 0;
     }
 
@@ -125,17 +133,6 @@ impl Emulator {
         if msg.is_ok() && msg.unwrap() == TimeTo::Update {
             self.refresh();
         }
-    }
-
-    fn check_display(&mut self) {
-        let msg = self.update_receiver.try_recv();
-        if msg.is_ok() && msg.unwrap() == TimeTo::Update {
-            self.refresh_display();
-        }
-    }
-
-    fn refresh_display(&mut self) {
-        //self.display_manager.draw();
     }
 
     fn update_state(&mut self) {

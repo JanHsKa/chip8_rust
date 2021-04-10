@@ -1,6 +1,6 @@
 use crate::defines::memory_constants::{
-    COLUMNS, FLAG_REGISTER_SIZE, GRAPHIC_SIZE, MAX_PROGRAM_SIZE, MEMORYSIZE, PROGRAM_STEP, ROWS,
-    STACKSIZE, VARIABLES_COUNT,
+    COLUMNS, FLAG_REGISTER_SIZE, GRAPHIC_SIZE, MAX_PROGRAM_SIZE, MEMORYSIZE, PROGRAM_START,
+    PROGRAM_STEP, ROWS, STACKSIZE, VARIABLES_COUNT,
 };
 
 use crate::model::{Memory, Resolution};
@@ -73,5 +73,32 @@ impl MemoryAccess {
 
     pub fn get_resolution(&mut self) -> Resolution {
         self.memory.lock().unwrap().resolution
+    }
+
+    pub fn get_code_snippet(&mut self, count: usize, offset: usize) -> Option<Vec<u16>> {
+        if offset + count * 2 + 1 >= MAX_PROGRAM_SIZE {
+            return None;
+        }
+
+        let mut code_lines: Vec<u16> = vec![0; count];
+        let memory_content = &self.memory.lock().unwrap().memory[PROGRAM_START..];
+        for (i, iter) in code_lines.iter_mut().enumerate() {
+            *iter = (memory_content[offset + 2 * i] as u16) << 8
+                | memory_content[offset + 2 * i + 1] as u16;
+        }
+
+        Some(code_lines)
+    }
+
+    pub fn get_opcode_at(&mut self, line: usize) -> Option<u16> {
+        if line + 1 >= MAX_PROGRAM_SIZE {
+            return None;
+        }
+        let memory_line = line + PROGRAM_START;
+        let memory = self.memory.lock().unwrap();
+        let opcode: u16 =
+            (memory.memory[memory_line] as u16) << 8 | memory.memory[memory_line + 1] as u16;
+
+        Some(opcode)
     }
 }

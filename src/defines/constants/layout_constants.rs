@@ -11,9 +11,9 @@ pub const GAME_PIXEL_UNSET: Color = Color::RGB(40, 40, 40);
 pub const GAME_PIXEL_TEST: Color = Color::RGB(200, 50, 12);
 pub const GAME_PIXEL_UNTEST: Color = Color::RGB(3, 0xC, 0x1F);
 pub const OPCODE_HIGHLIGHT_NORMAL: Color = Color::RGB(51, 51, 255);
+pub const OPCODE_HIGHLIGHT_DEBUG: Color = Color::RGB(204, 0, 0);
 pub const OPCODE_HIGHLIGHT_TEST: Color = Color::RGB(0, 0, 204);
 pub const STACK_HIGHLIGHT: Color = Color::RGB(204, 0, 0);
-lazy_static! {}
 
 //original 15
 //low scale 9
@@ -62,7 +62,7 @@ pub const OPCODE_HEIGHT: u32 = GAME_HEIGHT;
 pub const OPCODE_WIDTH: u32 = WINDOW_WIDTH - 3 * EDGE_SIZE as u32 - 4 * OUTLINE as u32 - GAME_WIDTH;
 pub const OPCODE_START_X: i32 = EDGE_SIZE * 2 + OUTLINE * 3 + GAME_WIDTH as i32;
 pub const OPCODE_START_Y: i32 = GAME_START_Y;
-pub const OPCODE_LINES: usize = 23;
+pub const OPCODE_LINES: usize = 46;
 
 pub const STACK_HEIGHT: u32 = MEMORY_HEIGHT;
 pub const STACK_WIDTH: u32 = MEMORY_WIDTH / 5 * 3;

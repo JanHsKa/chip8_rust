@@ -1,8 +1,8 @@
-use crate::controller::{ProgramManager, ProgramState};
 use crate::defines::{
     layout_constants::{INFO_HEIGHT, INFO_START_X, INFO_START_Y, INFO_WIDTH},
-    IDisplay,
+    IDisplay, ProgramState,
 };
+use crate::model::GamePropertiesAccess;
 use crate::view::DisplayRenderHelper;
 use std::{
     cell::RefCell,
@@ -30,24 +30,23 @@ use sdl2::{render::WindowCanvas, ttf::Sdl2TtfContext};
 pub struct InfoDisplay {
     game_name: String,
     controls: Vec<String>,
-    game_size: u64,
+    game_size: usize,
     game_state: ProgramState,
-    program_manager: Arc<Mutex<ProgramManager>>,
+    program_manager: Arc<Mutex<GamePropertiesAccess>>,
     render_helper: DisplayRenderHelper,
 }
 
 impl IDisplay for InfoDisplay {
     fn update_info(&mut self) {
-        let mut manager = self.program_manager.lock().unwrap();
-        let file_info = manager.get_file_info();
-        self.game_size = file_info.file_size;
-        self.game_name = file_info.file_name.clone();
+        let mut access = self.program_manager.lock().unwrap();
+        self.game_size = access.get_game_size();
+        self.game_name = access.get_game_name();
 
-        self.controls[3] = format!("Game: {}", file_info.file_name.as_str());
-        self.controls[4] = format!("Size: {} Bytes", file_info.file_size);
+        self.controls[3] = format!("Game: {}", self.game_name.as_str());
+        self.controls[4] = format!("Size: {} Bytes", self.game_size);
 
         let mut state = String::new();
-        self.game_state = manager.get_state();
+        self.game_state = access.get_game_state();
 
         match self.game_state {
             ProgramState::Running => state = "Running".to_string(),
@@ -56,7 +55,7 @@ impl IDisplay for InfoDisplay {
         }
 
         self.controls[5] = format!("Status: {}", state);
-        self.controls[6] = format!("Speed: {}", manager.get_speed());
+        self.controls[6] = format!("Speed: {}", access.get_game_speed());
     }
 
     fn redraw(
@@ -72,7 +71,7 @@ impl IDisplay for InfoDisplay {
 }
 
 impl InfoDisplay {
-    pub fn new(new_program_manager: Arc<Mutex<ProgramManager>>) -> InfoDisplay {
+    pub fn new(new_program_manager: Arc<Mutex<GamePropertiesAccess>>) -> InfoDisplay {
         let mut display_text: Vec<String> = vec![String::new(); 16];
         display_text[0] = "Chip 8  Emulator".to_string();
         display_text[1] = "by Jan Malle".to_string();
@@ -84,7 +83,7 @@ impl InfoDisplay {
         display_text[7] = " ".to_string();
         display_text[8] = "Controls".to_string();
         display_text[9] = "F1 : Reset".to_string();
-        display_text[10] = "F3 : Open Editor".to_string();
+        display_text[10] = "F3 : Debug".to_string();
         display_text[11] = "F4 : Dump Memory".to_string();
         display_text[12] = "F5 : Stop/Continue".to_string();
         display_text[13] = "F6 : Step".to_string();
