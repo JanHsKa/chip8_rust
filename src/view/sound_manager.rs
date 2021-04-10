@@ -1,10 +1,7 @@
 use crate::controller::TimeTo;
 use sdl2::audio::{AudioCallback, AudioDevice, AudioSpecDesired};
 use sdl2::Sdl;
-use std::sync::{
-    mpsc::{Receiver},
-    Arc,
-};
+use std::sync::{mpsc::Receiver, Arc};
 
 struct SquareWave {
     phase_inc: f32,
@@ -56,9 +53,8 @@ impl SoundManager {
     }
 
     pub fn check_sound(&mut self) {
-        let message = self.audio_receiver.try_recv();
-        if message.is_ok() {
-            match message.unwrap() {
+        if let Ok(message) = self.audio_receiver.try_recv() {
+            match message {
                 TimeTo::PlaySound => self.play_sound(),
                 TimeTo::StopSound => self.stop_sound(),
                 _ => {}

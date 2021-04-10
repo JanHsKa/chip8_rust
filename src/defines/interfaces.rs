@@ -16,10 +16,10 @@ pub trait Fill {
     fn fill_to_end(&mut self, start: usize);
 }
 
-impl Fill for Vec<String> { 
+impl Fill for Vec<String> {
     fn fill_empty_strings(&mut self, value: String) {
         for iter in self.iter_mut() {
-            if iter.len() == 0 {
+            if iter.is_empty() {
                 *iter = value.clone();
             }
         }

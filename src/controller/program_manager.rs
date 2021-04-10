@@ -1,6 +1,6 @@
 use crate::controller::{FileInfo, FileManager};
 use crate::defines::memory_constants::{MAX_PROGRAM_SIZE, PROGRAM_START, VARIABLES_COUNT};
-use crate::model::{MemoryAccess, GameProperties};
+use crate::model::{GameProperties, MemoryAccess};
 use sdl2::{event::Event, keyboard::Keycode};
 use std::{
     cell::RefCell,
@@ -77,7 +77,18 @@ impl ProgramManager {
     }
 
     fn step_trough(&mut self) {
+        println!(
+            "pc: {}",
+            self.memory_access.lock().unwrap().get_program_counter() - PROGRAM_START
+        );
+        println!(
+            "opcode: {:04X}",
+            self.memory_access.lock().unwrap().get_opcode()
+        );
 
+        if self.current_state == ProgramState::Stopped {
+            self.current_state = ProgramState::Step;
+        }
     }
 
     fn set_breakpoint(&mut self) {
@@ -86,7 +97,7 @@ impl ProgramManager {
             let line = access.get_program_counter() - PROGRAM_START;
             if self.breakpoints.contains_key(&line) {
                 self.breakpoints.remove(&line);
-            } else if self.breakpoints.len() < VARIABLES_COUNT{
+            } else if self.breakpoints.len() < VARIABLES_COUNT {
                 let opcode = access.get_opcode();
                 self.breakpoints.insert(line, opcode);
             }
@@ -109,7 +120,7 @@ impl ProgramManager {
         self.current_state = ProgramState::Restart;
     }
 
-    fn stop_or_continue(&mut self) {
+    pub fn stop_or_continue(&mut self) {
         if self.current_state == ProgramState::Running {
             self.current_state = ProgramState::Stopped;
         } else {
@@ -130,7 +141,7 @@ impl ProgramManager {
         }
     }
 
-    pub fn get_breakpoints(&mut self) -> HashMap<usize, u16>{
+    pub fn get_breakpoints(&mut self) -> HashMap<usize, u16> {
         self.breakpoints.clone()
     }
 

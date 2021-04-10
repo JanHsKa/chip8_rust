@@ -1,4 +1,3 @@
-
 #[derive(Copy, Clone, PartialEq)]
 pub enum ProgramState {
     Running,
@@ -24,7 +23,6 @@ pub enum TimeTo {
     PlaySound,
     StopSound,
 }
-
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum Resolution {

@@ -1,7 +1,9 @@
 use crate::controller::ProgramManager;
 use crate::defines::{
-    layout_constants,
-    layout_constants::{OPCODE_HEIGHT, OPCODE_LINES, OPCODE_START_X, OPCODE_START_Y, OPCODE_WIDTH, OPCODE_HIGHLIGHT_NORMAL, OPCODE_HIGHLIGHT_TEST},
+    layout_constants::{
+        OPCODE_HEIGHT, OPCODE_HIGHLIGHT_NORMAL, OPCODE_HIGHLIGHT_TEST, OPCODE_LINES,
+        OPCODE_START_X, OPCODE_START_Y, OPCODE_WIDTH,
+    },
     memory_constants::PROGRAM_START,
     IDisplay,
 };
@@ -11,12 +13,7 @@ use std::{
     cell::RefCell,
     rc::Rc,
     result::Result,
-    sync::{
-        mpsc::{channel, Receiver, Sender},
-        Arc, Mutex,
-    },
-    thread,
-    time::Duration,
+    sync::{Arc, Mutex},
 };
 
 use sdl2::{pixels::Color, render::WindowCanvas, ttf::Sdl2TtfContext};
@@ -39,9 +36,13 @@ impl IDisplay for OpcodeDisplay {
         let program_size = manager.get_program_size();
 
         if self.current_line > self.offset + OPCODE_LINES * 2 {
+            println!(" greater");
             if self.current_line + OPCODE_LINES * 2 >= program_size {
+                println!("max");
                 self.offset = program_size - OPCODE_LINES * 2 - 1;
             } else {
+                println!("highger");
+
                 self.offset = self.current_line - OPCODE_LINES * 2;
             }
         } else if self.current_line < self.offset {
@@ -51,8 +52,13 @@ impl IDisplay for OpcodeDisplay {
         let start = self.offset;
         if let Some(code_snippet) = manager.get_code_snippet(OPCODE_LINES, self.offset) {
             for (i, iter) in self.code_lines.iter_mut().enumerate() {
-                *iter = format!("{:04X}  -  {:04X}", start / 2 + i, code_snippet[i]);
+                *iter = format!("{}  -  {:04X}", start + i * 2, code_snippet[i]);
             }
+            //println!("current line  {}", self.current_line);
+            //println!("offset  {}", self.offset);
+
+            //println!("first line {}", self.code_lines[0]);
+            //println!("last line {}", self.code_lines[OPCODE_LINES - 1]);
         } else {
             for (i, iter) in self.code_lines.iter_mut().enumerate() {
                 *iter = "0000".to_string();
@@ -70,11 +76,8 @@ impl IDisplay for OpcodeDisplay {
             rect_y -= 1;
         }
 
-        self.render_helper.fill_rectangle(
-            canvas,
-            rect_y,
-            OPCODE_HIGHLIGHT_TEST,
-        )?;
+        self.render_helper
+            .fill_rectangle(canvas, rect_y, OPCODE_HIGHLIGHT_TEST)?;
         self.render_helper
             .draw_lines(&mut self.code_lines, canvas, ttf_context)?;
 

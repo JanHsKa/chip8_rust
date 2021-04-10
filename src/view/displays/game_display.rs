@@ -1,5 +1,8 @@
 use crate::defines::{
-    layout_constants::{GAME_PIXEL_SET, GAME_START_X, GAME_START_Y, PIXEL_SCALE, GAME_PIXEL_TEST, GAME_PIXEL_UNSET, GAME_PIXEL_UNTEST},
+    layout_constants::{
+        GAME_PIXEL_SET, GAME_PIXEL_TEST, GAME_PIXEL_UNSET, GAME_PIXEL_UNTEST, GAME_START_X,
+        GAME_START_Y, PIXEL_SCALE,
+    },
     memory_constants::{COLUMNS, GRAPHIC_SIZE, ROWS},
     IDisplay,
 };
@@ -16,7 +19,6 @@ use std::{
     thread,
     time::Duration,
 };
-
 
 pub struct GameDisplay {
     memory_access: Arc<Mutex<MemoryAccess>>,

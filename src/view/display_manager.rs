@@ -36,7 +36,6 @@ pub struct DisplayManager {
     sound_manager: SoundManager,
 }
 
-
 impl DisplayManager {
     pub fn new(
         context: Arc<Sdl>,
@@ -93,9 +92,8 @@ impl DisplayManager {
     }
 
     fn check_for_redraw(&mut self) -> bool {
-        let message = self.update_receiver.try_recv();
-        if message.is_ok() {
-            return message.unwrap() == TimeTo::Update;
+        if let Ok(message) = self.update_receiver.try_recv() {
+            return message == TimeTo::Update;
         }
 
         false

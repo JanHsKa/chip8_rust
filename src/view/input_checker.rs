@@ -4,7 +4,10 @@ use crate::sdl2::keyboard::Keycode;
 use sdl2::event::Event;
 use sdl2::EventPump;
 use sdl2::Sdl;
-use std::sync::{Arc, Mutex};
+use std::{
+    collections::HashSet,
+    sync::{Arc, Mutex},
+};
 
 enum KeyPress {
     Up,
@@ -15,8 +18,9 @@ pub struct InputChecker {
     event_pump: EventPump,
     keypad: Arc<Mutex<Keypad>>,
     program_manager: Arc<Mutex<ProgramManager>>,
+    program_keys: HashSet<Keycode>,
+    //keypad_keys: HashSet<Keycode>,
 }
-
 
 impl InputChecker {
     pub fn new(
@@ -24,10 +28,28 @@ impl InputChecker {
         new_keypad: Arc<Mutex<Keypad>>,
         new_program_manager: Arc<Mutex<ProgramManager>>,
     ) -> InputChecker {
+        let new_program_keys: HashSet<Keycode> = vec![
+            Keycode::F1,
+            Keycode::F2,
+            Keycode::F4,
+            Keycode::F5,
+            Keycode::F6,
+            Keycode::F7,
+            Keycode::F8,
+            Keycode::Plus,
+            Keycode::Minus,
+        ]
+        .into_iter()
+        .collect();
+
+        let mut new_keypad_keys: HashSet<Keycode> = vec![].into_iter().collect();
+
         InputChecker {
             event_pump: sdl_context.event_pump().unwrap(),
             keypad: new_keypad,
             program_manager: new_program_manager,
+            program_keys: new_program_keys,
+            //keypad_keys:
         }
     }
 

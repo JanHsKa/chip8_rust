@@ -1,8 +1,11 @@
-use crate::defines::{
-    layout_constants::{BREAKPOINT_HEIGHT, BEAKPOINT_START_X, BREAKPOINT_START_Y, BREAKPOINT_WIDTH},
-    memory_constants::VARIABLES_COUNT, IDisplay, Fill
-};
 use crate::controller::ProgramManager;
+use crate::defines::{
+    layout_constants::{
+        BEAKPOINT_START_X, BREAKPOINT_HEIGHT, BREAKPOINT_START_Y, BREAKPOINT_WIDTH,
+    },
+    memory_constants::VARIABLES_COUNT,
+    Fill, IDisplay,
+};
 use crate::model::MemoryAccess;
 use crate::view::DisplayRenderHelper;
 use std::{
@@ -32,16 +35,11 @@ impl IDisplay for BreakPointDisplay {
         let mut index: usize = 0;
 
         for (line, opcode) in breakpoint_map.iter() {
-            self.breakpoints[index] = format!(
-                "Line {:03X}: 0x{:04X}",
-                line,
-                opcode
-            );
+            self.breakpoints[index] = format!("Line {:03X}: 0x{:04X}", line, opcode);
             index += 1;
         }
 
         self.breakpoints.fill_to_end(index);
-
     }
 
     fn redraw(
@@ -49,12 +47,11 @@ impl IDisplay for BreakPointDisplay {
         canvas: &mut WindowCanvas,
         ttf_context: &mut Sdl2TtfContext,
     ) -> Result<(), String> {
-        let mut print_vector: Vec<String> = Vec::new();
-        print_vector.push("Breakpoints".to_string());
+        let mut print_vector: Vec<String> = vec!["Breakpoints".to_string(); 1];
         print_vector.append(&mut self.breakpoints.clone());
         print_vector.fill_empty_strings(" ".to_string());
         self.render_helper
-            .draw_lines(&mut print_vector, canvas, ttf_context)?;    
+            .draw_lines(&mut print_vector, canvas, ttf_context)?;
 
         Ok(())
     }
@@ -63,7 +60,7 @@ impl IDisplay for BreakPointDisplay {
 impl BreakPointDisplay {
     pub fn new(new_program_manager: Arc<Mutex<ProgramManager>>) -> BreakPointDisplay {
         BreakPointDisplay {
-            breakpoints:  vec![String::with_capacity(6); VARIABLES_COUNT - 1],
+            breakpoints: vec![String::with_capacity(6); VARIABLES_COUNT - 1],
             program_manager: new_program_manager,
             render_helper: DisplayRenderHelper::new(
                 BEAKPOINT_START_X,

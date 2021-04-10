@@ -1,9 +1,9 @@
 use crate::controller::{Emulator, FileManager, ProgramManager};
-use crate::model::{Cpu, Keypad, Memory, MemoryAccess, GameProperties};
+use crate::model::{Cpu, GameProperties, Keypad, Memory, MemoryAccess};
 use crate::sdl2::Sdl;
 use crate::view::{
-    DisplayManager, GameDisplay, InfoDisplay, InputChecker, MemoryDisplay, OpcodeDisplay, BreakPointDisplay,
-    SoundManager, StackDisplay, View,
+    BreakPointDisplay, DisplayManager, GameDisplay, InfoDisplay, InputChecker, MemoryDisplay,
+    OpcodeDisplay, SoundManager, StackDisplay, View,
 };
 use std::cell::RefCell;
 use std::{
@@ -41,8 +41,11 @@ impl Builder {
         let data_ref = self.package_arc_mutex(data);
         let file_manager = FileManager::new(file_path);
         let access = self.package_arc_mutex(MemoryAccess::new(Arc::clone(&data_ref)));
-        let program_manager =
-            self.package_arc_mutex(ProgramManager::new(file_manager, Arc::clone(&access), Arc::clone(&game_properties)));
+        let program_manager = self.package_arc_mutex(ProgramManager::new(
+            file_manager,
+            Arc::clone(&access),
+            Arc::clone(&game_properties),
+        ));
         let cpu = Cpu::new(Arc::clone(&new_keypad), Arc::clone(&data_ref));
         let (audio_sender, audio_receiver) = channel();
 

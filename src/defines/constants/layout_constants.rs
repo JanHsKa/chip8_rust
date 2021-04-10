@@ -1,8 +1,6 @@
 use crate::defines::constants::memory_constants;
 use sdl2::pixels::Color;
 
-pub const test: Color = Color::RGB(25, 35, 45);
-
 pub const WINDOW_BACKGROUND: Color = Color::RGB(25, 35, 45);
 pub const GAME_BACKGROUND: Color = Color::RGB(40, 40, 40);
 pub const GAME_FOREGROUND: Color = Color::RGB(170, 255, 170);
@@ -15,8 +13,7 @@ pub const GAME_PIXEL_UNTEST: Color = Color::RGB(3, 0xC, 0x1F);
 pub const OPCODE_HIGHLIGHT_NORMAL: Color = Color::RGB(51, 51, 255);
 pub const OPCODE_HIGHLIGHT_TEST: Color = Color::RGB(0, 0, 204);
 pub const STACK_HIGHLIGHT: Color = Color::RGB(204, 0, 0);
-lazy_static! {
-}
+lazy_static! {}
 
 //original 15
 //low scale 9

@@ -66,6 +66,7 @@ impl Emulator {
             match self.current_state {
                 ProgramState::NewProgram => self.new_program(),
                 ProgramState::Running => self.check_time(),
+                ProgramState::Step => self.step(),
                 ProgramState::Restart => self.new_program(),
                 ProgramState::Stopped => self.check_display(),
                 ProgramState::Idle => self.idle(),
@@ -107,6 +108,14 @@ impl Emulator {
         self.sound_check();
     }
 
+    fn step(&mut self) {
+        self.run_code();
+        self.program_manager
+            .lock()
+            .unwrap()
+            .set_state(ProgramState::Stopped);
+    }
+
     fn check_time(&mut self) {
         if self.instructioncounter <= self.speed {
             self.run_code();
@@ -131,8 +140,9 @@ impl Emulator {
 
     fn update_state(&mut self) {
         let mut manager = self.program_manager.lock().unwrap();
+        let state = manager.get_state();
 
-        if manager.get_state() == ProgramState::Quit {
+        if state == ProgramState::Quit {
             self.current_state = ProgramState::Quit;
         } else if !self.cpu.get_state() {
             self.current_state = ProgramState::Idle;

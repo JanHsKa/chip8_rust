@@ -1,12 +1,12 @@
-use crate::model::{Memory, Resolution};
-use std::sync::{Arc, Mutex};
 use crate::defines::{memory_constants::MAX_PROGRAM_SIZE, ProgramState};
-use crate::model::{MemoryAccess, GameProperties};
+use crate::model::{GameProperties, MemoryAccess};
+use crate::model::{Memory, Resolution};
 use sdl2::{event::Event, keyboard::Keycode};
+use std::sync::{Arc, Mutex};
 
 pub struct GamePropertiesAccess {
     game_properties: Arc<Mutex<GameProperties>>,
-}   
+}
 
 impl GamePropertiesAccess {
     pub fn new(new_properties: Arc<Mutex<GameProperties>>) -> GamePropertiesAccess {

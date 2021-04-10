@@ -1,10 +1,10 @@
 use crate::defines::memory_constants::KEY_COUNT;
 use crate::sdl2::keyboard::Keycode;
-use std::collections;
+use std::collections::HashMap;
 
 pub struct Keypad {
     keys: [u8; 16],
-    keymap: collections::HashMap<Keycode, usize>,
+    keymap: HashMap<Keycode, usize>,
 }
 
 impl Default for Keypad {
@@ -15,23 +15,26 @@ impl Default for Keypad {
 
 impl Keypad {
     pub fn new() -> Keypad {
-        let mut new_keymap = collections::HashMap::new();
-        new_keymap.insert(Keycode::Num1, 0x1);
-        new_keymap.insert(Keycode::Num2, 0x2);
-        new_keymap.insert(Keycode::Num3, 0x3);
-        new_keymap.insert(Keycode::Num4, 0xC);
-        new_keymap.insert(Keycode::Q, 0x4);
-        new_keymap.insert(Keycode::W, 0x5);
-        new_keymap.insert(Keycode::E, 0x6);
-        new_keymap.insert(Keycode::R, 0xD);
-        new_keymap.insert(Keycode::A, 0x7);
-        new_keymap.insert(Keycode::S, 0x8);
-        new_keymap.insert(Keycode::D, 0x9);
-        new_keymap.insert(Keycode::F, 0xE);
-        new_keymap.insert(Keycode::Y, 0xA);
-        new_keymap.insert(Keycode::X, 0x0);
-        new_keymap.insert(Keycode::C, 0xB);
-        new_keymap.insert(Keycode::V, 0xF);
+        let mut new_keymap: HashMap<Keycode, usize> = vec![
+            (Keycode::Num1, 0x1),
+            (Keycode::Num2, 0x2),
+            (Keycode::Num3, 0x3),
+            (Keycode::Num4, 0xC),
+            (Keycode::Q, 0x4),
+            (Keycode::W, 0x5),
+            (Keycode::E, 0x6),
+            (Keycode::R, 0xD),
+            (Keycode::A, 0x7),
+            (Keycode::S, 0x8),
+            (Keycode::D, 0x9),
+            (Keycode::F, 0xE),
+            (Keycode::Y, 0xA),
+            (Keycode::X, 0x0),
+            (Keycode::C, 0xB),
+            (Keycode::V, 0xF),
+        ]
+        .into_iter()
+        .collect();
 
         Keypad {
             keys: [0; KEY_COUNT],
