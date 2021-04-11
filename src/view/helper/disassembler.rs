@@ -94,13 +94,11 @@ impl Disassembler {
     }
 
     fn get_nibbles(opcode: &u16) -> (u16, u16, u16, u16) {
-        let nibbles = (
+        (
             (opcode & 0xF000) >> 12,
             (opcode & 0x0F00) >> 8,
             (opcode & 0x00F0) >> 4,
             (opcode & 0x000F),
-        );
-
-        nibbles
+        )
     }
 }

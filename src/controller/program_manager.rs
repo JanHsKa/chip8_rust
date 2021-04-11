@@ -95,8 +95,10 @@ impl ProgramManager {
     }
 
     pub fn new_file(&mut self, file_name: &str) {
+        let mut properties = self.game_properties.lock().unwrap();
         if self.file_manager.load_file_if_possible(file_name).is_ok() {
-            self.game_properties.lock().unwrap().game_state = ProgramState::NewProgram;
+            properties.game_state = ProgramState::NewProgram;
+            properties.game_size = self.file_manager.get_file_info().file_size as usize;
         }
     }
 

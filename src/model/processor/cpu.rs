@@ -102,7 +102,10 @@ impl Cpu {
 
     fn no_match(&mut self) {
         self.running = false;
-        println!("Error: No matching opcode");
+        println!(
+            "Error: No matching opcode: {:04X}",
+            self.data_ref.lock().unwrap().opcode
+        );
     }
 
     fn decode_opcode(&mut self) -> (u16, u16, u16, u16) {

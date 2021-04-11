@@ -63,6 +63,7 @@ impl Builder {
         let view = View::new(
             Arc::clone(&new_keypad),
             Arc::clone(&program_manager),
+            Arc::clone(&debug_manager),
             Arc::clone(&game_properties_access),
             Arc::clone(&debug_properties_access),
             Arc::clone(&access),

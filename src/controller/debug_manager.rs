@@ -12,7 +12,6 @@ use std::{
 };
 
 pub struct DebugManager {
-    breakpoints: HashMap<usize, u16>,
     current_state: DebugState,
     debug_properties: Arc<Mutex<DebugProperties>>,
     memory_access: Arc<Mutex<MemoryAccess>>,
@@ -24,7 +23,6 @@ impl DebugManager {
         new_debug_properties: Arc<Mutex<DebugProperties>>,
     ) -> DebugManager {
         DebugManager {
-            breakpoints: HashMap::new(),
             current_state: DebugState::Disabled,
             debug_properties: new_debug_properties,
             memory_access: new_memory_access,
@@ -43,6 +41,7 @@ impl DebugManager {
 
     pub fn stop_or_continue(&mut self) {
         let mut properties = self.debug_properties.lock().unwrap();
+        println!("stop");
         if properties.debug_state == DebugState::Running {
             properties.debug_state = DebugState::Stopped;
         } else {
@@ -58,14 +57,15 @@ impl DebugManager {
     }
 
     fn set_breakpoint(&mut self) {
-        if self.debug_properties.lock().unwrap().debug_state == DebugState::Stopped {
+        let mut properties = self.debug_properties.lock().unwrap();
+        if properties.debug_state == DebugState::Stopped {
             let mut access = self.memory_access.lock().unwrap();
             let line = access.get_program_counter() - PROGRAM_START;
-            if self.breakpoints.contains_key(&line) {
-                self.breakpoints.remove(&line);
-            } else if self.breakpoints.len() < VARIABLES_COUNT {
+            if properties.breakpoints.contains_key(&line) {
+                properties.breakpoints.remove(&line);
+            } else if properties.breakpoints.len() < VARIABLES_COUNT {
                 let opcode = access.get_opcode_at(line).unwrap();
-                self.breakpoints.insert(line, opcode);
+                properties.breakpoints.insert(line, opcode);
             }
         }
     }

@@ -52,7 +52,7 @@ impl DisplayRenderHelper {
         let rectangle = self.get_rectangle(y);
         canvas.set_draw_color(color);
         canvas.fill_rect(rectangle)?;
-
+        
         Ok(())
     }
 

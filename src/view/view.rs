@@ -1,4 +1,4 @@
-use crate::controller::{Builder, Emulator, ProgramManager, TimeManager, TimeTo};
+use crate::controller::{Builder, Emulator, ProgramManager, TimeManager, TimeTo, DebugManager};
 use crate::model::{DebugPropertiesAccess, GamePropertiesAccess, Keypad, MemoryAccess};
 use crate::sdl2::Sdl;
 use crate::view::{DisplayManager, InputChecker, SoundManager};
@@ -17,6 +17,7 @@ impl View {
     pub fn new(
         new_keypad: Arc<Mutex<Keypad>>,
         program_manager: Arc<Mutex<ProgramManager>>,
+        debug_manager: Arc<Mutex<DebugManager>>,
         game_properties_access: Arc<Mutex<GamePropertiesAccess>>,
         debug_properties_access: Arc<Mutex<DebugPropertiesAccess>>,
         access: Arc<Mutex<MemoryAccess>>,
@@ -33,6 +34,7 @@ impl View {
                     Arc::clone(&context),
                     Arc::clone(&keypad_copy),
                     Arc::clone(&program_manager),
+                    Arc::clone(&debug_manager),
                 );
                 let mut display_manager =
                     DisplayManager::new(Arc::clone(&context), input_checker, sound_manager);

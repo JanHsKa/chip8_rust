@@ -1,4 +1,4 @@
-use crate::controller::ProgramManager;
+use crate::controller::{ProgramManager, DebugManager};
 use crate::defines::ProgramState;
 use crate::model::Keypad;
 use crate::sdl2::keyboard::Keycode;
@@ -19,6 +19,7 @@ pub struct InputChecker {
     event_pump: EventPump,
     keypad: Arc<Mutex<Keypad>>,
     program_manager: Arc<Mutex<ProgramManager>>,
+    debug_manager: Arc<Mutex<DebugManager>>,
     program_keys: HashSet<Keycode>,
     //keypad_keys: HashSet<Keycode>,
 }
@@ -28,6 +29,7 @@ impl InputChecker {
         sdl_context: Arc<Sdl>,
         new_keypad: Arc<Mutex<Keypad>>,
         new_program_manager: Arc<Mutex<ProgramManager>>,
+        new_debug_manager: Arc<Mutex<DebugManager>>,
     ) -> InputChecker {
         let new_program_keys: HashSet<Keycode> = vec![
             Keycode::F1,
@@ -49,6 +51,7 @@ impl InputChecker {
             event_pump: sdl_context.event_pump().unwrap(),
             keypad: new_keypad,
             program_manager: new_program_manager,
+            debug_manager: new_debug_manager,
             program_keys: new_program_keys,
             //keypad_keys:
         }
@@ -84,12 +87,16 @@ impl InputChecker {
             Keycode::F1
             | Keycode::F2
             | Keycode::F4
-            | Keycode::F5
-            | Keycode::F6
-            | Keycode::F7
-            | Keycode::F8
             | Keycode::Plus
             | Keycode::Minus => self.program_manager.lock().unwrap().press_key(key),
+            Keycode::F6
+            | Keycode::F7
+            | Keycode::F8 => self.debug_manager.lock().unwrap().press_key(key),
+            Keycode::F5 => {
+                self.program_manager.lock().unwrap().press_key(key);
+                self.debug_manager.lock().unwrap().press_key(key);
+            },
+
             _ => (*keypad_ref).press_key(key, KeyPress::Down as u8),
         }
     }
