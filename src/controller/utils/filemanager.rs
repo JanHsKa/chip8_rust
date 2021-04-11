@@ -26,7 +26,7 @@ pub struct FileManager {
 impl FileManager {
     pub fn new(path: String) -> FileManager {
         FileManager {
-            filecontent: vec![0; MAX_PROGRAM_SIZE],
+            filecontent: Vec::new(),
             file_path: path,
             file_info: FileInfo::default(),
         }
@@ -46,12 +46,8 @@ impl FileManager {
         let file_size = meta_data.len();
         let mut buffer = vec![0; file_size as usize];
         file.read_exact(&mut buffer)?;
-        self.filecontent[..buffer.len()].clone_from_slice(&buffer[0..buffer.len()]);
+        self.filecontent = buffer;
         self.file_info.file_size = file_size;
-
-        for i in buffer.len()..self.filecontent.len() {
-            self.filecontent[i] = 0;
-        }
 
         Ok(())
     }
@@ -96,8 +92,8 @@ impl FileManager {
         println!("File content:\n{}", editable); */
     }
 
-    pub fn get_file_content(&mut self) -> [u8; MAX_PROGRAM_SIZE] {
-        self.filecontent.clone().try_into().unwrap()
+    pub fn get_file_content(&mut self) -> Vec<u8> {
+        self.filecontent.clone()
     }
 
     pub fn get_file_name(&mut self) -> String {

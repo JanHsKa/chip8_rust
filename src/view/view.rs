@@ -1,4 +1,4 @@
-use crate::controller::{Builder, Emulator, ProgramManager, TimeManager, TimeTo, DebugManager};
+use crate::controller::{Builder, DebugManager, Emulator, ProgramManager, TimeManager, TimeTo};
 use crate::model::{DebugPropertiesAccess, GamePropertiesAccess, Keypad, MemoryAccess};
 use crate::sdl2::Sdl;
 use crate::view::{DisplayManager, InputChecker, SoundManager};

@@ -1,9 +1,10 @@
-use crate::controller::{FileInfo, FileManager};
+use crate::controller::{FileInfo, FileManager, StateManager};
 use crate::defines::{
     memory_constants::{MAX_PROGRAM_SIZE, PROGRAM_START, VARIABLES_COUNT},
     ProgramState,
 };
 use crate::model::{GameProperties, MemoryAccess};
+use crate::view::Disassembler;
 use sdl2::{event::Event, keyboard::Keycode};
 use std::{
     collections::{HashMap, HashSet},
@@ -12,9 +13,13 @@ use std::{
 };
 
 pub const BASE_PROGRAM_SPEED: u64 = 10;
+pub const MINIMUM_SPEED: u64 = 1;
+pub const MAXIMUM_SPEED: u64 = 100;
+pub const SPEED_STEP: u64 = 1;
 
 pub struct ProgramManager {
     file_manager: FileManager,
+    state_manager: Arc<Mutex<StateManager>>,
     memory_access: Arc<Mutex<MemoryAccess>>,
     game_properties: Arc<Mutex<GameProperties>>,
 }
@@ -22,11 +27,13 @@ pub struct ProgramManager {
 impl ProgramManager {
     pub fn new(
         new_file_manager: FileManager,
+        new_state_manager: Arc<Mutex<StateManager>>,
         new_memory_access: Arc<Mutex<MemoryAccess>>,
         new_game_properties: Arc<Mutex<GameProperties>>,
     ) -> ProgramManager {
         ProgramManager {
             file_manager: new_file_manager,
+            state_manager: new_state_manager,
             memory_access: new_memory_access,
             game_properties: new_game_properties,
         }
@@ -50,15 +57,15 @@ impl ProgramManager {
 
     fn increase_speed(&mut self) {
         let mut properties = self.game_properties.lock().unwrap();
-        if properties.game_speed < 100 {
-            properties.game_speed += 1;
+        if properties.game_speed < MAXIMUM_SPEED {
+            properties.game_speed += SPEED_STEP;
         }
     }
 
     fn decrease_speed(&mut self) {
         let mut properties = self.game_properties.lock().unwrap();
-        if properties.game_speed > 1 {
-            properties.game_speed -= 1;
+        if properties.game_speed > MINIMUM_SPEED {
+            properties.game_speed -= SPEED_STEP;
         }
     }
 
@@ -85,6 +92,8 @@ impl ProgramManager {
         if self.file_manager.load_file().is_ok() {
             properties.game_state = ProgramState::Running;
             properties.game_size = self.file_manager.get_file_info().file_size as usize;
+            properties.game_name = self.file_manager.get_file_info().file_name;
+            properties.game_code = self.file_manager.get_file_content();
         } else {
             properties.game_state = ProgramState::Idle;
         }
@@ -110,7 +119,7 @@ impl ProgramManager {
         self.game_properties.lock().unwrap().game_state
     }
 
-    pub fn get_file_content(&mut self) -> [u8; MAX_PROGRAM_SIZE] {
-        self.file_manager.get_file_content()
+    pub fn get_file_content(&mut self) -> Vec<u8> {
+        self.file_manager.get_file_content().clone()
     }
 }

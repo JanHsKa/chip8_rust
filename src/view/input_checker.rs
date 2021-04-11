@@ -1,4 +1,4 @@
-use crate::controller::{ProgramManager, DebugManager};
+use crate::controller::{DebugManager, ProgramManager};
 use crate::defines::ProgramState;
 use crate::model::Keypad;
 use crate::sdl2::keyboard::Keycode;
@@ -84,18 +84,16 @@ impl InputChecker {
     fn process_keydown(&mut self, key: Keycode) {
         let mut keypad_ref = self.keypad.lock().unwrap();
         match key {
-            Keycode::F1
-            | Keycode::F2
-            | Keycode::F4
-            | Keycode::Plus
-            | Keycode::Minus => self.program_manager.lock().unwrap().press_key(key),
-            Keycode::F6
-            | Keycode::F7
-            | Keycode::F8 => self.debug_manager.lock().unwrap().press_key(key),
+            Keycode::F1 | Keycode::F2 | Keycode::F4 | Keycode::Plus | Keycode::Minus => {
+                self.program_manager.lock().unwrap().press_key(key)
+            }
+            Keycode::F6 | Keycode::F3 | Keycode::F7 | Keycode::F8 => {
+                self.debug_manager.lock().unwrap().press_key(key)
+            }
             Keycode::F5 => {
                 self.program_manager.lock().unwrap().press_key(key);
                 self.debug_manager.lock().unwrap().press_key(key);
-            },
+            }
 
             _ => (*keypad_ref).press_key(key, KeyPress::Down as u8),
         }

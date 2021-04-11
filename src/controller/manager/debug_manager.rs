@@ -1,9 +1,9 @@
-use crate::defines::DebugState;
+use crate::controller::StateManager;
 use crate::defines::{
     memory_constants::{MAX_PROGRAM_SIZE, PROGRAM_START, VARIABLES_COUNT},
-    ProgramState,
+    DebugState, ProgramState,
 };
-use crate::model::{DebugProperties, MemoryAccess};
+use crate::model::{DebugProperties, GamePropertiesAccess, MemoryAccess};
 use sdl2::{event::Event, keyboard::Keycode};
 use std::{
     collections::{HashMap, HashSet},
@@ -20,6 +20,7 @@ pub struct DebugManager {
 impl DebugManager {
     pub fn new(
         new_memory_access: Arc<Mutex<MemoryAccess>>,
+        new_state_manager: Arc<Mutex<StateManager>>,
         new_debug_properties: Arc<Mutex<DebugProperties>>,
     ) -> DebugManager {
         DebugManager {
@@ -31,6 +32,7 @@ impl DebugManager {
 
     pub fn press_key(&mut self, key: Keycode) {
         match key {
+            Keycode::F3 => self.toggle_enabled(),
             Keycode::F5 => self.stop_or_continue(),
             Keycode::F6 => self.step_trough(),
             Keycode::F7 => self.set_breakpoint(),
@@ -39,12 +41,22 @@ impl DebugManager {
         }
     }
 
+    fn toggle_enabled(&mut self) {
+        let mut properties = self.debug_properties.lock().unwrap();
+        match properties.debug_state {
+            DebugState::Disabled => {}
+            _ => properties.debug_state = DebugState::Disabled,
+        }
+    }
+
+    fn set_state_after_enable(&mut self) {}
+
     pub fn stop_or_continue(&mut self) {
         let mut properties = self.debug_properties.lock().unwrap();
         println!("stop");
         if properties.debug_state == DebugState::Running {
             properties.debug_state = DebugState::Stopped;
-        } else {
+        } else if properties.debug_state != DebugState::Disabled {
             properties.debug_state = DebugState::Running;
         }
     }

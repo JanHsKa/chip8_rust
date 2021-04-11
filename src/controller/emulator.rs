@@ -151,13 +151,13 @@ impl Emulator {
     fn initialize(&mut self) {
         let mut manager = self.program_manager.lock().unwrap();
         manager.initialize();
-        self.cpu.load_program_code(manager.get_file_content());
+        self.cpu.load_program_code(&manager.get_file_content());
     }
 
     fn new_program(&mut self) {
         let mut manager = self.program_manager.lock().unwrap();
         self.cpu.reset();
-        self.cpu.load_program_code(manager.get_file_content());
+        self.cpu.load_program_code(&manager.get_file_content());
         manager.set_state(ProgramState::Running);
     }
 

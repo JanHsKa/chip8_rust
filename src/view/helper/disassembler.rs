@@ -1,7 +1,7 @@
 pub struct Disassembler {}
 
 impl Disassembler {
-    pub fn disassemble_list(code: &Vec<u16>) -> Vec<String> {
+    pub fn disassemble_list(code: &[u16]) -> Vec<String> {
         let mut disassembled_code: Vec<String> = vec![String::with_capacity(10); code.len()];
 
         for (i, opcode) in code.iter().enumerate() {
@@ -9,6 +9,37 @@ impl Disassembler {
         }
 
         disassembled_code
+    }
+
+    pub fn convert_and_disassemble_list(code: &[u8]) -> Vec<String> {
+        Disassembler::disassemble_list(&Disassembler::convert_list(&code))
+    }
+
+    pub fn convert_list(code: &[u8]) -> Vec<u16> {
+        let mut converted_code: Vec<u16> = Vec::new();
+
+        let mut index = 0;
+
+        while index < code.len() - 1 {
+            if let Some(opcode) = Disassembler::concat_opcode(code[index], code[index + 1]) {
+                index += 1;
+                converted_code.push(opcode);
+            }
+
+            index += 1;
+        }
+
+        converted_code
+    }
+
+    pub fn concat_opcode(part1: u8, part2: u8) -> Option<u16> {
+        let mut opcode: u16 = (part1 as u16) << 8 | part2 as u16;
+
+        if Disassembler::disassemble(&opcode) == "Unknown" {
+            return None;
+        }
+
+        Some(opcode)
     }
 
     pub fn disassemble(opcode: &u16) -> String {
@@ -71,7 +102,7 @@ impl Disassembler {
             }
             (0xD, _, _, _) => {
                 disassembled_code =
-                    format!("DRW   V{:X}   V{:X}  {}", nibbles.1, nibbles.2, nibbles.3)
+                    format!("DRW   V{:X}   V{:X}  {:X}", nibbles.1, nibbles.2, nibbles.3)
             }
             (0xE, _, 0x9, 0xE) => disassembled_code = format!("SKP   V{:X}", nibbles.1),
             (0xE, _, 0xA, 0x1) => disassembled_code = format!("SKNP  V{:X}", nibbles.1),

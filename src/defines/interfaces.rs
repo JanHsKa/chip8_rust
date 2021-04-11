@@ -11,6 +11,12 @@ pub trait IDisplay {
     ) -> Result<(), String>;
 }
 
+pub trait IManager {
+    fn restart(&mut self);
+}
+
+pub trait IState {}
+
 pub trait Fill {
     fn fill_empty_strings(&mut self, value: String);
     fn fill_to_end(&mut self, start: usize);

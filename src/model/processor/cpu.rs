@@ -62,9 +62,10 @@ impl Cpu {
             .copy_from_slice(&FONTSET_HIGH[..]);
     }
 
-    pub fn load_program_code(&mut self, code: [u8; MAX_PROGRAM_SIZE]) {
+    pub fn load_program_code(&mut self, code: &[u8]) {
         let mut data = self.data_ref.lock().unwrap();
-        data.memory[PROGRAM_START..MEMORYSIZE].copy_from_slice(&code[..MAX_PROGRAM_SIZE]);
+        let code_size = code.len();
+        data.memory[PROGRAM_START..PROGRAM_START + code_size].copy_from_slice(&code);
     }
 
     fn set_opcode(&mut self) {

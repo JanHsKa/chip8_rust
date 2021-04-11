@@ -1,7 +1,7 @@
-use crate::controller::{DebugManager, Emulator, FileManager, ProgramManager};
+use crate::controller::{DebugManager, Emulator, FileManager, ProgramManager, StateManager};
 use crate::model::{
     Cpu, DebugProperties, DebugPropertiesAccess, GameProperties, GamePropertiesAccess, Keypad,
-    Memory, MemoryAccess,
+    Memory, MemoryAccess, States, StatesAccess,
 };
 use crate::sdl2::Sdl;
 use crate::view::{
@@ -43,6 +43,10 @@ impl Builder {
         let debug_properties_access =
             self.package_arc_mutex(DebugPropertiesAccess::new(Arc::clone(&debug_properties)));
 
+        let states = self.package_arc_mutex(States::new());
+        let states_access = self.package_arc_mutex(StatesAccess::new(Arc::clone(&states)));
+        let state_manager = self.package_arc_mutex(StateManager::new(Arc::clone(&states)));
+
         let data_ref = self.package_arc_mutex(Memory::new());
         let new_keypad = self.package_arc_mutex(Keypad::new());
 
@@ -50,13 +54,17 @@ impl Builder {
         let access = self.package_arc_mutex(MemoryAccess::new(Arc::clone(&data_ref)));
         let program_manager = self.package_arc_mutex(ProgramManager::new(
             file_manager,
+            Arc::clone(&state_manager),
             Arc::clone(&access),
             Arc::clone(&game_properties),
         ));
+
         let debug_manager = self.package_arc_mutex(DebugManager::new(
             Arc::clone(&access),
+            Arc::clone(&state_manager),
             Arc::clone(&debug_properties),
         ));
+
         let cpu = Cpu::new(Arc::clone(&new_keypad), Arc::clone(&data_ref));
         let (audio_sender, audio_receiver) = channel();
 

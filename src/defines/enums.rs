@@ -1,5 +1,7 @@
 #[derive(Copy, Clone, PartialEq)]
 pub enum ProgramState {
+    Game(GameState),
+    Debug(DebugState),
     Running,
     Stopped,
     Restart,
@@ -10,11 +12,24 @@ pub enum ProgramState {
 }
 
 #[derive(Copy, Clone, PartialEq)]
+pub enum GameState {
+    Running,
+    Stopped,
+    Failed,
+}
+
+#[derive(Copy, Clone, PartialEq)]
 pub enum DebugState {
     Enabled,
     Disabled,
     Step,
     Breakpoint,
+    Running,
+    Stopped,
+}
+
+#[derive(Copy, Clone, PartialEq)]
+pub enum CpuState {
     Running,
     Stopped,
 }
