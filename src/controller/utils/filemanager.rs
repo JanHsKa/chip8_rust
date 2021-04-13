@@ -1,8 +1,7 @@
-use crate::defines::memory_constants::{MAX_PROGRAM_SIZE, MEMORYSIZE};
+use crate::defines::memory_constants::{MAX_PROGRAM_SIZE};
 use crate::edit;
 
 use std::{
-    convert::TryInto,
     fs::{metadata, File},
     io::{BufWriter, Read, Result, Write},
     path::Path,

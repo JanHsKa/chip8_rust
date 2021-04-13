@@ -5,7 +5,7 @@ use crate::defines::{
 use crate::view::{InputChecker, SoundManager, WindowRenderer};
 
 use crate::controller::{TimeManager, TimeTo};
-use sdl2::{rect, render, surface::Surface, ttf, ttf::Sdl2TtfContext, video::Window, Sdl};
+use sdl2::{render, surface::Surface, ttf, ttf::Sdl2TtfContext, video::Window, Sdl};
 
 use std::{
     boxed::Box,

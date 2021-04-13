@@ -33,7 +33,7 @@ impl Disassembler {
     }
 
     pub fn concat_opcode(part1: u8, part2: u8) -> Option<u16> {
-        let mut opcode: u16 = (part1 as u16) << 8 | part2 as u16;
+        let opcode: u16 = (part1 as u16) << 8 | part2 as u16;
 
         if Disassembler::disassemble(&opcode) == "Unknown" {
             return None;

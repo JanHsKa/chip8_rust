@@ -217,8 +217,8 @@ impl Cpu {
 
     //Scroll Right
     fn op_00fb(&mut self) {
-        let mut data = self.data_ref.lock().unwrap();
-        let resolution = data.resolution;
+        let data = self.data_ref.lock().unwrap();
+        let _resolution = data.resolution;
     }
 
     //Scroll Left

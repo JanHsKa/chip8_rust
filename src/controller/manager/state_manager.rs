@@ -11,7 +11,7 @@ impl StateManager {
         StateManager { states: new_states }
     }
 
-    pub fn set_state(&mut self, state: ProgramState) {
+    pub fn set_state(&mut self, _state: ProgramState) {
 
     }
 
@@ -30,7 +30,7 @@ impl StateManager {
     pub fn toggle_debug(&mut self) {
         let mut state_data = self.states.lock().unwrap();
         let debug_state = state_data.debug_state;
-        let program_state = state_data.program_state;
+        let _program_state = state_data.program_state;
         let game_state = state_data.game_state;
 
         if (debug_state, game_state) == (DebugState::Disabled, GameState::Running) {

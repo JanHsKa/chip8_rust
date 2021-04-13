@@ -3,13 +3,12 @@ use crate::defines::{
     memory_constants::STACKSIZE,
     IDisplay, ProgramState,
 };
-use crate::model::{GamePropertiesAccess, MemoryAccess};
+use crate::model::{GamePropertiesAccess};
 use crate::view::KeypadRenderer;
-use sdl2::{pixels::Color, render::WindowCanvas, ttf::Sdl2TtfContext};
+use sdl2::{render::WindowCanvas, ttf::Sdl2TtfContext};
 use std::{
     cell::RefCell,
     rc::Rc,
-    sync::{Arc, Mutex, MutexGuard},
 };
 
 pub struct KeypadDisplay {
@@ -30,7 +29,7 @@ impl IDisplay for KeypadDisplay {
         self.render_helper
             .draw_lines(&mut self.stack, canvas, ttf_context)?;
 
-        let y = STACKSIZE - self.stack_pointer - 1;
+        let _y = STACKSIZE - self.stack_pointer - 1;
         //self.render_helper.draw_rectangle(canvas, y as i32, Color::RED)?;
 
         Ok(())

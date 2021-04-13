@@ -3,7 +3,7 @@ use crate::model::{
     Cpu, DebugProperties, DebugPropertiesAccess, GameProperties, GamePropertiesAccess, Keypad,
     Memory, MemoryAccess, States, StatesAccess,
 };
-use crate::sdl2::Sdl;
+
 use crate::view::{
     BreakPointDisplay, DisplayManager, GameDisplay, InfoDisplay, InputChecker, MemoryDisplay,
     OpcodeDisplay, SoundManager, StackDisplay, View,
@@ -44,7 +44,7 @@ impl Builder {
             self.package_arc_mutex(DebugPropertiesAccess::new(Arc::clone(&debug_properties)));
 
         let states = self.package_arc_mutex(States::new());
-        let states_access = self.package_arc_mutex(StatesAccess::new(Arc::clone(&states)));
+        let _states_access = self.package_arc_mutex(StatesAccess::new(Arc::clone(&states)));
         let state_manager = self.package_arc_mutex(StateManager::new(Arc::clone(&states)));
 
         let data_ref = self.package_arc_mutex(Memory::new());

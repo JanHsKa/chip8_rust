@@ -1,5 +1,5 @@
-use crate::controller::FileManager;
-use crate::defines::{game_constants::BASE_PROGRAM_SPEED, DebugState};
+
+use crate::defines::{DebugState};
 use std::collections::HashMap;
 
 pub struct DebugProperties {

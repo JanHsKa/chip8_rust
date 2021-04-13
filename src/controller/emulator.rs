@@ -1,7 +1,7 @@
 use crate::controller::{DebugManager, ProgramManager, TimeManager, TimeTo, BASE_PROGRAM_SPEED};
 use crate::defines::ProgramState;
-use crate::model::{Cpu, MemoryAccess};
-use crate::view::{DisplayManager, View};
+use crate::model::{Cpu};
+use crate::view::{View};
 
 use std::{
     any::TypeId,
@@ -16,8 +16,8 @@ use std::{
 
 //use std::sync::mpsc;
 //use mpsc::{Sender, Receiver};
-use std::cell::RefCell;
-use std::rc::Rc;
+
+
 
 pub struct Emulator {
     cpu: Cpu,
@@ -84,7 +84,7 @@ impl Emulator {
     }
 
     fn check_debug(&mut self) {
-        let mut debug = self.debug_manager.lock().unwrap();
+        let _debug = self.debug_manager.lock().unwrap();
         //let state = debug.get
     }
 

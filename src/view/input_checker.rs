@@ -45,7 +45,7 @@ impl InputChecker {
         .into_iter()
         .collect();
 
-        let mut new_keypad_keys: HashSet<Keycode> = vec![].into_iter().collect();
+        let _new_keypad_keys: HashSet<Keycode> = vec![].into_iter().collect();
 
         InputChecker {
             event_pump: sdl_context.event_pump().unwrap(),

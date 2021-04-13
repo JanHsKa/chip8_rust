@@ -18,7 +18,7 @@ use std::{
     time::Duration,
 };
 
-use sdl2::{pixels::Color, render::WindowCanvas, ttf::Sdl2TtfContext};
+use sdl2::{render::WindowCanvas, ttf::Sdl2TtfContext};
 
 pub struct StackDisplay {
     stack: Vec<String>,

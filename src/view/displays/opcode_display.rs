@@ -1,6 +1,6 @@
 use crate::defines::{
     layout_constants::{
-        OPCODE_HEIGHT, OPCODE_HIGHLIGHT_DEBUG, OPCODE_HIGHLIGHT_NORMAL, OPCODE_HIGHLIGHT_TEST,
+        OPCODE_HEIGHT, OPCODE_HIGHLIGHT_TEST,
         OPCODE_LINES, OPCODE_START_X, OPCODE_START_Y, OPCODE_WIDTH,
     },
     memory_constants::PROGRAM_START,
@@ -46,7 +46,7 @@ impl IDisplay for OpcodeDisplay {
                     iter.push_str(&disassambled_code[i]);
                 }
             } else {
-                for (i, iter) in self.code_lines.iter_mut().enumerate() {
+                for (_i, iter) in self.code_lines.iter_mut().enumerate() {
                     *iter = "0000".to_string();
                 }
             }

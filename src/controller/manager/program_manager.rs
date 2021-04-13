@@ -1,14 +1,11 @@
-use crate::controller::{FileInfo, FileManager, StateManager};
+use crate::controller::{FileManager, StateManager};
 use crate::defines::{
-    memory_constants::{MAX_PROGRAM_SIZE, PROGRAM_START, VARIABLES_COUNT},
     ProgramState,
 };
 use crate::model::{GameProperties, MemoryAccess};
-use crate::view::Disassembler;
-use sdl2::{event::Event, keyboard::Keycode};
+
+use sdl2::{keyboard::Keycode};
 use std::{
-    collections::{HashMap, HashSet},
-    rc::Rc,
     sync::{Arc, Mutex},
 };
 

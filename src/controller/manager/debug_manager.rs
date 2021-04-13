@@ -3,11 +3,9 @@ use crate::defines::{
     memory_constants::{MAX_PROGRAM_SIZE, PROGRAM_START, VARIABLES_COUNT},
     DebugState, ProgramState,
 };
-use crate::model::{DebugProperties, GamePropertiesAccess, MemoryAccess};
-use sdl2::{event::Event, keyboard::Keycode};
+use crate::model::{DebugProperties, MemoryAccess};
+use sdl2::{keyboard::Keycode};
 use std::{
-    collections::{HashMap, HashSet},
-    rc::Rc,
     sync::{Arc, Mutex},
 };
 
@@ -20,7 +18,7 @@ pub struct DebugManager {
 impl DebugManager {
     pub fn new(
         new_memory_access: Arc<Mutex<MemoryAccess>>,
-        new_state_manager: Arc<Mutex<StateManager>>,
+        _new_state_manager: Arc<Mutex<StateManager>>,
         new_debug_properties: Arc<Mutex<DebugProperties>>,
     ) -> DebugManager {
         DebugManager {

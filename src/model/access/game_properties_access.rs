@@ -1,7 +1,7 @@
-use crate::defines::{memory_constants::MAX_PROGRAM_SIZE, ProgramState};
-use crate::model::{GameProperties, MemoryAccess};
-use crate::model::{Memory, Resolution};
-use sdl2::{event::Event, keyboard::Keycode};
+use crate::defines::{ProgramState};
+use crate::model::{GameProperties};
+
+
 use std::sync::{Arc, Mutex};
 
 pub struct GamePropertiesAccess {

@@ -15,7 +15,7 @@ impl Default for Keypad {
 
 impl Keypad {
     pub fn new() -> Keypad {
-        let mut new_keymap: HashMap<Keycode, usize> = vec![
+        let new_keymap: HashMap<Keycode, usize> = vec![
             (Keycode::Num1, 0x1),
             (Keycode::Num2, 0x2),
             (Keycode::Num3, 0x3),

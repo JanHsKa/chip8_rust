@@ -11,9 +11,9 @@ extern crate sdl2;
 extern crate lazy_static;
 
 use crate::controller::Builder;
-use crate::model::{Keypad, Memory};
+
 use std::env;
-use std::sync::{Arc, Mutex};
+
 
 fn main() {
     println!("start program");

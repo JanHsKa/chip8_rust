@@ -1,7 +1,7 @@
-use crate::defines::{memory_constants::MAX_PROGRAM_SIZE, DebugState};
-use crate::model::{DebugProperties, MemoryAccess};
-use crate::model::{Memory, Resolution};
-use sdl2::{event::Event, keyboard::Keycode};
+use crate::defines::{DebugState};
+use crate::model::{DebugProperties};
+
+
 use std::{
     collections::HashMap,
     sync::{Arc, Mutex},
