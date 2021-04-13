@@ -49,7 +49,7 @@ impl IDisplay for BreakPointDisplay {
     ) -> Result<(), String> {
         let mut print_vector: Vec<String> = vec!["Breakpoints".to_string(); 1];
         print_vector.append(&mut self.breakpoints.clone());
-        print_vector.fill_empty_strings(" ".to_string());
+        print_vector.fill_empty(" ".to_string());
         self.render_helper
             .draw_lines(&mut print_vector, canvas, ttf_context)?;
 
