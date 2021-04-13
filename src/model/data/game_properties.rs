@@ -1,4 +1,3 @@
-
 use crate::defines::{game_constants::BASE_PROGRAM_SPEED, ProgramState};
 
 pub struct GameProperties {

@@ -1,4 +1,4 @@
-use crate::defines::layout_constants::{LINE_PADDING};
+use crate::defines::layout_constants::LINE_PADDING;
 use crate::view::{FONTPATH1, FONTPATH2, FONTPATH3, FONTPATH4, FONTSIZE_KEYPAD, FONTSIZE_LINE};
 use sdl2::{
     pixels::Color,

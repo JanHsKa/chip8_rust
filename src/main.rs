@@ -14,7 +14,6 @@ use crate::controller::Builder;
 
 use std::env;
 
-
 fn main() {
     println!("start program");
     let args: Vec<String> = env::args().collect();

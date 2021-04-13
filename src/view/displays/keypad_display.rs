@@ -3,13 +3,10 @@ use crate::defines::{
     memory_constants::STACKSIZE,
     IDisplay, ProgramState,
 };
-use crate::model::{GamePropertiesAccess};
+use crate::model::GamePropertiesAccess;
 use crate::view::KeypadRenderer;
 use sdl2::{render::WindowCanvas, ttf::Sdl2TtfContext};
-use std::{
-    cell::RefCell,
-    rc::Rc,
-};
+use std::{cell::RefCell, rc::Rc};
 
 pub struct KeypadDisplay {
     stack: Vec<String>,

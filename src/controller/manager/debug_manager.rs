@@ -4,10 +4,8 @@ use crate::defines::{
     DebugState, ProgramState,
 };
 use crate::model::{DebugProperties, MemoryAccess};
-use sdl2::{keyboard::Keycode};
-use std::{
-    sync::{Arc, Mutex},
-};
+use sdl2::keyboard::Keycode;
+use std::sync::{Arc, Mutex};
 
 pub struct DebugManager {
     current_state: DebugState,

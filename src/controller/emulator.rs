@@ -1,7 +1,7 @@
 use crate::controller::{DebugManager, ProgramManager, TimeManager, TimeTo, BASE_PROGRAM_SPEED};
 use crate::defines::ProgramState;
-use crate::model::{Cpu};
-use crate::view::{View};
+use crate::model::Cpu;
+use crate::view::View;
 
 use std::{
     any::TypeId,
@@ -16,8 +16,6 @@ use std::{
 
 //use std::sync::mpsc;
 //use mpsc::{Sender, Receiver};
-
-
 
 pub struct Emulator {
     cpu: Cpu,

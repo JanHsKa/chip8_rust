@@ -1,4 +1,4 @@
-use crate::defines::memory_constants::{MAX_PROGRAM_SIZE};
+use crate::defines::memory_constants::MAX_PROGRAM_SIZE;
 use crate::edit;
 
 use std::{

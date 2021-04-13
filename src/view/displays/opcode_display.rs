@@ -1,7 +1,7 @@
 use crate::defines::{
     layout_constants::{
-        OPCODE_HEIGHT, OPCODE_HIGHLIGHT_TEST,
-        OPCODE_LINES, OPCODE_START_X, OPCODE_START_Y, OPCODE_WIDTH,
+        OPCODE_HEIGHT, OPCODE_HIGHLIGHT_TEST, OPCODE_LINES, OPCODE_START_X, OPCODE_START_Y,
+        OPCODE_WIDTH,
     },
     memory_constants::PROGRAM_START,
     IDisplay,

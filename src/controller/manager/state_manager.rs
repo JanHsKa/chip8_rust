@@ -11,20 +11,17 @@ impl StateManager {
         StateManager { states: new_states }
     }
 
-    pub fn set_state(&mut self, _state: ProgramState) {
-
-    }
+    pub fn set_state(&mut self, _state: ProgramState) {}
 
     pub fn toggle_continue(&mut self) {
         let mut state_data = self.states.lock().unwrap();
         let state = state_data.game_state;
-        
+
         match state {
-            GameState::Running =>  state_data.game_state = GameState::Stopped,
-            GameState::Stopped =>  state_data.game_state = GameState::Running,
+            GameState::Running => state_data.game_state = GameState::Stopped,
+            GameState::Stopped => state_data.game_state = GameState::Running,
             _ => {}
         }
-
     }
 
     pub fn toggle_debug(&mut self) {
@@ -37,7 +34,6 @@ impl StateManager {
             state_data.debug_state = DebugState::Running;
             state_data.game_state = GameState::Stopped;
         }
-
     }
 
     pub fn update_state(&mut self, state: ProgramState) -> Option<ProgramState> {
@@ -49,13 +45,7 @@ impl StateManager {
         None
     }
 
-    fn failed_game(&mut self) {
+    fn failed_game(&mut self) {}
 
-    }
-
-    fn new_program(&mut self) {
-
-    }
-
-
+    fn new_program(&mut self) {}
 }

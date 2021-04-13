@@ -1,5 +1,4 @@
-
-use crate::defines::{DebugState};
+use crate::defines::DebugState;
 use std::collections::HashMap;
 
 pub struct DebugProperties {

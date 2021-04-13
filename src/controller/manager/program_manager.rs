@@ -1,13 +1,9 @@
 use crate::controller::{FileManager, StateManager};
-use crate::defines::{
-    ProgramState,
-};
+use crate::defines::ProgramState;
 use crate::model::{GameProperties, MemoryAccess};
 
-use sdl2::{keyboard::Keycode};
-use std::{
-    sync::{Arc, Mutex},
-};
+use sdl2::keyboard::Keycode;
+use std::sync::{Arc, Mutex};
 
 pub const BASE_PROGRAM_SPEED: u64 = 10;
 pub const MINIMUM_SPEED: u64 = 1;
