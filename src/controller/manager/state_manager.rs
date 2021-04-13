@@ -36,7 +36,7 @@ impl StateManager {
         if (debug_state, game_state) == (DebugState::Disabled, GameState::Running) {
             state_data.debug_state = DebugState::Running;
             state_data.game_state = GameState::Stopped;
-        } else if debug
+        }
 
     }
 

@@ -4,7 +4,6 @@ pub mod model;
 pub mod view;
 
 extern crate edit;
-extern crate phf;
 extern crate rand;
 extern crate sdl2;
 
