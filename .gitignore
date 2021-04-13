@@ -4,3 +4,12 @@
 .vscode/launch.json
 .vscode
 Cargo.lock
+libfreetype-6.dll
+libjpeg-9.dll
+libtiff-5.dll
+libwebp-7.dll
+SDL2_ttf.dll
+SDL2_image.dll
+zlib1.dll
+SDL2.dll
+libpng16-16.dll
