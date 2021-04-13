@@ -14,8 +14,6 @@ use std::{
     time::Duration,
 };
 
-//use std::sync::mpsc;
-//use mpsc::{Sender, Receiver};
 
 pub struct Emulator {
     cpu: Cpu,

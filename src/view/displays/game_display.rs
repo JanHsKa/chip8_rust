@@ -13,11 +13,8 @@ use std::{
     rc::Rc,
     result::Result,
     sync::{
-        mpsc::{channel, Receiver, Sender},
         Arc, Mutex,
     },
-    thread,
-    time::Duration,
 };
 
 pub struct GameDisplay {
@@ -59,10 +56,14 @@ impl IDisplay for GameDisplay {
             self.pixel_scale as u32,
         );
 
-        for y in 0..ROWS {
+        let columns = self.resolution as usize * COLUMNS;
+        let rows = self.resolution as usize * ROWS;
+
+
+        for y in 0..rows {
             rect.set_y((y * self.pixel_scale) as i32 + GAME_START_Y);
-            for x in 0..COLUMNS {
-                if self.pixel_state[(y * COLUMNS) + x] == 1 {
+            for x in 0..columns {
+                if self.pixel_state[(y * columns) + x] == 1 {
                     canvas.set_draw_color(GAME_PIXEL_TEST);
                 } else {
                     canvas.set_draw_color(GAME_PIXEL_UNSET);

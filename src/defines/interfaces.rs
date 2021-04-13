@@ -16,6 +16,19 @@ pub trait IManager {
 
 pub trait IState {}
 
+pub trait Reset {
+    fn reset_all(&mut self); 
+}
+
+impl Reset for Vec<u8> {
+    fn reset_all(&mut self) {
+        for iter in self.iter_mut() {
+            *iter = 0;
+        }
+    }
+}
+
+
 pub trait Fill {
     type Value;
     fn fill_empty(&mut self, value: Self::Value);

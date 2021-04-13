@@ -16,7 +16,7 @@ impl StateManager {
     pub fn toggle_continue(&mut self) {
         let mut state_data = self.states.lock().unwrap();
         let state = state_data.game_state;
-
+        
         match state {
             GameState::Running => state_data.game_state = GameState::Stopped,
             GameState::Stopped => state_data.game_state = GameState::Running,

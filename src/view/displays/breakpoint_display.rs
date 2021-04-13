@@ -8,8 +8,6 @@ use crate::defines::{
 use crate::model::DebugPropertiesAccess;
 use crate::view::DisplayRenderHelper;
 use std::{
-    cell::RefCell,
-    rc::Rc,
     result::Result,
     sync::{
         mpsc::{channel, Receiver, Sender},

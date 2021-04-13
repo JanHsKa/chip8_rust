@@ -17,3 +17,4 @@ pub const BIG_SPRITE: usize = 16;
 pub const FONTSET_LOW_SIZE: usize = 80;
 pub const FONTSET_HIGH_START: usize = FONTSET_LOW_SIZE;
 pub const FONTSET_HIGH_SIZE: usize = 160;
+pub const SCROLL_RANGE: usize = 4;

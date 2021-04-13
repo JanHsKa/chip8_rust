@@ -39,6 +39,7 @@ impl ProgramManager {
     pub fn press_key(&mut self, key: Keycode) {
         match key {
             Keycode::F1 => self.restart_program(),
+            Keycode::F2 => self.open_editor(),
             Keycode::F4 => self.dump_memory(),
             Keycode::F5 => self.stop_or_continue(),
             Keycode::F8 => {}
@@ -46,6 +47,10 @@ impl ProgramManager {
             Keycode::Minus => self.decrease_speed(),
             _ => {}
         }
+    }
+
+    fn open_editor(&mut self) {
+        self.file_manager.open_editor();
     }
 
     fn increase_speed(&mut self) {
@@ -101,6 +106,8 @@ impl ProgramManager {
         if self.file_manager.load_file_if_possible(file_name).is_ok() {
             properties.game_state = ProgramState::NewProgram;
             properties.game_size = self.file_manager.get_file_info().file_size as usize;
+            properties.game_name = self.file_manager.get_file_name();
+            properties.game_code = self.file_manager.get_file_content();
         }
     }
 

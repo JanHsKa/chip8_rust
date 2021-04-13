@@ -16,7 +16,7 @@ impl MemoryAccess {
     }
 
     pub fn get_graphic_array(&mut self) -> Vec<u8> {
-        self.memory.lock().unwrap().grapphic_array.clone()
+        self.memory.lock().unwrap().graphic_array.clone()
     }
 
     pub fn get_opcode(&mut self) -> u16 {

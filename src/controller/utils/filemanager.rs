@@ -1,4 +1,5 @@
 use crate::defines::memory_constants::MAX_PROGRAM_SIZE;
+use crate::view::Disassembler;
 use crate::edit;
 
 use std::{
@@ -9,6 +10,7 @@ use std::{
 };
 
 pub const MEMORY_DUMP_PATH: &str = "TempFiles/Memory_Content.bin";
+pub const FILE_EDITOR_PATH: &str = "TempFiles/Game_Code.ch8";
 
 #[derive(Default, Clone)]
 pub struct FileInfo {
@@ -89,6 +91,27 @@ impl FileManager {
             .read_to_string(&mut editable);
 
         println!("File content:\n{}", editable); */
+    }
+
+    pub fn open_editor(&mut self) {
+        println!("Open editor");
+        let file = File::create(FILE_EDITOR_PATH).expect("Unable to create file");
+        let mut file = BufWriter::new(file);
+        let mut converted_code = Disassembler::convert_and_disassemble_list(&self.filecontent);
+        for iter in converted_code.iter_mut() {
+            (*iter).push_str("\n");
+            file.write(&iter.as_str().as_bytes());
+        }
+
+        let editor = edit::get_editor().unwrap();
+        //let mut file_path = temp_dir();
+        //file_path.push("editable");
+        File::create(&FILE_EDITOR_PATH).expect("Could not create file");
+
+        Command::new(editor)
+            .arg(FILE_EDITOR_PATH)
+            .status()
+            .expect("Something went wrong");
     }
 
     pub fn get_file_content(&mut self) -> Vec<u8> {

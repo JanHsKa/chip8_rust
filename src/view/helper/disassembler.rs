@@ -22,6 +22,9 @@ impl Disassembler {
 
         while index < code.len() - 1 {
             if let Some(opcode) = Disassembler::concat_opcode(code[index], code[index + 1]) {
+                println!("index {}", index);
+                println!("opcode {:04X}", opcode);
+
                 index += 1;
                 converted_code.push(opcode);
             }
@@ -33,7 +36,7 @@ impl Disassembler {
     }
 
     pub fn concat_opcode(part1: u8, part2: u8) -> Option<u16> {
-        let opcode: u16 = (part1 as u16) << 8 | part2 as u16;
+        let opcode: u16 = (part1 as u16) << 8 | (part2 as u16);
 
         if Disassembler::disassemble(&opcode) == "Unknown" {
             return None;
@@ -45,7 +48,13 @@ impl Disassembler {
     pub fn disassemble(opcode: &u16) -> String {
         let mut disassembled_code = String::new();
 
-        let nibbles = Disassembler::get_nibbles(&opcode);
+        let nibbles = (
+            (opcode & 0xF000) >> 12,
+            (opcode & 0x0F00) >> 8,
+            (opcode & 0x00F0) >> 4,
+            (opcode & 0x000F),
+        );
+
         let nn = nibbles.2 << 4 | nibbles.3;
         let nnn = opcode & 0x0FFF;
         match nibbles {
@@ -55,6 +64,7 @@ impl Disassembler {
             (0x0, 0x0, 0xe, 0xe) => disassembled_code = format!("RET"),
             (0x0, 0x0, 0xf, 0xb) => disassembled_code = format!("SCR"),
             (0x0, 0x0, 0xf, 0xc) => disassembled_code = format!("SCL"),
+            (0x0, 0x0, 0xf, 0xd) => disassembled_code = format!("EXIT"),
             (0x0, 0x0, 0xf, 0xe) => disassembled_code = format!("LOW"),
             (0x0, 0x0, 0xf, 0xf) => disassembled_code = format!("HIGH"),
             (0x1, _, _, _) => disassembled_code = format!("JP   {:03X}", nnn),
@@ -98,7 +108,7 @@ impl Disassembler {
             (0xB, _, _, _) => disassembled_code = format!("JP    V0, {:04X}", nnn),
             (0xC, _, _, _) => disassembled_code = format!("RND   V{:X},  {:02X}", nibbles.1, nn),
             (0xD, _, _, 0x0) => {
-                disassembled_code = format!("DRW   V{:X}   V{:X}  BIG", nibbles.1, nibbles.2)
+                disassembled_code = format!("DRW   V{:X}   V{:X}", nibbles.1, nibbles.2)
             }
             (0xD, _, _, _) => {
                 disassembled_code =
@@ -122,14 +132,5 @@ impl Disassembler {
         }
 
         disassembled_code
-    }
-
-    fn get_nibbles(opcode: &u16) -> (u16, u16, u16, u16) {
-        (
-            (opcode & 0xF000) >> 12,
-            (opcode & 0x0F00) >> 8,
-            (opcode & 0x00F0) >> 4,
-            (opcode & 0x000F),
-        )
     }
 }

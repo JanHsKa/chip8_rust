@@ -45,8 +45,6 @@ impl DebugManager {
         }
     }
 
-    fn set_state_after_enable(&mut self) {}
-
     pub fn stop_or_continue(&mut self) {
         let mut properties = self.debug_properties.lock().unwrap();
         println!("stop");

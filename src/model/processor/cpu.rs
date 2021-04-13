@@ -1,8 +1,8 @@
-use crate::defines::memory_constants::{
+use crate::defines::{memory_constants::{
     BIG_SPRITE, CARRY_FLAG, COLUMNS, FLAG_REGISTER_SIZE, GRAPHIC_SIZE, GRAPHIC_SIZE_HIGH,
     MAX_PROGRAM_SIZE, MEMORYSIZE, PROGRAM_START, PROGRAM_STEP, ROWS, SPRITE_WIDTH, STACKSIZE,
-    VARIABLES_COUNT,
-};
+    VARIABLES_COUNT, SCROLL_RANGE
+}, Reset};
 
 use crate::model::{
     Keypad, Memory, Resolution, FONTSET_HIGH, FONTSET_HIGH_SIZE, FONTSET_HIGH_START, FONTSET_LOW,
@@ -101,6 +101,17 @@ impl Cpu {
         self.data_ref.lock().unwrap().sound_timer > 0
     }
 
+    fn print_graphic_array(&mut self) {
+        let graphic_array = self.data_ref.lock().unwrap().graphic_array.clone();
+
+        for (i, iter) in graphic_array.iter().enumerate() {
+            if i % self.max_columns == 0 {
+                println!("");
+            }
+            print!("{}", iter);
+        }
+    }
+    
     fn no_match(&mut self) {
         self.running = false;
         println!(
@@ -138,6 +149,7 @@ impl Cpu {
             (0x0, 0x0, 0xe, 0xe) => self.op_00ee(),
             (0x0, 0x0, 0xf, 0xb) => self.op_00fb(),
             (0x0, 0x0, 0xf, 0xc) => self.op_00fc(),
+            (0x0, 0x0, 0xf, 0xd) => self.op_00fd(),
             (0x0, 0x0, 0xf, 0xe) => self.op_00fe(),
             (0x0, 0x0, 0xf, 0xf) => self.op_00ff(),
             (0x1, _, _, _) => self.op_1nnn(),
@@ -183,27 +195,28 @@ impl Cpu {
     //Scroll Up
     fn op_00bn(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        let graphic_copy = data.grapphic_array.clone();
+        let graphic_copy = data.graphic_array.clone();
+        let graphic_size = graphic_copy.len();
+        data.graphic_array.reset_all();
         let shift: usize = self.n * COLUMNS * data.resolution as usize;
-        data.grapphic_array[0..GRAPHIC_SIZE - shift]
-            .copy_from_slice(&graphic_copy[shift..GRAPHIC_SIZE]);
-    }
+        data.graphic_array[..graphic_size - shift]
+            .copy_from_slice(&graphic_copy[shift..]);
+            }
 
     //Scroll Down
     fn op_00cn(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        let graphic_copy = data.grapphic_array.clone();
+        let graphic_copy = data.graphic_array.clone();
+        data.graphic_array.reset_all();
+        let graphic_size = graphic_copy.len();
         let shift: usize = self.n * COLUMNS * data.resolution as usize;
-        data.grapphic_array[shift..GRAPHIC_SIZE]
-            .copy_from_slice(&graphic_copy[..GRAPHIC_SIZE - shift]);
+        data.graphic_array[shift..]
+            .copy_from_slice(&graphic_copy[..graphic_size - shift]);
     }
 
     //CLS
     fn op_00e0(&mut self) {
-        let mut data = self.data_ref.lock().unwrap();
-        for i in 0..data.grapphic_array.len() {
-            data.grapphic_array[i] = 0;
-        }
+        self.data_ref.lock().unwrap().graphic_array.reset_all();
     }
 
     //RET from subroutine
@@ -217,29 +230,89 @@ impl Cpu {
 
     //Scroll Right
     fn op_00fb(&mut self) {
-        let data = self.data_ref.lock().unwrap();
-        let _resolution = data.resolution;
+        println!("scroll right");
+
+        let mut data = self.data_ref.lock().unwrap();
+        let graphic_copy = data.graphic_array.clone();
+
+        for (i, pixel) in data.graphic_array.iter_mut().enumerate() {
+            if i % self.max_columns < SCROLL_RANGE + 1 {
+                *pixel = 0;
+            } else {
+                *pixel = graphic_copy[i - SCROLL_RANGE];
+            }
+        } 
+
+        for (i, iter) in data.graphic_array.iter().enumerate() {
+            if i % self.max_columns == 0 {
+                println!("");
+            }
+            print!("{}", iter);
+        }
     }
 
     //Scroll Left
-    fn op_00fc(&mut self) {}
+    fn op_00fc(&mut self) {
+        println!("scroll left");
+
+        let mut data = self.data_ref.lock().unwrap();
+        let graphic_copy = data.graphic_array.clone();
+
+        for (i, pixel) in data.graphic_array.iter_mut().enumerate() {
+            if i % self.max_columns < self.max_columns - SCROLL_RANGE - 1 || i + SCROLL_RANGE >= graphic_copy.len(){
+                *pixel = 0;
+            } else {
+                *pixel = graphic_copy[i + SCROLL_RANGE];
+            }
+        }
+
+        for (i, iter) in data.graphic_array.iter().enumerate() {
+            if i % self.max_columns == 0 {
+                println!("");
+            }
+            print!("{}", iter);
+        }
+    }
+
+    //Exit
+    fn op_00fd(&mut self) {
+        self.running = false;
+    }
 
     //Low Res
     fn op_00fe(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
+        let data_copy = data.graphic_array.clone();
+        let res_factor = data.resolution as usize;
         data.resolution = Resolution::Low;
-        data.grapphic_array = vec![0; GRAPHIC_SIZE];
+        data.graphic_array = vec![0; GRAPHIC_SIZE];
         self.max_columns = COLUMNS * Resolution::Low as usize;
         self.max_rows = ROWS * Resolution::Low as usize;
+        
+        for x in (0..self.max_columns).step_by(res_factor) {
+            for y in (0..self.max_rows).step_by(res_factor) {
+                data.graphic_array[(x / res_factor) + (y / res_factor) * COLUMNS] = data_copy[x + y * self.max_columns];
+            }
+        }
+
     }
 
     //High Res
     fn op_00ff(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
+        let data_copy = data.graphic_array.clone();
+        let res_factor = Resolution::High as usize;
         data.resolution = Resolution::High;
-        data.grapphic_array = vec![0; GRAPHIC_SIZE_HIGH];
+        data.graphic_array = vec![0; GRAPHIC_SIZE_HIGH];
         self.max_columns = COLUMNS * Resolution::High as usize;
         self.max_rows = ROWS * Resolution::High as usize;
+        
+        for x in 0..self.max_columns {
+            for y in 0..self.max_rows {
+                data.graphic_array[x  +  y * self.max_columns] = data_copy[(x / res_factor) + (y / res_factor) * COLUMNS];
+            }
+        }
+
     }
 
     //JP addr
@@ -402,12 +475,12 @@ impl Cpu {
                 x_coordinate =
                     (data.variable_register[self.x] as usize + column) % self.max_columns;
                 if (sprite & (0x80 >> column)) != BitState::UNSET {
-                    if data.grapphic_array[(y_coordinate * self.max_columns) + x_coordinate]
+                    if data.graphic_array[(y_coordinate * self.max_columns) + x_coordinate]
                         == BitState::SET
                     {
                         data.variable_register[CARRY_FLAG] = BitState::SET;
                     }
-                    data.grapphic_array[(y_coordinate * self.max_columns) + x_coordinate] ^=
+                    data.graphic_array[(y_coordinate * self.max_columns) + x_coordinate] ^=
                         BitState::SET;
                 }
             }
@@ -431,12 +504,12 @@ impl Cpu {
                 x_coordinate =
                     (data.variable_register[self.x] as usize + column) % self.max_columns;
                 if (sprite & (0x8000 >> column)) != BitState::UNSET as u16 {
-                    if data.grapphic_array[(y_coordinate * self.max_columns) + x_coordinate]
+                    if data.graphic_array[(y_coordinate * self.max_columns) + x_coordinate]
                         == BitState::SET
                     {
                         data.variable_register[CARRY_FLAG] = BitState::SET;
                     }
-                    data.grapphic_array[(y_coordinate * self.max_columns) + x_coordinate] ^=
+                    data.graphic_array[(y_coordinate * self.max_columns) + x_coordinate] ^=
                         BitState::SET;
                 }
             }
@@ -543,6 +616,8 @@ impl Cpu {
 
     //LD Vx, FLAG
     fn op_fx75(&mut self) {
+        println!("into flag");
+
         let mut data = self.data_ref.lock().unwrap();
         if self.x < FLAG_REGISTER_SIZE {
             for i in 0..self.x + 1 {
@@ -553,6 +628,8 @@ impl Cpu {
 
     //LD FLAG, Vx
     fn op_fx85(&mut self) {
+        println!("out of flag");
+
         let mut data = self.data_ref.lock().unwrap();
         if self.x < FLAG_REGISTER_SIZE {
             for i in 0..self.x + 1 {

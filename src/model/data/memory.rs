@@ -12,7 +12,7 @@ pub struct Memory {
     pub memory: [u8; MEMORYSIZE],
     pub delay_timer: u8,
     pub sound_timer: u8,
-    pub grapphic_array: Vec<u8>,
+    pub graphic_array: Vec<u8>,
     pub variable_register: [u8; VARIABLES_COUNT],
     pub stack_pointer: usize,
     pub program_counter: usize,
@@ -35,7 +35,7 @@ impl Memory {
             memory: [0; MEMORYSIZE],
             delay_timer: 0,
             sound_timer: 0,
-            grapphic_array: vec![0; GRAPHIC_SIZE],
+            graphic_array: vec![0; GRAPHIC_SIZE],
 
             variable_register: [0; STACKSIZE],
             stack_pointer: 0,
