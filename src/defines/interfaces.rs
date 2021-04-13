@@ -18,12 +18,14 @@ pub trait IManager {
 pub trait IState {}
 
 pub trait Fill {
-    fn fill_empty_strings(&mut self, value: String);
+    type Value;
+    fn fill_empty(&mut self, value: Self::Value);
     fn fill_to_end(&mut self, start: usize);
 }
 
 impl Fill for Vec<String> {
-    fn fill_empty_strings(&mut self, value: String) {
+    type Value = String;
+    fn fill_empty(&mut self, value: Self::Value) {
         for iter in self.iter_mut() {
             if iter.is_empty() {
                 *iter = value.clone();
