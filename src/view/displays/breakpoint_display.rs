@@ -32,7 +32,9 @@ impl IDisplay for BreakPointDisplay {
         let mut index: usize = 0;
 
         for (line, opcode) in breakpoint_map.iter() {
-            self.breakpoints[index] = format!("Line {:03X}: 0x{:04X}", line, opcode);
+            if index < VARIABLES_COUNT - 1 {
+                self.breakpoints[index] = format!("Line {:03X}: 0x{:04X}", line, opcode);
+            }
             index += 1;
         }
 

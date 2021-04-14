@@ -68,7 +68,7 @@ impl Disassembler {
             (0x0, 0x0, 0xf, 0xe) => disassembled_code = "LOW".to_string(),
             (0x0, 0x0, 0xf, 0xf) => disassembled_code = "HIGH".to_string(),
             (0x1, _, _, _) => disassembled_code = format!("JP   {:03X}", nnn),
-            (0x2, _, _, _) => disassembled_code = format!("CALL     {:04X}", nnn),
+            (0x2, _, _, _) => disassembled_code = format!("CALL      {:04X}", nnn),
             (0x3, _, _, _) => disassembled_code = format!("SE    V{:X},  {:02X}", nibbles.1, nn),
             (0x4, _, _, _) => disassembled_code = format!("SNE   V{:X},  {:02X}", nibbles.1, nn),
             (0x5, _, _, 0x0) => {
@@ -128,7 +128,7 @@ impl Disassembler {
             (0xF, _, 0x6, 0x5) => disassembled_code = format!("LD    V{:X}, [I]", nibbles.1),
             (0xF, _, 0x7, 0x5) => disassembled_code = format!("LD    V{:X}, R", nibbles.1),
             (0xF, _, 0x8, 0x5) => disassembled_code = format!("LD     R, V{:X}", nibbles.1),
-            _ => disassembled_code = format!("Unknown"),
+            _ => disassembled_code = "Unknown".to_string(),
         }
 
         disassembled_code

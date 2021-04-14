@@ -137,7 +137,7 @@ impl Emulator {
     fn check_time(&mut self) {
         //let msg = self.update_receiver.try_recv();
         let mut is_ok = false;
-        for iter in self.update_receiver.try_iter() {
+        for _iter in self.update_receiver.try_iter() {
             is_ok = true;
         }
 

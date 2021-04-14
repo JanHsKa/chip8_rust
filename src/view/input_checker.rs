@@ -1,10 +1,7 @@
 use crate::controller::{DebugManager, ProgramManager};
 use crate::defines::ProgramState;
 use crate::model::Keypad;
-use crate::sdl2::keyboard::Keycode;
-use sdl2::event::Event;
-use sdl2::EventPump;
-use sdl2::Sdl;
+use crate::sdl2::{event::Event, keyboard::Keycode, mouse::MouseButton, EventPump, Sdl};
 use std::{
     collections::HashSet,
     sync::{Arc, Mutex},
@@ -71,6 +68,9 @@ impl InputChecker {
                 Event::DropFile { filename, .. } => {
                     self.program_manager.lock().unwrap().new_file(filename)
                 }
+                Event::MouseButtonDown {
+                    mouse_btn, x, y, ..
+                } => self.process_mouse_click(mouse_btn, x, y),
                 Event::Quit { .. } => self.program_manager.lock().unwrap().quit(),
                 _ => {}
             }
@@ -98,6 +98,15 @@ impl InputChecker {
         let mut keypad_ref = self.keypad.lock().unwrap();
         match key {
             _ => (*keypad_ref).press_key(key, KeyPress::Up as u8),
+        }
+    }
+
+    fn process_mouse_click(&mut self, button: &MouseButton, x: &i32, y: &i32) {
+        if *button == MouseButton::Left {
+            self.debug_manager
+                .lock()
+                .unwrap()
+                .set_breakpoint_on_mouse_click(x, y);
         }
     }
 }

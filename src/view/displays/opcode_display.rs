@@ -65,7 +65,7 @@ impl IDisplay for OpcodeDisplay {
             .unwrap()
             .get_breakpoints()
             .keys()
-            .map(|key| *key)
+            .cloned()
             .filter(|key| *key >= self.offset && *key < self.offset + OPCODE_LINES)
             .collect();
     }
