@@ -45,7 +45,6 @@ impl StateManager {
     pub fn toggle_debug(&mut self) {
         let mut state_data = self.states.lock().unwrap();
         let debug_state = state_data.debug_state;
-        let game_state = state_data.game_state;
 
         match debug_state {
             DebugState::Enabled => state_data.debug_state = DebugState::Disabled,
@@ -111,11 +110,12 @@ impl StateManager {
     }
 
     fn running(&mut self) {
-        println!("running");
         let mut states = self.states.lock().unwrap();
-        states.debug_state = DebugState::Disabled;
-        states.game_state = GameState::Running;
-        states.program_state = ProgramState::Running;
+        if states.game_state == GameState::Running {
+            states.program_state = ProgramState::Running;
+        } else {
+            states.program_state = ProgramState::Stopped;
+        }
     }
 
     fn restart(&mut self) {

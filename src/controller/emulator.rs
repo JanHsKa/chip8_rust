@@ -70,7 +70,7 @@ impl Emulator {
             let current_state = self.state_manager.lock().unwrap().get_state();
             match current_state {
                 ProgramState::NewProgram => self.new_program(),
-                ProgramState::Running => self.check_time(),
+                ProgramState::Running => self.running(),
                 ProgramState::Debug(DebugState::Step) => self.step(),
                 ProgramState::Restart => self.new_program(),
                 ProgramState::Stopped => self.check_debug(),
@@ -120,19 +120,28 @@ impl Emulator {
 
     fn step(&mut self) {
         self.run_code();
-        let msg = self.update_receiver.try_recv();
-        if msg.is_ok() && msg.unwrap() == TimeTo::Update {
-            self.refresh();
+        self.check_time();
+    }
+
+    fn running(&mut self) {
+        self.run_remaining_opcodes();
+        self.check_time();
+    }
+
+    fn run_remaining_opcodes(&mut self) {
+        if self.instructioncounter <= self.speed {
+            self.run_code();
         }
     }
 
     fn check_time(&mut self) {
-        if self.instructioncounter <= self.speed {
-            self.run_code();
+        //let msg = self.update_receiver.try_recv();
+        let mut is_ok = false;
+        for iter in self.update_receiver.try_iter() {
+            is_ok = true;
         }
 
-        let msg = self.update_receiver.try_recv();
-        if msg.is_ok() && msg.unwrap() == TimeTo::Update {
+        if is_ok {
             self.refresh();
         }
     }
