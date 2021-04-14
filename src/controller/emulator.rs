@@ -1,7 +1,7 @@
 use crate::controller::{
     DebugManager, ProgramManager, StateManager, TimeManager, TimeTo, BASE_PROGRAM_SPEED,
 };
-use crate::defines::{DebugState, GameState, ProgramState};
+use crate::defines::{DebugState, GameState, ProgramState, CpuState};
 use crate::model::Cpu;
 use crate::view::View;
 
@@ -149,7 +149,7 @@ impl Emulator {
     fn update_state(&mut self) {
         let mut state_manager = self.state_manager.lock().unwrap();
 
-        if !self.cpu.get_state() {
+        if self.cpu.get_state() == CpuState::Stopped {
             state_manager.update_state(ProgramState::Game(GameState::Failed));
         } else {
             let state = state_manager.get_state();

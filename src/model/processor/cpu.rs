@@ -5,6 +5,7 @@ use crate::defines::{
         SPRITE_WIDTH, STACKSIZE, VARIABLES_COUNT,
     },
     Reset,
+    CpuState,
 };
 
 use crate::model::{
@@ -26,7 +27,7 @@ impl BitState {
 pub struct Cpu {
     data_ref: Arc<Mutex<Memory>>,
     keypad: Arc<Mutex<Keypad>>,
-    running: bool,
+    running: CpuState,
     x: usize,
     y: usize,
     nnn: u16,
@@ -45,7 +46,7 @@ impl Cpu {
         Cpu {
             data_ref: new_data,
             keypad: new_keypad,
-            running: true,
+            running: CpuState::Running,
             x: 0,
             y: 0,
             nnn: 0,
@@ -57,7 +58,7 @@ impl Cpu {
     }
 
     pub fn reset(&mut self) {
-        self.running = true;
+        self.running = CpuState::Running;
         let mut data = self.data_ref.lock().unwrap();
         data.reset();
         data.memory[..FONTSET_LOW_SIZE].copy_from_slice(&FONTSET_LOW[..]);
@@ -77,12 +78,12 @@ impl Cpu {
             | (data.memory[data.program_counter + 1] as u16);
     }
 
-    pub fn get_state(&mut self) -> bool {
+    pub fn get_state(&mut self) -> CpuState {
         self.running
     }
 
     pub fn run_opcode(&mut self) {
-        if self.running {
+        if self.running == CpuState::Running {
             self.set_opcode();
             let nibbles = self.decode_opcode();
             self.match_opcode(nibbles);
@@ -91,7 +92,7 @@ impl Cpu {
 
     pub fn tick_timer(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        if self.running {
+        if self.running == CpuState::Running{
             data.delay_timer = data.delay_timer.saturating_sub(1);
 
             if data.sound_timer > 0 {
@@ -116,7 +117,7 @@ impl Cpu {
     }
 
     fn no_match(&mut self) {
-        self.running = false;
+        self.running = CpuState::Stopped;
         println!(
             "Error: No matching opcode: {:04X}",
             self.data_ref.lock().unwrap().opcode
@@ -279,7 +280,7 @@ impl Cpu {
 
     //Exit
     fn op_00fd(&mut self) {
-        self.running = false;
+        self.running = CpuState::Stopped;
     }
 
     //Low Res

@@ -34,6 +34,12 @@ pub enum CpuState {
 }
 
 #[derive(Copy, Clone, PartialEq)]
+pub enum WindowState {
+    Show,
+    Hide,
+}
+
+#[derive(Copy, Clone, PartialEq)]
 pub enum TimeTo {
     Update,
     Sleep,
