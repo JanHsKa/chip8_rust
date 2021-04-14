@@ -8,7 +8,6 @@ pub enum ProgramState {
     NewProgram,
     Quit,
     Idle,
-    Step,
 }
 
 #[derive(Copy, Clone, PartialEq)]

@@ -17,10 +17,6 @@ impl DebugPropertiesAccess {
         }
     }
 
-    pub fn get_debug_state(&mut self) -> DebugState {
-        self.debug_properties.lock().unwrap().debug_state
-    }
-
     pub fn get_breakpoints(&mut self) -> HashMap<usize, u16> {
         self.debug_properties.lock().unwrap().breakpoints.clone()
     }

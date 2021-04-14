@@ -12,9 +12,7 @@ use std::{
     cell::RefCell,
     rc::Rc,
     result::Result,
-    sync::{
-        Arc, Mutex,
-    },
+    sync::{Arc, Mutex},
 };
 
 pub struct GameDisplay {
@@ -58,7 +56,6 @@ impl IDisplay for GameDisplay {
 
         let columns = self.resolution as usize * COLUMNS;
         let rows = self.resolution as usize * ROWS;
-
 
         for y in 0..rows {
             rect.set_y((y * self.pixel_scale) as i32 + GAME_START_Y);

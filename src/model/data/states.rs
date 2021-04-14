@@ -6,10 +6,16 @@ pub struct States {
     pub game_state: GameState,
 }
 
+impl Default for States {
+    fn default() -> Self {
+        States::new()
+    }
+}
+
 impl States {
     pub fn new() -> States {
         States {
-            program_state: ProgramState::Running,
+            program_state: ProgramState::NewProgram,
             debug_state: DebugState::Disabled,
             game_state: GameState::Running,
         }

@@ -106,7 +106,6 @@ impl DisplayManager {
     pub fn draw(&mut self) -> Result<(), String> {
         WindowRenderer::render_background(&mut self.canvas)?;
         WindowRenderer::render_outline(&mut self.canvas)?;
-
         for display in self.displays.iter_mut() {
             display.as_mut().update_info();
             display

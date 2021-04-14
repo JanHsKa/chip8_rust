@@ -1,12 +1,12 @@
 use crate::defines::{
     layout_constants::{
-        OPCODE_HEIGHT, OPCODE_HIGHLIGHT_TEST, OPCODE_LINES, OPCODE_START_X, OPCODE_START_Y,
-        OPCODE_WIDTH,
+        OPCODE_HEIGHT, OPCODE_HIGHLIGHT_DEBUG, OPCODE_HIGHLIGHT_TEST, OPCODE_LINES, OPCODE_START_X,
+        OPCODE_START_Y, OPCODE_WIDTH,
     },
     memory_constants::PROGRAM_START,
-    IDisplay,
+    DebugState, IDisplay,
 };
-use crate::model::{GamePropertiesAccess, MemoryAccess};
+use crate::model::{DebugPropertiesAccess, GamePropertiesAccess, MemoryAccess, StatesAccess};
 use crate::view::{Disassembler, DisplayRenderHelper};
 use std::{
     collections::HashSet,
@@ -20,6 +20,8 @@ pub struct OpcodeDisplay {
     code_lines: Vec<String>,
     memory_access: Arc<Mutex<MemoryAccess>>,
     game_properties_access: Arc<Mutex<GamePropertiesAccess>>,
+    debug_properties_access: Arc<Mutex<DebugPropertiesAccess>>,
+    states_access: Arc<Mutex<StatesAccess>>,
     offset: usize,
     current_line: usize,
     render_helper: DisplayRenderHelper,
@@ -35,6 +37,11 @@ impl IDisplay for OpcodeDisplay {
         self.current_line = access.get_program_counter() - PROGRAM_START;
         let program_size = properties.get_game_size();
 
+        if self.states_access.lock().unwrap().get_debug_state() == DebugState::Enabled {
+            self.highlight_color = OPCODE_HIGHLIGHT_DEBUG;
+        } else {
+            self.highlight_color = OPCODE_HIGHLIGHT_TEST;
+        }
         if let Some(offset_change) = self.update_offset(program_size) {
             self.offset = offset_change;
             let start = self.offset;
@@ -51,6 +58,16 @@ impl IDisplay for OpcodeDisplay {
                 }
             }
         }
+
+        self.breakpoints = self
+            .debug_properties_access
+            .lock()
+            .unwrap()
+            .get_breakpoints()
+            .keys()
+            .map(|key| *key)
+            .filter(|key| *key >= self.offset && *key < self.offset + OPCODE_LINES)
+            .collect();
     }
 
     fn redraw(
@@ -67,6 +84,12 @@ impl IDisplay for OpcodeDisplay {
         self.render_helper
             .draw_lines(&mut self.code_lines, canvas, ttf_context)?;
 
+        for iter in self.breakpoints.iter() {
+            rect_y = (*iter - self.offset) as i32 / 2;
+            self.render_helper
+                .draw_rectangle(canvas, rect_y, self.highlight_color)?;
+        }
+
         Ok(())
     }
 }
@@ -74,14 +97,19 @@ impl IDisplay for OpcodeDisplay {
 impl OpcodeDisplay {
     pub fn new(
         new_memory_access: Arc<Mutex<MemoryAccess>>,
-        new_program_manager: Arc<Mutex<GamePropertiesAccess>>,
+        new_game_properties_access: Arc<Mutex<GamePropertiesAccess>>,
+        new_debug_properties_access: Arc<Mutex<DebugPropertiesAccess>>,
+        new_states_access: Arc<Mutex<StatesAccess>>,
     ) -> OpcodeDisplay {
-        let display_text: Vec<String> = vec![String::with_capacity(10); OPCODE_LINES / 2];
+        let mut display_text: Vec<String> = vec![String::with_capacity(10); OPCODE_LINES / 2];
+        display_text.fill(" ".to_string());
 
         OpcodeDisplay {
             code_lines: display_text,
             memory_access: new_memory_access,
-            game_properties_access: new_program_manager,
+            game_properties_access: new_game_properties_access,
+            debug_properties_access: new_debug_properties_access,
+            states_access: new_states_access,
             offset: 0,
             current_line: 0,
             render_helper: DisplayRenderHelper::new(

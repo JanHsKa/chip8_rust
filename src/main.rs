@@ -7,9 +7,6 @@ extern crate edit;
 extern crate rand;
 extern crate sdl2;
 
-#[macro_use]
-extern crate lazy_static;
-
 use crate::controller::Builder;
 
 use std::env;

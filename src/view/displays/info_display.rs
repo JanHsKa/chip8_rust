@@ -1,8 +1,8 @@
 use crate::defines::{
     layout_constants::{INFO_HEIGHT, INFO_START_X, INFO_START_Y, INFO_WIDTH},
-    IDisplay, ProgramState,
+    DebugState, GameState, IDisplay, ProgramState,
 };
-use crate::model::GamePropertiesAccess;
+use crate::model::{GamePropertiesAccess, StatesAccess};
 use crate::view::DisplayRenderHelper;
 use std::{
     cell::RefCell,
@@ -31,31 +31,33 @@ pub struct InfoDisplay {
     game_name: String,
     controls: Vec<String>,
     game_size: usize,
-    game_state: ProgramState,
-    program_manager: Arc<Mutex<GamePropertiesAccess>>,
+    game_state: GameState,
+    game_properties_access: Arc<Mutex<GamePropertiesAccess>>,
+    states_access: Arc<Mutex<StatesAccess>>,
     render_helper: DisplayRenderHelper,
 }
 
 impl IDisplay for InfoDisplay {
     fn update_info(&mut self) {
-        let mut access = self.program_manager.lock().unwrap();
-        self.game_size = access.get_game_size();
-        self.game_name = access.get_game_name();
+        let mut properties_access = self.game_properties_access.lock().unwrap();
+        let mut states_access = self.states_access.lock().unwrap();
+        self.game_size = properties_access.get_game_size();
+        self.game_name = properties_access.get_game_name();
 
         self.controls[3] = format!("Game: {}", self.game_name.as_str());
         self.controls[4] = format!("Size: {} Bytes", self.game_size);
 
         let mut state = String::new();
-        self.game_state = access.get_game_state();
+        self.game_state = states_access.get_game_state();
 
         match self.game_state {
-            ProgramState::Running => state = "Running".to_string(),
-            ProgramState::Stopped | ProgramState::Step => state = "Stopped".to_string(),
+            GameState::Running => state = "Running".to_string(),
+            GameState::Stopped => state = "Stopped".to_string(),
             _ => {}
         }
 
         self.controls[5] = format!("Status: {}", state);
-        self.controls[6] = format!("Speed: {}", access.get_game_speed());
+        self.controls[6] = format!("Speed: {}", properties_access.get_game_speed());
     }
 
     fn redraw(
@@ -71,7 +73,10 @@ impl IDisplay for InfoDisplay {
 }
 
 impl InfoDisplay {
-    pub fn new(new_program_manager: Arc<Mutex<GamePropertiesAccess>>) -> InfoDisplay {
+    pub fn new(
+        new_program_manager: Arc<Mutex<GamePropertiesAccess>>,
+        new_states_access: Arc<Mutex<StatesAccess>>,
+    ) -> InfoDisplay {
         let mut display_text: Vec<String> = vec![String::new(); 16];
         display_text[0] = "Chip 8  Emulator".to_string();
         display_text[1] = "by Jan Malle".to_string();
@@ -94,8 +99,9 @@ impl InfoDisplay {
             game_name: String::new(),
             controls: display_text,
             game_size: 0,
-            program_manager: new_program_manager,
-            game_state: ProgramState::Running,
+            game_properties_access: new_program_manager,
+            states_access: new_states_access,
+            game_state: GameState::Running,
             render_helper: DisplayRenderHelper::new(
                 INFO_START_X,
                 INFO_START_Y,

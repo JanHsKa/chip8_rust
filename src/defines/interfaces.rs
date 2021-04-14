@@ -17,7 +17,7 @@ pub trait IManager {
 pub trait IState {}
 
 pub trait Reset {
-    fn reset_all(&mut self); 
+    fn reset_all(&mut self);
 }
 
 impl Reset for Vec<u8> {
@@ -27,7 +27,6 @@ impl Reset for Vec<u8> {
         }
     }
 }
-
 
 pub trait Fill {
     type Value;

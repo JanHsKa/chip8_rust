@@ -44,7 +44,7 @@ impl Builder {
             self.package_arc_mutex(DebugPropertiesAccess::new(Arc::clone(&debug_properties)));
 
         let states = self.package_arc_mutex(States::new());
-        let _states_access = self.package_arc_mutex(StatesAccess::new(Arc::clone(&states)));
+        let states_access = self.package_arc_mutex(StatesAccess::new(Arc::clone(&states)));
         let state_manager = self.package_arc_mutex(StateManager::new(Arc::clone(&states)));
 
         let data_ref = self.package_arc_mutex(Memory::new());
@@ -74,6 +74,7 @@ impl Builder {
             Arc::clone(&debug_manager),
             Arc::clone(&game_properties_access),
             Arc::clone(&debug_properties_access),
+            Arc::clone(&states_access),
             Arc::clone(&access),
             audio_receiver,
         );
@@ -82,6 +83,7 @@ impl Builder {
             cpu,
             Arc::clone(&program_manager),
             Arc::clone(&debug_manager),
+            Arc::clone(&state_manager),
             view,
             audio_sender,
         )
@@ -93,13 +95,19 @@ impl Builder {
         mem_access: &Arc<Mutex<MemoryAccess>>,
         properties_access: &Arc<Mutex<GamePropertiesAccess>>,
         debug_properties_access: &Arc<Mutex<DebugPropertiesAccess>>,
+        states_access: &Arc<Mutex<StatesAccess>>,
     ) {
         let game_display = GameDisplay::new(Arc::clone(&mem_access));
-        let info_display = InfoDisplay::new(Arc::clone(&properties_access));
+        let info_display =
+            InfoDisplay::new(Arc::clone(&properties_access), Arc::clone(&states_access));
         let stack_display = StackDisplay::new(Arc::clone(&mem_access));
         let memory_display = MemoryDisplay::new(Arc::clone(&mem_access));
-        let opcode_display =
-            OpcodeDisplay::new(Arc::clone(&mem_access), Arc::clone(&properties_access));
+        let opcode_display = OpcodeDisplay::new(
+            Arc::clone(&mem_access),
+            Arc::clone(&properties_access),
+            Arc::clone(&debug_properties_access),
+            Arc::clone(&states_access),
+        );
         let breakpoint_display = BreakPointDisplay::new(Arc::clone(debug_properties_access));
 
         display_manager.add_display(Box::new(game_display));

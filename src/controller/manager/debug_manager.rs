@@ -11,25 +11,26 @@ pub struct DebugManager {
     current_state: DebugState,
     debug_properties: Arc<Mutex<DebugProperties>>,
     memory_access: Arc<Mutex<MemoryAccess>>,
+    state_manager: Arc<Mutex<StateManager>>,
 }
 
 impl DebugManager {
     pub fn new(
         new_memory_access: Arc<Mutex<MemoryAccess>>,
-        _new_state_manager: Arc<Mutex<StateManager>>,
+        new_state_manager: Arc<Mutex<StateManager>>,
         new_debug_properties: Arc<Mutex<DebugProperties>>,
     ) -> DebugManager {
         DebugManager {
             current_state: DebugState::Disabled,
             debug_properties: new_debug_properties,
             memory_access: new_memory_access,
+            state_manager: new_state_manager,
         }
     }
 
     pub fn press_key(&mut self, key: Keycode) {
         match key {
             Keycode::F3 => self.toggle_enabled(),
-            Keycode::F5 => self.stop_or_continue(),
             Keycode::F6 => self.step_trough(),
             Keycode::F7 => self.set_breakpoint(),
             Keycode::F8 => {}
@@ -38,33 +39,20 @@ impl DebugManager {
     }
 
     fn toggle_enabled(&mut self) {
-        let mut properties = self.debug_properties.lock().unwrap();
-        match properties.debug_state {
-            DebugState::Disabled => {}
-            _ => properties.debug_state = DebugState::Disabled,
-        }
-    }
-
-    pub fn stop_or_continue(&mut self) {
-        let mut properties = self.debug_properties.lock().unwrap();
-        println!("stop");
-        if properties.debug_state == DebugState::Running {
-            properties.debug_state = DebugState::Stopped;
-        } else if properties.debug_state != DebugState::Disabled {
-            properties.debug_state = DebugState::Running;
-        }
+        self.state_manager.lock().unwrap().toggle_debug();
     }
 
     fn step_trough(&mut self) {
-        let mut properties = self.debug_properties.lock().unwrap();
-        if properties.debug_state == DebugState::Stopped {
-            properties.debug_state = DebugState::Step;
-        }
+        self.state_manager
+            .lock()
+            .unwrap()
+            .update_state(ProgramState::Debug(DebugState::Step));
     }
 
     fn set_breakpoint(&mut self) {
         let mut properties = self.debug_properties.lock().unwrap();
-        if properties.debug_state == DebugState::Stopped {
+        let mut state_manager = self.state_manager.lock().unwrap();
+        if state_manager.get_debug_state() == DebugState::Enabled {
             let mut access = self.memory_access.lock().unwrap();
             let line = access.get_program_counter() - PROGRAM_START;
             if properties.breakpoints.contains_key(&line) {
@@ -73,6 +61,18 @@ impl DebugManager {
                 let opcode = access.get_opcode_at(line).unwrap();
                 properties.breakpoints.insert(line, opcode);
             }
+        }
+    }
+
+    pub fn check_breakpoint(&mut self) {
+        let mut memory_access = self.memory_access.lock().unwrap();
+        let mut state_manager = self.state_manager.lock().unwrap();
+        let breakpoints = self.debug_properties.lock().unwrap().breakpoints.clone();
+
+        if let Some(breakpoint) =
+            breakpoints.get(&(memory_access.get_program_counter() - PROGRAM_START))
+        {
+            state_manager.update_state(ProgramState::Debug(DebugState::Breakpoint));
         }
     }
 

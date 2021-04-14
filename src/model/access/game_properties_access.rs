@@ -14,10 +14,6 @@ impl GamePropertiesAccess {
         }
     }
 
-    pub fn get_game_state(&mut self) -> ProgramState {
-        self.game_properties.lock().unwrap().game_state
-    }
-
     pub fn get_game_name(&mut self) -> String {
         self.game_properties.lock().unwrap().game_name.clone()
     }

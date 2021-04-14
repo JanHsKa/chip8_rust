@@ -1,6 +1,6 @@
 use crate::defines::memory_constants::MAX_PROGRAM_SIZE;
-use crate::view::Disassembler;
 use crate::edit;
+use crate::view::Disassembler;
 
 use std::{
     fs::{metadata, File},
@@ -99,13 +99,12 @@ impl FileManager {
         let mut file = BufWriter::new(file);
         let mut converted_code = Disassembler::convert_and_disassemble_list(&self.filecontent);
         for iter in converted_code.iter_mut() {
-            (*iter).push_str("\n");
+            (*iter).push('\n');
             file.write(&iter.as_str().as_bytes());
         }
 
         let editor = edit::get_editor().unwrap();
-        //let mut file_path = temp_dir();
-        //file_path.push("editable");
+
         File::create(&FILE_EDITOR_PATH).expect("Could not create file");
 
         Command::new(editor)

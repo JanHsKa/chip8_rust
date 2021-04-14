@@ -71,11 +71,7 @@ impl InputChecker {
                 Event::DropFile { filename, .. } => {
                     self.program_manager.lock().unwrap().new_file(filename)
                 }
-                Event::Quit { .. } => self
-                    .program_manager
-                    .lock()
-                    .unwrap()
-                    .set_state(ProgramState::Quit),
+                Event::Quit { .. } => self.program_manager.lock().unwrap().quit(),
                 _ => {}
             }
         }
@@ -92,7 +88,6 @@ impl InputChecker {
             }
             Keycode::F5 => {
                 self.program_manager.lock().unwrap().press_key(key);
-                self.debug_manager.lock().unwrap().press_key(key);
             }
 
             _ => (*keypad_ref).press_key(key, KeyPress::Down as u8),

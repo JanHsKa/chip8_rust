@@ -80,6 +80,6 @@ impl Keypad {
         for i in self.keys.iter() {
             print!("{}, ", *i);
         }
-        println!("");
+        println!();
     }
 }

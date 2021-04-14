@@ -1,8 +1,11 @@
-use crate::defines::{memory_constants::{
-    BIG_SPRITE, CARRY_FLAG, COLUMNS, FLAG_REGISTER_SIZE, GRAPHIC_SIZE, GRAPHIC_SIZE_HIGH,
-    MAX_PROGRAM_SIZE, MEMORYSIZE, PROGRAM_START, PROGRAM_STEP, ROWS, SPRITE_WIDTH, STACKSIZE,
-    VARIABLES_COUNT, SCROLL_RANGE
-}, Reset};
+use crate::defines::{
+    memory_constants::{
+        BIG_SPRITE, CARRY_FLAG, COLUMNS, FLAG_REGISTER_SIZE, GRAPHIC_SIZE, GRAPHIC_SIZE_HIGH,
+        MAX_PROGRAM_SIZE, MEMORYSIZE, PROGRAM_START, PROGRAM_STEP, ROWS, SCROLL_RANGE,
+        SPRITE_WIDTH, STACKSIZE, VARIABLES_COUNT,
+    },
+    Reset,
+};
 
 use crate::model::{
     Keypad, Memory, Resolution, FONTSET_HIGH, FONTSET_HIGH_SIZE, FONTSET_HIGH_START, FONTSET_LOW,
@@ -111,7 +114,7 @@ impl Cpu {
             print!("{}", iter);
         }
     }
-    
+
     fn no_match(&mut self) {
         self.running = false;
         println!(
@@ -199,9 +202,8 @@ impl Cpu {
         let graphic_size = graphic_copy.len();
         data.graphic_array.reset_all();
         let shift: usize = self.n * COLUMNS * data.resolution as usize;
-        data.graphic_array[..graphic_size - shift]
-            .copy_from_slice(&graphic_copy[shift..]);
-            }
+        data.graphic_array[..graphic_size - shift].copy_from_slice(&graphic_copy[shift..]);
+    }
 
     //Scroll Down
     fn op_00cn(&mut self) {
@@ -210,8 +212,7 @@ impl Cpu {
         data.graphic_array.reset_all();
         let graphic_size = graphic_copy.len();
         let shift: usize = self.n * COLUMNS * data.resolution as usize;
-        data.graphic_array[shift..]
-            .copy_from_slice(&graphic_copy[..graphic_size - shift]);
+        data.graphic_array[shift..].copy_from_slice(&graphic_copy[..graphic_size - shift]);
     }
 
     //CLS
@@ -241,7 +242,7 @@ impl Cpu {
             } else {
                 *pixel = graphic_copy[i - SCROLL_RANGE];
             }
-        } 
+        }
 
         for (i, iter) in data.graphic_array.iter().enumerate() {
             if i % self.max_columns == 0 {
@@ -259,7 +260,9 @@ impl Cpu {
         let graphic_copy = data.graphic_array.clone();
 
         for (i, pixel) in data.graphic_array.iter_mut().enumerate() {
-            if i % self.max_columns < self.max_columns - SCROLL_RANGE - 1 || i + SCROLL_RANGE >= graphic_copy.len(){
+            if i % self.max_columns < self.max_columns - SCROLL_RANGE - 1
+                || i + SCROLL_RANGE >= graphic_copy.len()
+            {
                 *pixel = 0;
             } else {
                 *pixel = graphic_copy[i + SCROLL_RANGE];
@@ -288,13 +291,13 @@ impl Cpu {
         data.graphic_array = vec![0; GRAPHIC_SIZE];
         self.max_columns = COLUMNS * Resolution::Low as usize;
         self.max_rows = ROWS * Resolution::Low as usize;
-        
+
         for x in (0..self.max_columns).step_by(res_factor) {
             for y in (0..self.max_rows).step_by(res_factor) {
-                data.graphic_array[(x / res_factor) + (y / res_factor) * COLUMNS] = data_copy[x + y * self.max_columns];
+                data.graphic_array[(x / res_factor) + (y / res_factor) * COLUMNS] =
+                    data_copy[x + y * self.max_columns];
             }
         }
-
     }
 
     //High Res
@@ -306,13 +309,13 @@ impl Cpu {
         data.graphic_array = vec![0; GRAPHIC_SIZE_HIGH];
         self.max_columns = COLUMNS * Resolution::High as usize;
         self.max_rows = ROWS * Resolution::High as usize;
-        
+
         for x in 0..self.max_columns {
             for y in 0..self.max_rows {
-                data.graphic_array[x  +  y * self.max_columns] = data_copy[(x / res_factor) + (y / res_factor) * COLUMNS];
+                data.graphic_array[x + y * self.max_columns] =
+                    data_copy[(x / res_factor) + (y / res_factor) * COLUMNS];
             }
         }
-
     }
 
     //JP addr

@@ -1,12 +1,11 @@
 use crate::controller::{Builder, DebugManager, Emulator, ProgramManager, TimeManager, TimeTo};
-use crate::model::{DebugPropertiesAccess, GamePropertiesAccess, Keypad, MemoryAccess};
+use crate::model::{
+    DebugPropertiesAccess, GamePropertiesAccess, Keypad, MemoryAccess, StatesAccess,
+};
 
 use crate::view::{DisplayManager, InputChecker, SoundManager};
 use std::{
-    sync::{
-        mpsc::{channel, Receiver, Sender},
-        Arc, Mutex,
-    },
+    sync::{mpsc::Receiver, Arc, Mutex},
     thread,
     time::Duration,
 };
@@ -20,7 +19,8 @@ impl View {
         debug_manager: Arc<Mutex<DebugManager>>,
         game_properties_access: Arc<Mutex<GamePropertiesAccess>>,
         debug_properties_access: Arc<Mutex<DebugPropertiesAccess>>,
-        access: Arc<Mutex<MemoryAccess>>,
+        states_access: Arc<Mutex<StatesAccess>>,
+        memory_access: Arc<Mutex<MemoryAccess>>,
         audio_receiver: Receiver<TimeTo>,
     ) -> View {
         thread::Builder::new()
@@ -41,9 +41,10 @@ impl View {
                 let mut builder = Builder::new();
                 builder.build_displays(
                     &mut display_manager,
-                    &access,
+                    &memory_access,
                     &game_properties_access,
                     &debug_properties_access,
+                    &states_access,
                 );
                 thread::sleep(Duration::from_millis(20));
                 display_manager.initialize();

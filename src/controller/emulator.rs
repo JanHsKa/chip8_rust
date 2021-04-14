@@ -1,5 +1,7 @@
-use crate::controller::{DebugManager, ProgramManager, TimeManager, TimeTo, BASE_PROGRAM_SPEED};
-use crate::defines::ProgramState;
+use crate::controller::{
+    DebugManager, ProgramManager, StateManager, TimeManager, TimeTo, BASE_PROGRAM_SPEED,
+};
+use crate::defines::{DebugState, GameState, ProgramState};
 use crate::model::Cpu;
 use crate::view::View;
 
@@ -14,12 +16,12 @@ use std::{
     time::Duration,
 };
 
-
 pub struct Emulator {
     cpu: Cpu,
     _view: View,
     program_manager: Arc<Mutex<ProgramManager>>,
     debug_manager: Arc<Mutex<DebugManager>>,
+    state_manager: Arc<Mutex<StateManager>>,
     current_state: ProgramState,
     update_receiver: Receiver<TimeTo>,
     speed: u64,
@@ -32,6 +34,7 @@ impl Emulator {
         new_cpu: Cpu,
         new_program_manager: Arc<Mutex<ProgramManager>>,
         new_debug_manager: Arc<Mutex<DebugManager>>,
+        new_state_manager: Arc<Mutex<StateManager>>,
         new_view: View,
         new_audio_sender: Sender<TimeTo>,
     ) -> Emulator {
@@ -47,6 +50,7 @@ impl Emulator {
             _view: new_view,
             program_manager: new_program_manager,
             debug_manager: new_debug_manager,
+            state_manager: new_state_manager,
             current_state: ProgramState::NewProgram,
             update_receiver: new_receiver,
             speed: BASE_PROGRAM_SPEED,
@@ -63,16 +67,18 @@ impl Emulator {
 
     fn run_program(&mut self) {
         'running: loop {
-            match self.current_state {
+            let current_state = self.state_manager.lock().unwrap().get_state();
+            match current_state {
                 ProgramState::NewProgram => self.new_program(),
                 ProgramState::Running => self.check_time(),
-                //ProgramState::Step => self.step(),
+                ProgramState::Debug(DebugState::Step) => self.step(),
                 ProgramState::Restart => self.new_program(),
                 ProgramState::Stopped => self.check_debug(),
                 ProgramState::Idle => self.idle(),
                 ProgramState::Quit => break 'running,
                 _ => {}
             }
+            self.debug_manager.lock().unwrap().check_breakpoint();
             self.update_state();
 
             thread::sleep(Duration::from_micros(1000));
@@ -114,10 +120,10 @@ impl Emulator {
 
     fn step(&mut self) {
         self.run_code();
-        self.program_manager
-            .lock()
-            .unwrap()
-            .set_state(ProgramState::Stopped);
+        let msg = self.update_receiver.try_recv();
+        if msg.is_ok() && msg.unwrap() == TimeTo::Update {
+            self.refresh();
+        }
     }
 
     fn check_time(&mut self) {
@@ -132,15 +138,21 @@ impl Emulator {
     }
 
     fn update_state(&mut self) {
-        let mut manager = self.program_manager.lock().unwrap();
-        let state = manager.get_state();
+        let mut state_manager = self.state_manager.lock().unwrap();
 
-        if state == ProgramState::Quit {
-            self.current_state = ProgramState::Quit;
-        } else if !self.cpu.get_state() {
-            self.current_state = ProgramState::Idle;
+        if !self.cpu.get_state() {
+            state_manager.update_state(ProgramState::Game(GameState::Failed));
         } else {
-            self.current_state = manager.get_state();
+            let state = state_manager.get_state();
+            match state {
+                ProgramState::NewProgram | ProgramState::Restart => {
+                    state_manager.update_state(ProgramState::Running)
+                }
+                ProgramState::Debug(DebugState::Step) => {
+                    state_manager.update_state(ProgramState::Stopped)
+                }
+                _ => {}
+            }
         }
     }
 
@@ -154,7 +166,6 @@ impl Emulator {
         let mut manager = self.program_manager.lock().unwrap();
         self.cpu.reset();
         self.cpu.load_program_code(&manager.get_file_content());
-        manager.set_state(ProgramState::Running);
     }
 
     fn sound_check(&mut self) {

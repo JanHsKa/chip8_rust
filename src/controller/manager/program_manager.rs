@@ -68,16 +68,14 @@ impl ProgramManager {
     }
 
     fn restart_program(&mut self) {
-        self.game_properties.lock().unwrap().game_state = ProgramState::Restart;
+        self.state_manager
+            .lock()
+            .unwrap()
+            .update_state(ProgramState::Restart);
     }
 
     pub fn stop_or_continue(&mut self) {
-        let mut properties = self.game_properties.lock().unwrap();
-        if properties.game_state == ProgramState::Running {
-            properties.game_state = ProgramState::Stopped;
-        } else {
-            properties.game_state = ProgramState::Running;
-        }
+        self.state_manager.lock().unwrap().toggle_continue();
     }
 
     fn dump_memory(&mut self) {
@@ -86,14 +84,17 @@ impl ProgramManager {
     }
 
     fn load_file(&mut self) {
-        let mut properties = self.game_properties.lock().unwrap();
         if self.file_manager.load_file().is_ok() {
-            properties.game_state = ProgramState::Running;
-            properties.game_size = self.file_manager.get_file_info().file_size as usize;
-            properties.game_name = self.file_manager.get_file_info().file_name;
-            properties.game_code = self.file_manager.get_file_content();
+            self.state_manager
+                .lock()
+                .unwrap()
+                .update_state(ProgramState::NewProgram);
+            self.update_game_properties();
         } else {
-            properties.game_state = ProgramState::Idle;
+            self.state_manager
+                .lock()
+                .unwrap()
+                .update_state(ProgramState::Idle);
         }
     }
 
@@ -102,24 +103,34 @@ impl ProgramManager {
     }
 
     pub fn new_file(&mut self, file_name: &str) {
-        let mut properties = self.game_properties.lock().unwrap();
         if self.file_manager.load_file_if_possible(file_name).is_ok() {
-            properties.game_state = ProgramState::NewProgram;
-            properties.game_size = self.file_manager.get_file_info().file_size as usize;
-            properties.game_name = self.file_manager.get_file_name();
-            properties.game_code = self.file_manager.get_file_content();
+            self.state_manager
+                .lock()
+                .unwrap()
+                .update_state(ProgramState::NewProgram);
+            self.update_game_properties();
         }
     }
 
-    pub fn set_state(&mut self, state: ProgramState) {
-        self.game_properties.lock().unwrap().game_state = state;
+    fn update_game_properties(&mut self) {
+        let mut properties = self.game_properties.lock().unwrap();
+        properties.game_size = self.file_manager.get_file_info().file_size as usize;
+        properties.game_name = self.file_manager.get_file_name();
+        properties.game_code = self.file_manager.get_file_content();
+    }
+
+    pub fn quit(&mut self) {
+        self.state_manager
+            .lock()
+            .unwrap()
+            .update_state(ProgramState::Quit);
     }
 
     pub fn get_state(&mut self) -> ProgramState {
-        self.game_properties.lock().unwrap().game_state
+        self.state_manager.lock().unwrap().get_state()
     }
 
     pub fn get_file_content(&mut self) -> Vec<u8> {
-        self.file_manager.get_file_content().clone()
+        self.file_manager.get_file_content()
     }
 }
