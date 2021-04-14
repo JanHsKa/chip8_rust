@@ -28,7 +28,8 @@ pub const FONTSIZE_LINE: u16 = 18;
 pub const FONTSIZE_KEYPAD: u16 = 22;
 
 pub struct DisplayManager {
-    canvas: render::Canvas<Window>,
+    main_canvas: render::Canvas<Window>,
+    //instruction_canvas: render::Canvas<Window>,
     displays: Vec<Box<dyn IDisplay>>,
     ttf_context: Sdl2TtfContext,
     input_checker: InputChecker,
@@ -59,6 +60,14 @@ impl DisplayManager {
 
         let ttf = ttf::init().unwrap();
 
+        let mut help_window = video
+            .window("Keybinds", 100, 100)
+            .position_centered()
+            .build()
+            .expect("Error: Could not init Instruction Window");
+        
+       // let mut help_canvas = help_window.into_canvas().build().expect("could not init canvas");
+        //help_canvas.window_mut().hide();
         let (new_sender, new_receiver) = channel();
 
         thread::spawn(move || {
@@ -67,7 +76,8 @@ impl DisplayManager {
         });
 
         DisplayManager {
-            canvas: new_canvas,
+            main_canvas: new_canvas,
+            //instruction_canvas: help_canvas,
             displays: Vec::new(),
             ttf_context: ttf,
             input_checker: new_input_checker,
@@ -77,9 +87,9 @@ impl DisplayManager {
     }
 
     pub fn initialize(&mut self) -> Result<(), String> {
-        WindowRenderer::render_background(&mut self.canvas)?;
-        WindowRenderer::render_outline(&mut self.canvas)?;
-        self.canvas.present();
+        WindowRenderer::render_background(&mut self.main_canvas)?;
+        WindowRenderer::render_outline(&mut self.main_canvas)?;
+        self.main_canvas.present();
 
         'running: loop {
             if self.check_for_redraw() {
@@ -104,16 +114,16 @@ impl DisplayManager {
     }
 
     pub fn draw(&mut self) -> Result<(), String> {
-        WindowRenderer::render_background(&mut self.canvas)?;
-        WindowRenderer::render_outline(&mut self.canvas)?;
+        WindowRenderer::render_background(&mut self.main_canvas)?;
+        WindowRenderer::render_outline(&mut self.main_canvas)?;
         for display in self.displays.iter_mut() {
             display.as_mut().update_info();
             display
                 .as_mut()
-                .redraw(&mut self.canvas, &mut self.ttf_context)?;
+                .redraw(&mut self.main_canvas, &mut self.ttf_context)?;
         }
 
-        self.canvas.present();
+        self.main_canvas.present();
 
         Ok(())
     }

@@ -124,6 +124,7 @@ impl ProgramManager {
             .lock()
             .unwrap()
             .update_state(ProgramState::Quit);
+            println!("quit");
     }
 
     pub fn get_state(&mut self) -> ProgramState {
