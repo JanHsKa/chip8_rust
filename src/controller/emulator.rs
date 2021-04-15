@@ -1,7 +1,7 @@
 use crate::controller::{
     DebugManager, ProgramManager, StateManager, TimeManager, TimeTo, BASE_PROGRAM_SPEED,
 };
-use crate::defines::{DebugState, GameState, ProgramState, CpuState};
+use crate::defines::{CpuState, DebugState, GameState, ProgramState};
 use crate::model::Cpu;
 use crate::view::View;
 
@@ -120,7 +120,7 @@ impl Emulator {
 
     fn step(&mut self) {
         self.run_code();
-        self.check_time();
+        self.refresh_cpu_timer();
     }
 
     fn running(&mut self) {

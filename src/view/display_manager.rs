@@ -65,8 +65,8 @@ impl DisplayManager {
             .position_centered()
             .build()
             .expect("Error: Could not init Instruction Window");
-        
-       // let mut help_canvas = help_window.into_canvas().build().expect("could not init canvas");
+
+        // let mut help_canvas = help_window.into_canvas().build().expect("could not init canvas");
         //help_canvas.window_mut().hide();
         let (new_sender, new_receiver) = channel();
 

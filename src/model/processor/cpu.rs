@@ -4,8 +4,7 @@ use crate::defines::{
         MAX_PROGRAM_SIZE, MEMORYSIZE, PROGRAM_START, PROGRAM_STEP, ROWS, SCROLL_RANGE,
         SPRITE_WIDTH, STACKSIZE, VARIABLES_COUNT,
     },
-    Reset,
-    CpuState,
+    CpuState, Reset,
 };
 
 use crate::model::{
@@ -92,7 +91,7 @@ impl Cpu {
 
     pub fn tick_timer(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        if self.running == CpuState::Running{
+        if self.running == CpuState::Running {
             data.delay_timer = data.delay_timer.saturating_sub(1);
 
             if data.sound_timer > 0 {
@@ -523,7 +522,7 @@ impl Cpu {
     //SKP Vx
     fn op_ex9e(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        let mut keypad_borrow: MutexGuard<Keypad> = self.keypad.lock().unwrap();
+        let mut keypad_borrow = self.keypad.lock().unwrap();
         if keypad_borrow.get_key(data.variable_register[self.x]) == 1 {
             data.program_counter += PROGRAM_STEP;
             keypad_borrow.reset_key(data.variable_register[self.x]);
@@ -533,7 +532,7 @@ impl Cpu {
     //SKNP Vx
     fn op_exa1(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        let mut keypad_borrow: MutexGuard<Keypad> = self.keypad.lock().unwrap();
+        let mut keypad_borrow = self.keypad.lock().unwrap();
         if keypad_borrow.get_key(data.variable_register[self.x]) == 0 {
             data.program_counter += PROGRAM_STEP;
         }
@@ -549,8 +548,8 @@ impl Cpu {
     //LD Vx, K
     fn op_fx0a(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        let mut keypad_borrow: MutexGuard<Keypad> = self.keypad.lock().unwrap();
-        if let Some(key) = (*keypad_borrow).get_pressed_key() {
+        let mut keypad_borrow = self.keypad.lock().unwrap();
+        if let Some(key) = keypad_borrow.get_pressed_key() {
             data.variable_register[self.x] = key;
             keypad_borrow.reset_key(key);
         } else {

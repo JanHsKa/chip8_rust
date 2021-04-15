@@ -1,10 +1,3 @@
+pub struct ViewData {}
 
-
-pub struct ViewData {
-    
-}
-
-
-impl ViewData {
-
-}
+impl ViewData {}

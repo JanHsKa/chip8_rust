@@ -1,16 +1,11 @@
 use crate::controller::{DebugManager, ProgramManager};
-use crate::defines::ProgramState;
+use crate::defines::{KeyPress, ProgramState};
 use crate::model::Keypad;
 use crate::sdl2::{event::Event, keyboard::Keycode, mouse::MouseButton, EventPump, Sdl};
 use std::{
     collections::HashSet,
     sync::{Arc, Mutex},
 };
-
-enum KeyPress {
-    Up,
-    Down,
-}
 
 pub struct InputChecker {
     event_pump: EventPump,
@@ -89,15 +84,18 @@ impl InputChecker {
             Keycode::F5 => {
                 self.program_manager.lock().unwrap().press_key(key);
             }
+            Keycode::K => {
+                keypad_ref.toggle_key_reset();
+            }
 
-            _ => (*keypad_ref).press_key(key, KeyPress::Down as u8),
+            _ => keypad_ref.press_key(key, KeyPress::Down),
         }
     }
 
     fn process_keyup(&mut self, key: Keycode) {
         let mut keypad_ref = self.keypad.lock().unwrap();
         match key {
-            _ => (*keypad_ref).press_key(key, KeyPress::Up as u8),
+            _ => keypad_ref.press_key(key, KeyPress::Up),
         }
     }
 

@@ -98,9 +98,11 @@ impl FileManager {
         let file = File::create(FILE_EDITOR_PATH).expect("Unable to create file");
         let mut file = BufWriter::new(file);
         let mut converted_code = Disassembler::convert_and_disassemble_list(&self.filecontent);
+        println!("first line:   {}", converted_code[0]);
         for iter in converted_code.iter_mut() {
             (*iter).push('\n');
-            file.write(&iter.as_str().as_bytes());
+            file.write(&iter.as_str().as_bytes())
+                .expect("failed to write line");
         }
 
         let editor = edit::get_editor().unwrap();

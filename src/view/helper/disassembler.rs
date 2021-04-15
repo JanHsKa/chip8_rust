@@ -20,10 +20,10 @@ impl Disassembler {
 
         let mut index = 0;
 
-        while index < code.len() - 1 {
+        while index < code.len() - 1000 {
             if let Some(opcode) = Disassembler::concat_opcode(code[index], code[index + 1]) {
-                println!("index {}", index);
-                println!("opcode {:04X}", opcode);
+                //println!("opcode {:04X}", opcode);
+                //println!("index {:04X}", index);
 
                 index += 1;
                 converted_code.push(opcode);
@@ -31,7 +31,7 @@ impl Disassembler {
 
             index += 1;
         }
-
+        println!("First code {}", converted_code[0]);
         converted_code
     }
 
@@ -46,7 +46,7 @@ impl Disassembler {
     }
 
     pub fn disassemble(opcode: &u16) -> String {
-        let mut disassembled_code = String::new();
+        let disassembled_code: String;
 
         let nibbles = (
             (opcode & 0xF000) >> 12,

@@ -1,10 +1,11 @@
-use crate::defines::memory_constants::KEY_COUNT;
+use crate::defines::{memory_constants::KEY_COUNT, KeyPress, KeyReset};
 use crate::sdl2::keyboard::Keycode;
 use std::collections::HashMap;
 
 pub struct Keypad {
     keys: [u8; 16],
     keymap: HashMap<Keycode, usize>,
+    key_reset: KeyReset,
 }
 
 impl Default for Keypad {
@@ -39,12 +40,22 @@ impl Keypad {
         Keypad {
             keys: [0; KEY_COUNT],
             keymap: new_keymap,
+            key_reset: KeyReset::Static,
         }
     }
 
-    pub fn press_key(&mut self, key: Keycode, value: u8) {
+    pub fn toggle_key_reset(&mut self) {
+        let key_reset = self.key_reset;
+
+        match key_reset {
+            KeyReset::Smooth => self.key_reset = KeyReset::Static,
+            KeyReset::Static => self.key_reset = KeyReset::Smooth,
+        }
+    }
+
+    pub fn press_key(&mut self, key: Keycode, value: KeyPress) {
         if self.keymap.contains_key(&key) {
-            self.keys[self.keymap[&key]] = value;
+            self.keys[self.keymap[&key]] = value as u8;
         }
     }
 
@@ -62,8 +73,10 @@ impl Keypad {
     }
 
     pub fn reset_key(&mut self, key: u8) {
-        if key < KEY_COUNT as u8 {
-            self.keys[key as usize] = 0;
+        if self.key_reset == KeyReset::Static {
+            if key < KEY_COUNT as u8 {
+                self.keys[key as usize] = 0;
+            }
         }
     }
 

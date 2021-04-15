@@ -34,6 +34,18 @@ pub enum CpuState {
 }
 
 #[derive(Copy, Clone, PartialEq)]
+pub enum KeyReset {
+    Smooth,
+    Static,
+}
+
+#[derive(Copy, Clone, PartialEq)]
+pub enum KeyPress {
+    Up = 0,
+    Down = 1,
+}
+
+#[derive(Copy, Clone, PartialEq)]
 pub enum WindowState {
     Show,
     Hide,
