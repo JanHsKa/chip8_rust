@@ -53,6 +53,7 @@ impl IDisplay for InfoDisplay {
         match self.game_state {
             GameState::Running => state = "Running".to_string(),
             GameState::Stopped => state = "Stopped".to_string(),
+            GameState::Failed => state = "Finished".into(),
             _ => {}
         }
 

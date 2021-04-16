@@ -4,7 +4,7 @@ use crate::defines::{
         MAX_PROGRAM_SIZE, MEMORYSIZE, PROGRAM_START, PROGRAM_STEP, ROWS, SCROLL_RANGE,
         SPRITE_WIDTH, STACKSIZE, VARIABLES_COUNT,
     },
-    CpuState, Reset,
+    CpuState, KeyPress, Reset,
 };
 
 use crate::model::{
@@ -258,9 +258,16 @@ impl Cpu {
 
         let mut data = self.data_ref.lock().unwrap();
         let graphic_copy = data.graphic_array.clone();
-
+        for (i, iter) in data.graphic_array.iter().enumerate() {
+            if i % self.max_columns == 0 {
+                println!("");
+            }
+            print!("{}", iter);
+        }
+        println!("after");
+        println!("");
         for (i, pixel) in data.graphic_array.iter_mut().enumerate() {
-            if i % self.max_columns < self.max_columns - SCROLL_RANGE - 1
+            if i % self.max_columns > self.max_columns - SCROLL_RANGE
                 || i + SCROLL_RANGE >= graphic_copy.len()
             {
                 *pixel = 0;
@@ -279,6 +286,7 @@ impl Cpu {
 
     //Exit
     fn op_00fd(&mut self) {
+        println!("Exit");
         self.running = CpuState::Stopped;
     }
 
@@ -523,7 +531,7 @@ impl Cpu {
     fn op_ex9e(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
         let mut keypad_borrow = self.keypad.lock().unwrap();
-        if keypad_borrow.get_key(data.variable_register[self.x]) == 1 {
+        if keypad_borrow.get_key(data.variable_register[self.x]) == KeyPress::Down as u8 {
             data.program_counter += PROGRAM_STEP;
             keypad_borrow.reset_key(data.variable_register[self.x]);
         }
@@ -533,7 +541,7 @@ impl Cpu {
     fn op_exa1(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
         let mut keypad_borrow = self.keypad.lock().unwrap();
-        if keypad_borrow.get_key(data.variable_register[self.x]) == 0 {
+        if keypad_borrow.get_key(data.variable_register[self.x]) == KeyPress::Up as u8 {
             data.program_counter += PROGRAM_STEP;
         }
         keypad_borrow.reset_key(data.variable_register[self.x]);

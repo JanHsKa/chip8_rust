@@ -80,18 +80,15 @@ impl Emulator {
             }
             self.debug_manager.lock().unwrap().check_breakpoint();
             self.update_state();
-
             thread::sleep(Duration::from_micros(1000));
         }
     }
 
     fn check_debug(&mut self) {
         let _debug = self.debug_manager.lock().unwrap();
-        //let state = debug.get
     }
 
     fn idle(&mut self) {
-        //self.refresh_check();
         thread::sleep(Duration::from_millis(10));
     }
 
@@ -149,19 +146,19 @@ impl Emulator {
     fn update_state(&mut self) {
         let mut state_manager = self.state_manager.lock().unwrap();
 
-        if self.cpu.get_state() == CpuState::Stopped {
-            state_manager.update_state(ProgramState::Game(GameState::Failed));
-        } else {
-            let state = state_manager.get_state();
-            match state {
-                ProgramState::NewProgram | ProgramState::Restart => {
-                    state_manager.update_state(ProgramState::Running)
-                }
-                ProgramState::Debug(DebugState::Step) => {
-                    state_manager.update_state(ProgramState::Stopped)
-                }
-                _ => {}
+        let cpu_state = self.cpu.get_state();
+        let state = state_manager.get_state();
+        match (state, cpu_state) {
+            (ProgramState::NewProgram, _) | (ProgramState::Restart, _) => {
+                state_manager.update_state(ProgramState::Running)
             }
+            (ProgramState::Debug(DebugState::Step), CpuState::Running) => {
+                state_manager.update_state(ProgramState::Stopped)
+            }
+            (_, CpuState::Stopped) => {
+                state_manager.update_state(ProgramState::Game(GameState::Failed))
+            }
+            _ => {}
         }
     }
 
@@ -172,6 +169,7 @@ impl Emulator {
     }
 
     fn new_program(&mut self) {
+        println!("new program");
         let mut manager = self.program_manager.lock().unwrap();
         self.cpu.reset();
         self.cpu.load_program_code(&manager.get_file_content());
