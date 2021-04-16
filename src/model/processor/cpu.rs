@@ -258,14 +258,14 @@ impl Cpu {
 
         let mut data = self.data_ref.lock().unwrap();
         let graphic_copy = data.graphic_array.clone();
-        for (i, iter) in data.graphic_array.iter().enumerate() {
+        /* for (i, iter) in data.graphic_array.iter().enumerate() {
             if i % self.max_columns == 0 {
                 println!("");
             }
             print!("{}", iter);
         }
         println!("after");
-        println!("");
+        println!(""); */
         for (i, pixel) in data.graphic_array.iter_mut().enumerate() {
             if i % self.max_columns > self.max_columns - SCROLL_RANGE
                 || i + SCROLL_RANGE >= graphic_copy.len()
@@ -276,12 +276,12 @@ impl Cpu {
             }
         }
 
-        for (i, iter) in data.graphic_array.iter().enumerate() {
+        /* for (i, iter) in data.graphic_array.iter().enumerate() {
             if i % self.max_columns == 0 {
                 println!("");
             }
             print!("{}", iter);
-        }
+        } */
     }
 
     //Exit
