@@ -68,6 +68,7 @@ impl ProgramManager {
     }
 
     fn restart_program(&mut self) {
+        println!("reset");
         self.state_manager
             .lock()
             .unwrap()

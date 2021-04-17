@@ -5,6 +5,7 @@ authors = ["Jan <jancmalle@gmail.com>"]
 build = "build.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+
 [dependencies]
 rand =  "0.8.0"
 lazy_static = "1.4.0"

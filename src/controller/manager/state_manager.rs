@@ -111,6 +111,17 @@ impl StateManager {
 
     fn running(&mut self) {
         let mut states = self.states.lock().unwrap();
+        let game_state = states.game_state; 
+        let program_state = states.program_state;
+
+        /* match (game_state, program_state) {
+            (_, ProgramState::NewProgram) |
+            (_, ProgramState::Restart) => {}
+            (GameState::Running, _) => states.program_state = ProgramState::Running,
+            (GameState::Running, _) => states.program_state = ProgramState::Running,
+
+            _ => states.program_state = ProgramState::Stopped
+        } */
         if states.game_state == GameState::Running {
             states.program_state = ProgramState::Running;
         } else {
@@ -120,9 +131,7 @@ impl StateManager {
 
     fn restart(&mut self) {
         let mut states = self.states.lock().unwrap();
-        if states.game_state != GameState::Stopped {
-            states.game_state = GameState::Running;
-        }
+        states.game_state = GameState::Running;
         states.program_state = ProgramState::Restart;
     }
 }

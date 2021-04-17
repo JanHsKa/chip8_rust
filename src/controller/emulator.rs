@@ -67,6 +67,7 @@ impl Emulator {
 
     fn run_program(&mut self) {
         'running: loop {
+            //println!("loop");
             let current_state = self.state_manager.lock().unwrap().get_state();
             match current_state {
                 ProgramState::NewProgram => self.new_program(),
@@ -134,7 +135,7 @@ impl Emulator {
     fn check_time(&mut self) {
         //let msg = self.update_receiver.try_recv();
         let mut is_ok = false;
-        for _iter in self.update_receiver.try_iter() {
+        for _ in self.update_receiver.try_iter() {
             is_ok = true;
         }
 
@@ -147,15 +148,17 @@ impl Emulator {
         let mut state_manager = self.state_manager.lock().unwrap();
 
         let cpu_state = self.cpu.get_state();
-        let state = state_manager.get_state();
+        let state = state_manager.get_state(); 
         match (state, cpu_state) {
             (ProgramState::NewProgram, _) | (ProgramState::Restart, _) => {
+                println!("case: new program");
                 state_manager.update_state(ProgramState::Running)
             }
             (ProgramState::Debug(DebugState::Step), CpuState::Running) => {
                 state_manager.update_state(ProgramState::Stopped)
             }
             (_, CpuState::Stopped) => {
+                //println!("stopped");
                 state_manager.update_state(ProgramState::Game(GameState::Failed))
             }
             _ => {}

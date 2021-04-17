@@ -1,14 +1,5 @@
-pub mod controller;
-pub mod defines;
-pub mod model;
-pub mod view;
-
-extern crate edit;
-extern crate rand;
-extern crate sdl2;
-
-use crate::controller::Builder;
-
+extern crate chip8_rust;
+use chip8_rust::controller::Builder;
 use std::env;
 
 fn main() {

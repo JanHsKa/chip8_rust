@@ -231,8 +231,6 @@ impl Cpu {
 
     //Scroll Right
     fn op_00fb(&mut self) {
-        println!("scroll right");
-
         let mut data = self.data_ref.lock().unwrap();
         let graphic_copy = data.graphic_array.clone();
 
@@ -243,19 +241,10 @@ impl Cpu {
                 *pixel = graphic_copy[i - SCROLL_RANGE];
             }
         }
-
-        for (i, iter) in data.graphic_array.iter().enumerate() {
-            if i % self.max_columns == 0 {
-                println!("");
-            }
-            print!("{}", iter);
-        }
     }
 
     //Scroll Left
     fn op_00fc(&mut self) {
-        println!("scroll left");
-
         let mut data = self.data_ref.lock().unwrap();
         let graphic_copy = data.graphic_array.clone();
         /* for (i, iter) in data.graphic_array.iter().enumerate() {
