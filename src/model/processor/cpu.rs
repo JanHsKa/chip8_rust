@@ -58,6 +58,9 @@ impl Cpu {
 
     pub fn reset(&mut self) {
         self.running = CpuState::Running;
+        self.max_columns = COLUMNS;
+        self.max_rows = ROWS;
+        
         let mut data = self.data_ref.lock().unwrap();
         data.reset();
         data.memory[..FONTSET_LOW_SIZE].copy_from_slice(&FONTSET_LOW[..]);
