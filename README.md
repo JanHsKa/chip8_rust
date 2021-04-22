@@ -14,7 +14,7 @@ To build this program you need to have [Rust](https://www.rust-lang.org/tools/in
 Additionally you need to install `SDL2`.
 
 ### Windows 
-On Windows everything is installed with the `build.rs` script that is run automatically when the project is build.
+On Windows `SDL2` is installed with the `build.rs` script that is run automatically when the project is build.
 
 ### Linux
 ```  
@@ -42,8 +42,8 @@ When everything is installed, you can open a terminal in the project folder and 
 
 ----
 ## Run the program
-For the emulator to work you need to pass the path to a Chip 8 game. In the folder Games you can find a lot of them.   
-To run use:  
+For the emulator to work you need to pass the path to a Chip 8 game. In the folder Games you can find a lot of them. The Super Chip 8 games are in the folder Games/Super.   
+To run a game use:  
 ```
 cargo run Games/{game_file}
 ```
@@ -54,11 +54,11 @@ cargo run Games/{game_file}
 
 Most controls are shown in the panel on the left below the game display. There are some additional keybinds that are not listed:
 
-| Key      | Function |
+| Key or action | Function |
 | ----------- | ----------- |
 | `K`      | Changes how the program handles key inputs. Either the keys are reset after they are read once, or they reset after the key goes back up. Some programs don't work properly with the second option, so you can switch it as you like     |
 | `Drag and Drop`   | You can drag and drop a Chip 8 file into the program and it will load the new game        |
 
    
-   
+
 There are also some commands that are not implemented or do not work as intended right now.

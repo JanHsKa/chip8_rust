@@ -89,7 +89,7 @@ impl InfoDisplay {
         display_text[7] = " ".to_string();
         display_text[8] = "Controls".to_string();
         display_text[9] = "F1 : Reset".to_string();
-        display_text[10] = "F3 : Debug".to_string();
+        display_text[10] = "F3 : Debug Mode".to_string();
         display_text[11] = "F4 : Dump Memory".to_string();
         display_text[12] = "F5 : Stop/Continue".to_string();
         display_text[13] = "F6 : Step".to_string();
