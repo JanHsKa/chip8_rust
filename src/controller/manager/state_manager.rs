@@ -111,7 +111,7 @@ impl StateManager {
 
     fn running(&mut self) {
         let mut states = self.states.lock().unwrap();
-        let game_state = states.game_state; 
+        let game_state = states.game_state;
         let program_state = states.program_state;
 
         /* match (game_state, program_state) {

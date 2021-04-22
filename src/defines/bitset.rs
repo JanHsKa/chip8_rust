@@ -10,9 +10,8 @@ pub struct BitSet {
     size: usize,
 }
 
-
 impl BitSet {
-    pub fn new() ->BitSet {
+    pub fn new() -> BitSet {
         BitSet::with_size(0)
     }
 
@@ -42,20 +41,16 @@ impl BitSet {
         self.get_current_bit_vector(index) & (SINGLE_BITMASK >> (index % VECSIZE))
     }
 
-    fn rounding_up_div(value: usize) -> usize{
+    fn rounding_up_div(value: usize) -> usize {
         let mut result = value / 8;
         if value % 8 == 0 {
             result += 1;
-        } 
+        }
 
         result
     }
 
-    fn get_current_bit_vector(&self, index: usize) -> &u8{
+    fn get_current_bit_vector(&self, index: usize) -> &u8 {
         &self.bits[BitSet::rounding_up_div(index)]
     }
-
-
 }
-
-

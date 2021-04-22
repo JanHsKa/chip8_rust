@@ -3,7 +3,7 @@ This is a personal project to learn programming in Rust. It is a multithreaded C
   
 Work in progress.
 
-
+----
 
 ## Install
 
@@ -34,13 +34,31 @@ On Windows everything is installed with the `build.rs` script that is run automa
     sudo brew install sdl_ttf
     sudo brew install sdl2_image
 ```
+-----
 
 ## Build the project
-When everything is installed, you can open a terminal in the project folder and type `cargo build` in the console and the project will be build. 
+When everything is installed, you can open a terminal in the project folder and type `cargo build` in the console and the project will be build and is ready to be run. 
 
+
+----
 ## Run the program
 For the emulator to work you need to pass the path to a Chip 8 game. In the folder Games you can find a lot of them.   
 To run use:  
 ```
 cargo run Games/{game_file}
 ```
+
+-----
+
+## Controls
+
+Most controls are shown in the panel on the left below the game display. There are some additional keybinds that are not listed:
+
+| Key      | Function |
+| ----------- | ----------- |
+| `K`      | Changes how the program handles key inputs. Either the keys are reset after they are read once, or they reset after the key goes back up. Some programs don't work properly with the second option, so you can switch it as you like     |
+| `Drag and Drop`   | You can drag and drop a Chip 8 file into the program and it will load the new game        |
+
+   
+   
+There are also some commands that are not implemented or do not work as intended right now.

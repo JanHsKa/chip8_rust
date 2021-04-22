@@ -60,7 +60,7 @@ impl Cpu {
         self.running = CpuState::Running;
         self.max_columns = COLUMNS;
         self.max_rows = ROWS;
-        
+
         let mut data = self.data_ref.lock().unwrap();
         data.reset();
         data.memory[..FONTSET_LOW_SIZE].copy_from_slice(&FONTSET_LOW[..]);
@@ -250,14 +250,7 @@ impl Cpu {
     fn op_00fc(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
         let graphic_copy = data.graphic_array.clone();
-        /* for (i, iter) in data.graphic_array.iter().enumerate() {
-            if i % self.max_columns == 0 {
-                println!("");
-            }
-            print!("{}", iter);
-        }
-        println!("after");
-        println!(""); */
+
         for (i, pixel) in data.graphic_array.iter_mut().enumerate() {
             if i % self.max_columns > self.max_columns - SCROLL_RANGE
                 || i + SCROLL_RANGE >= graphic_copy.len()
@@ -267,13 +260,6 @@ impl Cpu {
                 *pixel = graphic_copy[i + SCROLL_RANGE];
             }
         }
-
-        /* for (i, iter) in data.graphic_array.iter().enumerate() {
-            if i % self.max_columns == 0 {
-                println!("");
-            }
-            print!("{}", iter);
-        } */
     }
 
     //Exit
@@ -637,6 +623,36 @@ impl Cpu {
         if self.x < FLAG_REGISTER_SIZE {
             for i in 0..self.x + 1 {
                 data.variable_register[i] = data.flag_register[i];
+            }
+        }
+    }
+
+
+    fn draw_sprite(&mut self, sprite_size: u8) {
+        let mut data = self.data_ref.lock().unwrap();
+        let mut x_coordinate: usize;
+        let mut y_coordinate: usize;
+        let  height = BIG_SPRITE;
+        let width = SPRITE_WIDTH;
+        let bitmask: u16 = 0x80;
+        let mut sprite: u16;
+
+        data.variable_register[CARRY_FLAG] = BitState::UNSET;
+        for row in 0..height as usize {
+            y_coordinate = (data.variable_register[self.y] as usize + row) % self.max_rows;
+            sprite = data.memory[data.index_register as usize + row] as u16;
+            for column in 0..width {
+                x_coordinate =
+                    (data.variable_register[self.x] as usize + column) % self.max_columns;
+                if (sprite & (bitmask >> column)) != BitState::UNSET as u16 {
+                    if data.graphic_array[(y_coordinate * self.max_columns) + x_coordinate]
+                        == BitState::SET
+                    {
+                        data.variable_register[CARRY_FLAG] = BitState::SET;
+                    }
+                    data.graphic_array[(y_coordinate * self.max_columns) + x_coordinate] ^=
+                        BitState::SET;
+                }
             }
         }
     }

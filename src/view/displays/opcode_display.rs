@@ -87,7 +87,7 @@ impl IDisplay for OpcodeDisplay {
         for iter in self.breakpoints.iter() {
             rect_y = (*iter - self.offset) as i32 / 2;
             self.render_helper
-                .draw_rectangle(canvas, rect_y, self.highlight_color)?;
+                .draw_rectangle(canvas, rect_y, OPCODE_HIGHLIGHT_DEBUG)?;
         }
 
         Ok(())

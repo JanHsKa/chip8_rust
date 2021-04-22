@@ -148,10 +148,10 @@ impl Emulator {
         let mut state_manager = self.state_manager.lock().unwrap();
 
         let cpu_state = self.cpu.get_state();
-        let state = state_manager.get_state(); 
+        let state = state_manager.get_state();
         match (state, cpu_state) {
             (ProgramState::NewProgram, _) | (ProgramState::Restart, _) => {
-                println!("case: new program");
+                //println!("case: new program");
                 state_manager.update_state(ProgramState::Running)
             }
             (ProgramState::Debug(DebugState::Step), CpuState::Running) => {
@@ -172,7 +172,7 @@ impl Emulator {
     }
 
     fn new_program(&mut self) {
-        println!("new program");
+        //println!("new program");
         let mut manager = self.program_manager.lock().unwrap();
         self.cpu.reset();
         self.cpu.load_program_code(&manager.get_file_content());
