@@ -1,5 +1,7 @@
 # Chip 8 Emulator in Rust
-This is a personal project to learn programming in Rust. Work in progress.
+This is a personal project to learn programming in Rust. It is a multithreaded Chip 8 emulator that can run the standard Chip 8 programs and programs that use the 10 Super Chip 8 codes. The emulator has a built in debug mode. 
+  
+Work in progress.
 
 
 
