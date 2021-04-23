@@ -2,6 +2,7 @@ use crate::defines::memory_constants::MAX_PROGRAM_SIZE;
 use crate::edit;
 use crate::view::Disassembler;
 use nfd::Response;
+use rfd;
 
 use std::{
     fs::{metadata, File},
@@ -131,13 +132,19 @@ impl FileManager {
     }
 
     pub fn open_file_dialog(&mut self) -> result::Result<String, &str> {
-        match nfd::open_file_dialog(None, None) {
+        /* match nfd::open_file_dialog(None, None) {
             Ok(result) => match result {
                 Response::Okay(file_path) => return Ok(file_path),
                 Response::OkayMultiple(_files) => return Err("You can only one file at once"),
                 Response::Cancel => return Err("User canceled"),
             },
             Err(_error) => return Err("Error: Failed to open file dialog"),
+        } */
+
+        if let Some(file) = rfd::FileDialog::new().pick_file() {
+                return Ok(file.to_str().unwrap().to_string());
         }
+
+        Err("Error failed to open file dialog")
     }
 }

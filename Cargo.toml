@@ -13,6 +13,7 @@ tempfile = "3"
 edit = "0.1.3"
 crossbeam-channel = "0.5.1"
 nfd = { git = "https://github.com/saurvs/nfd-rs.git" }
+rfd = "0.3.0"
 
 [dependencies.sdl2]
 version = "0.34"
