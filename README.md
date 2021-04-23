@@ -37,7 +37,7 @@ On Windows `SDL2` is installed with the `build.rs` script that is run automatica
 -----
 
 ## Build the project
-When everything is installed, you can open a terminal in the project folder and type `cargo build` in the console and the project will be build and is ready to be run. 
+When everything is installed, you can open a terminal in the project folder and type `cargo build` in the console and the project will be build. Or you can skip this step, because `cargo run` builds the project too, if it is not already built. 
 
 
 ----
@@ -45,7 +45,7 @@ When everything is installed, you can open a terminal in the project folder and 
 For the emulator to work you need to pass the path to a Chip 8 game. In the folder Games you can find a lot of them. The Super Chip 8 games are in the folder Games/Super.   
 To run a game use:  
 ```
-cargo run Games/{game_file}
+cargo run --release Games/{game_file}
 ```
 
 -----
