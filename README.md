@@ -58,6 +58,7 @@ Most controls are shown in the panel on the left below the game display. There a
 | ----------- | ----------- |
 | `K`      | Changes how the program handles key inputs. Either the keys are reset after they are read once, or they reset after the key goes back up. Some programs don't work properly with the second option, so you can switch it as you like     |
 | `Drag and Drop`   | You can drag and drop a Chip 8 file into the program and it will load the new game        |
+| `L`      | Opens a file dialog where you can choose a game to open in the emulator |
 
    
 
