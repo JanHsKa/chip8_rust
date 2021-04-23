@@ -4,7 +4,6 @@ pub mod model;
 pub mod view;
 
 extern crate edit;
-extern crate nfd;
-extern crate rfd;
 extern crate rand;
 extern crate sdl2;
+extern crate native_dialog;
