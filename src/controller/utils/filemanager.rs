@@ -1,12 +1,15 @@
 use crate::defines::memory_constants::MAX_PROGRAM_SIZE;
 use crate::edit;
 use crate::view::Disassembler;
+use nfd::Response;
 
 use std::{
     fs::{metadata, File},
-    io::{BufWriter, Read, Result, Write},
+    io,
+    io::{BufWriter, Read, Write},
     path::Path,
     process::Command,
+    result,
 };
 
 pub const MEMORY_DUMP_PATH: &str = "TempFiles/Memory_Content.bin";
@@ -33,7 +36,7 @@ impl FileManager {
         }
     }
 
-    pub fn load_file(&mut self) -> Result<()> {
+    pub fn load_file(&mut self) -> io::Result<()> {
         let mut file = File::open(self.file_path.clone())?;
         let meta_data = metadata(self.file_path.clone())?;
 
@@ -53,7 +56,7 @@ impl FileManager {
         Ok(())
     }
 
-    pub fn load_file_if_possible(&mut self, file_path: &str) -> Result<()> {
+    pub fn load_file_if_possible(&mut self, file_path: &str) -> io::Result<()> {
         let old_file_name = self.file_info.file_name.clone();
         let old_file_content = self.filecontent.clone();
         self.filecontent = vec![0; MAX_PROGRAM_SIZE];
@@ -101,7 +104,7 @@ impl FileManager {
         println!("first line:   {}", converted_code[0]);
         for iter in converted_code.iter_mut() {
             (*iter).push('\n');
-            file.write(&iter.as_str().as_bytes())
+            file.write_all(&iter.as_str().as_bytes())
                 .expect("failed to write line");
         }
 
@@ -125,5 +128,16 @@ impl FileManager {
 
     pub fn get_file_info(&mut self) -> FileInfo {
         self.file_info.clone()
+    }
+
+    pub fn open_file_dialog(&mut self) -> result::Result<String, &str> {
+        match nfd::open_file_dialog(None, None) {
+            Ok(result) => match result {
+                Response::Okay(file_path) => return Ok(file_path),
+                Response::OkayMultiple(_files) => return Err("You can only one file at once"),
+                Response::Cancel => return Err("User canceled"),
+            },
+            Err(_error) => return Err("Error: Failed to open file dialog"),
+        }
     }
 }

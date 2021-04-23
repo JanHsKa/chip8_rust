@@ -12,6 +12,8 @@ use crate::model::{
     FONTSET_LOW_SIZE,
 };
 
+use controller::StateManager;
+
 use rand::Rng;
 use std::sync::{Arc, Mutex, MutexGuard};
 
@@ -26,7 +28,7 @@ impl BitState {
 pub struct Cpu {
     data_ref: Arc<Mutex<Memory>>,
     keypad: Arc<Mutex<Keypad>>,
-    running: CpuState,
+    state_manager: Arc<Mutex<StateManager>>,
     x: usize,
     y: usize,
     nnn: u16,
@@ -37,7 +39,11 @@ pub struct Cpu {
 }
 
 impl Cpu {
-    pub fn new(new_keypad: Arc<Mutex<Keypad>>, new_data: Arc<Mutex<Memory>>) -> Cpu {
+    pub fn new(
+        new_keypad: Arc<Mutex<Keypad>>,
+        new_data: Arc<Mutex<Memory>>,
+        new_states_manager: Arc<Mutex<StateManager>>,
+    ) -> Cpu {
         new_data.lock().unwrap().memory[..FONTSET_LOW_SIZE].copy_from_slice(&FONTSET_LOW[..]);
         new_data.lock().unwrap().memory[FONTSET_HIGH_START..FONTSET_HIGH_START + FONTSET_HIGH_SIZE]
             .copy_from_slice(&FONTSET_HIGH[..]);
@@ -45,7 +51,7 @@ impl Cpu {
         Cpu {
             data_ref: new_data,
             keypad: new_keypad,
-            running: CpuState::Running,
+            state_manager: new_states_manager,
             x: 0,
             y: 0,
             nnn: 0,
@@ -57,7 +63,10 @@ impl Cpu {
     }
 
     pub fn reset(&mut self) {
-        self.running = CpuState::Running;
+        self.state_manager
+            .lock()
+            .unwrap()
+            .update_cpu_state(CpuState::Running);
         self.max_columns = COLUMNS;
         self.max_rows = ROWS;
 
@@ -80,12 +89,8 @@ impl Cpu {
             | (data.memory[data.program_counter + 1] as u16);
     }
 
-    pub fn get_state(&mut self) -> CpuState {
-        self.running
-    }
-
     pub fn run_opcode(&mut self) {
-        if self.running == CpuState::Running {
+        if self.state_manager.lock().unwrap().get_cpu_state() == CpuState::Running {
             self.set_opcode();
             let nibbles = self.decode_opcode();
             self.match_opcode(nibbles);
@@ -94,7 +99,7 @@ impl Cpu {
 
     pub fn tick_timer(&mut self) {
         let mut data = self.data_ref.lock().unwrap();
-        if self.running == CpuState::Running {
+        if self.state_manager.lock().unwrap().get_cpu_state() == CpuState::Running {
             data.delay_timer = data.delay_timer.saturating_sub(1);
 
             if data.sound_timer > 0 {
@@ -119,7 +124,10 @@ impl Cpu {
     }
 
     fn no_match(&mut self) {
-        self.running = CpuState::Stopped;
+        self.state_manager
+            .lock()
+            .unwrap()
+            .update_cpu_state(CpuState::Stopped);
         println!(
             "Error: No matching opcode: {:04X}",
             self.data_ref.lock().unwrap().opcode
@@ -265,7 +273,10 @@ impl Cpu {
     //Exit
     fn op_00fd(&mut self) {
         println!("Exit");
-        self.running = CpuState::Stopped;
+        self.state_manager
+            .lock()
+            .unwrap()
+            .update_cpu_state(CpuState::Stopped);
     }
 
     //Low Res

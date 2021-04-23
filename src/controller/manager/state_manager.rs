@@ -1,4 +1,4 @@
-use crate::defines::{DebugState, GameState, ProgramState};
+use crate::defines::{CpuState, DebugState, GameState, ProgramState};
 use crate::model::States;
 use std::sync::{Arc, Mutex};
 
@@ -23,6 +23,17 @@ impl StateManager {
 
     pub fn get_debug_state(&mut self) -> DebugState {
         self.states.lock().unwrap().debug_state
+    }
+
+    pub fn get_cpu_state(&mut self) -> CpuState {
+        self.states.lock().unwrap().cpu_state
+    }
+
+    pub fn update_cpu_state(&mut self, state: CpuState) {
+        match state {
+            CpuState::Running => self.states.lock().unwrap().cpu_state = CpuState::Running,
+            CpuState::Stopped => self.states.lock().unwrap().cpu_state = CpuState::Stopped,
+        }
     }
 
     pub fn toggle_continue(&mut self) {
@@ -63,6 +74,19 @@ impl StateManager {
             ProgramState::Debug(DebugState::Step) => self.step(),
             ProgramState::Quit => self.quit(),
             ProgramState::Stopped => self.stop(),
+            _ => {}
+        }
+    }
+
+    pub fn finished_cycle(&mut self, finished_state: ProgramState) {
+        let cpu_state = self.states.lock().unwrap().cpu_state;
+        let program_state = self.states.lock().unwrap().program_state;
+        match (program_state, finished_state, cpu_state) {
+            (_, ProgramState::NewProgram, _) | (_, ProgramState::Restart, _) => self.running(),
+            (ProgramState::NewProgram, _, _) => self.new_program(),
+            (ProgramState::Restart, _, _) => self.restart(),
+            (_, _, CpuState::Stopped) => self.failed_game(),
+            (_, ProgramState::Debug(DebugState::Step), CpuState::Running) => self.stop(),
             _ => {}
         }
     }
@@ -111,17 +135,7 @@ impl StateManager {
 
     fn running(&mut self) {
         let mut states = self.states.lock().unwrap();
-        let game_state = states.game_state;
-        let program_state = states.program_state;
 
-        /* match (game_state, program_state) {
-            (_, ProgramState::NewProgram) |
-            (_, ProgramState::Restart) => {}
-            (GameState::Running, _) => states.program_state = ProgramState::Running,
-            (GameState::Running, _) => states.program_state = ProgramState::Running,
-
-            _ => states.program_state = ProgramState::Stopped
-        } */
         if states.game_state == GameState::Running {
             states.program_state = ProgramState::Running;
         } else {

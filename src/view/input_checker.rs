@@ -75,9 +75,12 @@ impl InputChecker {
     fn process_keydown(&mut self, key: Keycode) {
         let mut keypad_ref = self.keypad.lock().unwrap();
         match key {
-            Keycode::F1 | Keycode::F2 | Keycode::F4 | Keycode::Plus | Keycode::Minus => {
-                self.program_manager.lock().unwrap().press_key(key)
-            }
+            Keycode::F1
+            | Keycode::F2
+            | Keycode::F4
+            | Keycode::Plus
+            | Keycode::Minus
+            | Keycode::L => self.program_manager.lock().unwrap().press_key(key),
             Keycode::F6 | Keycode::F3 | Keycode::F7 | Keycode::F8 => {
                 self.debug_manager.lock().unwrap().press_key(key)
             }

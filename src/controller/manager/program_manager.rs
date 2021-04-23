@@ -45,7 +45,15 @@ impl ProgramManager {
             Keycode::F8 => {}
             Keycode::Plus => self.increase_speed(),
             Keycode::Minus => self.decrease_speed(),
+            Keycode::L => self.open_file_dialog(),
             _ => {}
+        }
+    }
+
+    fn open_file_dialog(&mut self) {
+        match self.file_manager.open_file_dialog() {
+            Ok(file_path) => self.new_file(file_path.as_str()),
+            Err(error) => println!("{}", error),
         }
     }
 
@@ -104,12 +112,14 @@ impl ProgramManager {
     }
 
     pub fn new_file(&mut self, file_name: &str) {
+        println!("new file");
         if self.file_manager.load_file_if_possible(file_name).is_ok() {
             self.state_manager
                 .lock()
                 .unwrap()
                 .update_state(ProgramState::NewProgram);
             self.update_game_properties();
+            println!("success");
         }
     }
 

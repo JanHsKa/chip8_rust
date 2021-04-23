@@ -22,7 +22,6 @@ pub struct Emulator {
     program_manager: Arc<Mutex<ProgramManager>>,
     debug_manager: Arc<Mutex<DebugManager>>,
     state_manager: Arc<Mutex<StateManager>>,
-    current_state: ProgramState,
     update_receiver: Receiver<TimeTo>,
     speed: u64,
     instructioncounter: u64,
@@ -51,7 +50,6 @@ impl Emulator {
             program_manager: new_program_manager,
             debug_manager: new_debug_manager,
             state_manager: new_state_manager,
-            current_state: ProgramState::NewProgram,
             update_receiver: new_receiver,
             speed: BASE_PROGRAM_SPEED,
             instructioncounter: 0,
@@ -61,14 +59,15 @@ impl Emulator {
 
     pub fn start_program(&mut self) {
         self.initialize();
-        self.update_state();
+        self.update_state(ProgramState::NewProgram);
         self.run_program();
     }
 
     fn run_program(&mut self) {
+        let mut current_state: ProgramState;
         'running: loop {
             //println!("loop");
-            let current_state = self.state_manager.lock().unwrap().get_state();
+            current_state = self.state_manager.lock().unwrap().get_state();
             match current_state {
                 ProgramState::NewProgram => self.new_program(),
                 ProgramState::Running => self.running(),
@@ -80,7 +79,7 @@ impl Emulator {
                 _ => {}
             }
             self.debug_manager.lock().unwrap().check_breakpoint();
-            self.update_state();
+            self.update_state(current_state);
             thread::sleep(Duration::from_micros(1000));
         }
     }
@@ -144,25 +143,11 @@ impl Emulator {
         }
     }
 
-    fn update_state(&mut self) {
-        let mut state_manager = self.state_manager.lock().unwrap();
-
-        let cpu_state = self.cpu.get_state();
-        let state = state_manager.get_state();
-        match (state, cpu_state) {
-            (ProgramState::NewProgram, _) | (ProgramState::Restart, _) => {
-                //println!("case: new program");
-                state_manager.update_state(ProgramState::Running)
-            }
-            (ProgramState::Debug(DebugState::Step), CpuState::Running) => {
-                state_manager.update_state(ProgramState::Stopped)
-            }
-            (_, CpuState::Stopped) => {
-                //println!("stopped");
-                state_manager.update_state(ProgramState::Game(GameState::Failed))
-            }
-            _ => {}
-        }
+    fn update_state(&mut self, finished_state: ProgramState) {
+        self.state_manager
+            .lock()
+            .unwrap()
+            .finished_cycle(finished_state);
     }
 
     fn initialize(&mut self) {

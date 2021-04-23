@@ -1,4 +1,4 @@
-use crate::defines::{DebugState, GameState, ProgramState};
+use crate::defines::{CpuState, DebugState, GameState, ProgramState};
 use crate::model::States;
 use std::sync::{Arc, Mutex};
 
@@ -21,5 +21,9 @@ impl StatesAccess {
 
     pub fn get_game_state(&mut self) -> GameState {
         self.states.lock().unwrap().game_state
+    }
+
+    pub fn get_cpu_state(&mut self) -> CpuState {
+        self.states.lock().unwrap().cpu_state
     }
 }

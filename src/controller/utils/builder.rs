@@ -65,7 +65,11 @@ impl Builder {
             Arc::clone(&debug_properties),
         ));
 
-        let cpu = Cpu::new(Arc::clone(&new_keypad), Arc::clone(&data_ref));
+        let cpu = Cpu::new(
+            Arc::clone(&new_keypad),
+            Arc::clone(&data_ref),
+            Arc::clone(&state_manager),
+        );
         let (audio_sender, audio_receiver) = channel();
 
         let view = View::new(
