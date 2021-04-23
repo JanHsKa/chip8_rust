@@ -627,12 +627,11 @@ impl Cpu {
         }
     }
 
-
     fn draw_sprite(&mut self, sprite_size: u8) {
         let mut data = self.data_ref.lock().unwrap();
         let mut x_coordinate: usize;
         let mut y_coordinate: usize;
-        let  height = BIG_SPRITE;
+        let height = BIG_SPRITE;
         let width = SPRITE_WIDTH;
         let bitmask: u16 = 0x80;
         let mut sprite: u16;
