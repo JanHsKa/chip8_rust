@@ -76,7 +76,6 @@ impl ProgramManager {
     }
 
     fn restart_program(&mut self) {
-        println!("reset");
         self.state_manager
             .lock()
             .unwrap()
@@ -112,14 +111,12 @@ impl ProgramManager {
     }
 
     pub fn new_file(&mut self, file_name: &str) {
-        println!("new file");
         if self.file_manager.load_file_if_possible(file_name).is_ok() {
             self.state_manager
                 .lock()
                 .unwrap()
                 .update_state(ProgramState::NewProgram);
             self.update_game_properties();
-            println!("success");
         }
     }
 

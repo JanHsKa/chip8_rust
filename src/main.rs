@@ -3,7 +3,6 @@ use chip8_rust::controller::Builder;
 use std::env;
 
 fn main() {
-    println!("start program");
     let args: Vec<String> = env::args().collect();
     if args.len() > 1 {
         let mut builder = Builder::new();

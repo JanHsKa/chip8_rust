@@ -13,7 +13,7 @@ use std::{
         Arc, Mutex,
     },
     thread,
-    time::Duration,
+    time::{Duration, Instant},
 };
 
 pub struct Emulator {
@@ -66,7 +66,6 @@ impl Emulator {
     fn run_program(&mut self) {
         let mut current_state: ProgramState;
         'running: loop {
-            //println!("loop");
             current_state = self.state_manager.lock().unwrap().get_state();
             match current_state {
                 ProgramState::NewProgram => self.new_program(),
@@ -132,7 +131,6 @@ impl Emulator {
     }
 
     fn check_time(&mut self) {
-        //let msg = self.update_receiver.try_recv();
         let mut is_ok = false;
         for _ in self.update_receiver.try_iter() {
             is_ok = true;
@@ -157,7 +155,6 @@ impl Emulator {
     }
 
     fn new_program(&mut self) {
-        //println!("new program");
         let mut manager = self.program_manager.lock().unwrap();
         self.cpu.reset();
         self.cpu.load_program_code(&manager.get_file_content());

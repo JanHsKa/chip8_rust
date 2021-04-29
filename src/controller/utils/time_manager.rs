@@ -1,4 +1,4 @@
-pub const DISPLAY_REFRESH: u128 = 17;
+pub const DISPLAY_REFRESH: u128 = 16;
 pub const OPCODE_REFRESH: u128 = 2000;
 pub const TIMER_TICK: u64 = 1000;
 

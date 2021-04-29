@@ -15,7 +15,7 @@ use std::{
         Arc, Mutex,
     },
     thread,
-    time::Duration,
+    time::{Duration, Instant},
 };
 
 pub const FONTPATH1: &str = "Data/Font/PrintChar21.ttf";
@@ -90,7 +90,6 @@ impl DisplayManager {
         WindowRenderer::render_background(&mut self.main_canvas)?;
         WindowRenderer::render_outline(&mut self.main_canvas)?;
         self.main_canvas.present();
-
         'running: loop {
             if self.check_for_redraw() {
                 self.draw()?;
