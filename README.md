@@ -63,3 +63,8 @@ Most controls are shown in the panel on the left below the game display. There a
    
 
 There are also some commands that are not implemented or do not work as intended right now.
+
+
+  
+## Design
+The Interface Design is mostly copied from [Jeffrey Massung](https://github.com/massung/CHIP-8) and [Enrico Schörnick](https://github.com/Enrico7741/Chip-8) with own implementations of the features.

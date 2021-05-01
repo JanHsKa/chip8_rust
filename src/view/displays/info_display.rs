@@ -33,6 +33,7 @@ pub struct InfoDisplay {
     game_size: usize,
     game_state: GameState,
     game_properties_access: Arc<Mutex<GamePropertiesAccess>>,
+    debug_state: DebugState,
     states_access: Arc<Mutex<StatesAccess>>,
     render_helper: DisplayRenderHelper,
 }
@@ -49,6 +50,7 @@ impl IDisplay for InfoDisplay {
 
         let mut state = String::new();
         self.game_state = states_access.get_game_state();
+        self.debug_state = states_access.get_debug_state();
 
         match self.game_state {
             GameState::Running => state = "Running".to_string(),
@@ -56,8 +58,14 @@ impl IDisplay for InfoDisplay {
             GameState::Failed => state = "Finished".into(),
             _ => {}
         }
-
         self.controls[5] = format!("Status: {}", state);
+
+        match self.debug_state {
+            DebugState::Disabled => state = "Enable Debug".to_string(),
+            _ => state = "Disable Debug".to_string()
+        }
+
+        self.controls[10] = format!("F3 : {}", state);
         self.controls[6] = format!("Speed: {}", properties_access.get_game_speed());
     }
 
@@ -89,7 +97,7 @@ impl InfoDisplay {
         display_text[7] = " ".to_string();
         display_text[8] = "Controls".to_string();
         display_text[9] = "F1 : Reset".to_string();
-        display_text[10] = "F3 : Debug Mode".to_string();
+        display_text[10] = "F3 : Enable Debug".to_string();
         display_text[11] = "F4 : Dump Memory".to_string();
         display_text[12] = "F5 : Stop/Continue".to_string();
         display_text[13] = "F6 : Step".to_string();
@@ -103,6 +111,7 @@ impl InfoDisplay {
             game_properties_access: new_program_manager,
             states_access: new_states_access,
             game_state: GameState::Running,
+            debug_state: DebugState::Disabled,
             render_helper: DisplayRenderHelper::new(
                 INFO_START_X,
                 INFO_START_Y,
