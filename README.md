@@ -67,5 +67,5 @@ There are also some commands that are not implemented or do not work as intended
 
   
 ## Design
-The Interface Design is mostly copied from [Jeffrey Massung](https://github.com/massung/CHIP-8) and [Enrico Schörnick](https://github.com/Enrico7741/Chip-8) with own implementations of the features.  
+The interface design ideas are mostly copied from [Jeffrey Massung](https://github.com/massung/CHIP-8) and [Enrico Schörnick](https://github.com/Enrico7741/Chip-8) with own implementations of the features and some additions.  
 The Chip 8 implementation is a improved version of my own [university project](https://github.com/JanHsKa/CHIP8) written in C++. 
