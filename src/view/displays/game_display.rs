@@ -9,8 +9,6 @@ use crate::defines::{
 use crate::model::{MemoryAccess, Resolution};
 use sdl2::{rect, render::WindowCanvas, ttf::Sdl2TtfContext};
 use std::{
-    cell::RefCell,
-    rc::Rc,
     result::Result,
     sync::{Arc, Mutex},
 };

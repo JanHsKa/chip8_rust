@@ -15,7 +15,7 @@ use crate::model::{
 use controller::StateManager;
 
 use rand::Rng;
-use std::sync::{Arc, Mutex, MutexGuard};
+use std::sync::{Arc, Mutex};
 
 #[derive(Copy, Clone, PartialEq)]
 pub struct BitState;
@@ -638,7 +638,7 @@ impl Cpu {
         }
     }
 
-    fn draw_sprite(&mut self, sprite_size: u8) {
+    fn draw_sprite(&mut self, _sprite_size: u8) {
         let mut data = self.data_ref.lock().unwrap();
         let mut x_coordinate: usize;
         let mut y_coordinate: usize;

@@ -1,5 +1,5 @@
 use crate::controller::{DebugManager, ProgramManager};
-use crate::defines::{KeyPress, ProgramState};
+use crate::defines::KeyPress;
 use crate::model::Keypad;
 use crate::sdl2::{event::Event, keyboard::Keycode, mouse::MouseButton, EventPump, Sdl};
 use std::{

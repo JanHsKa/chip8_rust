@@ -1,4 +1,4 @@
-use crate::defines::{game_constants::BASE_PROGRAM_SPEED, ProgramState};
+use crate::defines::game_constants::BASE_PROGRAM_SPEED;
 
 pub struct GameProperties {
     pub game_speed: u64,

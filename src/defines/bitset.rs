@@ -1,4 +1,3 @@
-use std::ops::Index;
 const BITMASK: u8 = 0xFF;
 const SINGLE_BITMASK: u8 = 0x80;
 

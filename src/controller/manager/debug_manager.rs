@@ -2,7 +2,7 @@ use crate::controller::StateManager;
 use crate::defines::{
     font_constants::FONTSIZE_LINE,
     layout_constants::{OPCODE_HEIGHT, OPCODE_START_X, OPCODE_START_Y, OPCODE_WIDTH},
-    memory_constants::{MAX_PROGRAM_SIZE, PROGRAM_START, VARIABLES_COUNT},
+    memory_constants::{PROGRAM_START, VARIABLES_COUNT},
     DebugState, GameState, ProgramState,
 };
 use crate::model::{DebugProperties, MemoryAccess};

@@ -60,7 +60,7 @@ impl DisplayManager {
 
         let ttf = ttf::init().unwrap();
 
-        let mut help_window = video
+        let _help_window = video
             .window("Keybinds", 100, 100)
             .position_centered()
             .build()

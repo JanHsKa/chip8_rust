@@ -1,4 +1,3 @@
-use crate::controller::ProgramManager;
 use crate::model::{DebugPropertiesAccess, GamePropertiesAccess, MemoryAccess, StatesAccess};
 use std::{
     result::Result,

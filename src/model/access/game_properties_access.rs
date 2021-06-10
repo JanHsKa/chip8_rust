@@ -1,4 +1,3 @@
-use crate::defines::ProgramState;
 use crate::model::GameProperties;
 
 use std::sync::{Arc, Mutex};

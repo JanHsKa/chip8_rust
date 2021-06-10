@@ -1,7 +1,7 @@
 use crate::defines::memory_constants::MAX_PROGRAM_SIZE;
 use crate::edit;
 use crate::view::Disassembler;
-use native_dialog::{FileDialog};
+use native_dialog::FileDialog;
 
 use std::{
     fs::{metadata, File},
@@ -131,11 +131,12 @@ impl FileManager {
     }
 
     pub fn open_file_dialog(&mut self) -> result::Result<String, &str> {
-
         match FileDialog::new().show_open_single_file() {
-            Ok(result_path) => {if let Some(path) = result_path {
-                return Ok(path.to_str().unwrap().to_string())}
-            },
+            Ok(result_path) => {
+                if let Some(path) = result_path {
+                    return Ok(path.to_str().unwrap().to_string());
+                }
+            }
             Err(_error) => return Err("Error: Failed to open file dialog"),
         };
 

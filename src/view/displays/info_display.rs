@@ -1,6 +1,6 @@
 use crate::defines::{
     layout_constants::{INFO_HEIGHT, INFO_START_X, INFO_START_Y, INFO_WIDTH},
-    DebugState, GameState, IDisplay, ProgramState,
+    DebugState, GameState, IDisplay,
 };
 use crate::model::{GamePropertiesAccess, StatesAccess};
 use crate::view::DisplayRenderHelper;
@@ -62,7 +62,7 @@ impl IDisplay for InfoDisplay {
 
         match self.debug_state {
             DebugState::Disabled => state = "Enable Debug".to_string(),
-            _ => state = "Disable Debug".to_string()
+            _ => state = "Disable Debug".to_string(),
         }
 
         self.controls[10] = format!("F3 : {}", state);

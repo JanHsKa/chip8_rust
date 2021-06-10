@@ -1,4 +1,3 @@
-use crate::defines::DebugState;
 use crate::model::DebugProperties;
 
 use std::{
